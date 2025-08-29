@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app.dart';
-import 'core/network/providers/api_provider.dart';
-import 'di/injection_container.dart' as di;
+import 'data/providers/api_provider.dart';
 
 // Define the base URL for the RubiBank API
 const String apiBaseUrl = 'http://127.0.0.1:8000';

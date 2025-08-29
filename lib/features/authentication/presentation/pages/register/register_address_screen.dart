@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart';
 import '../../../../../core/common/widgets/custom_back_button.dart';
@@ -7,7 +7,7 @@ import '../../../../../core/common/widgets/custom_button.dart';
 import '../../../../../core/common/widgets/elegant_progress_indicator.dart';
 import '../../providers/register_provider.dart';
 
-class RegisterAddressScreen extends StatefulWidget {
+class RegisterAddressScreen extends ConsumerStatefulWidget {
   final VoidCallback onBack;
 
   const RegisterAddressScreen({
@@ -16,10 +16,10 @@ class RegisterAddressScreen extends StatefulWidget {
   });
 
   @override
-  State<RegisterAddressScreen> createState() => _RegisterAddressScreenState();
+  ConsumerState<RegisterAddressScreen> createState() => _RegisterAddressScreenState();
 }
 
-class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
+class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
   final _streetAddressController = TextEditingController();
   final _cityController = TextEditingController();
   final _postalCodeController = TextEditingController();
@@ -35,8 +35,9 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
   void initState() {
     super.initState();
     // Prefill with existing customer data from provider
-    final provider = Provider.of<RegisterProvider>(context, listen: false);
-    final address = provider.customer.residentialAddress;
+    final registerState = ref.read(registerProvider);
+
+    final address = registerState.customer.residentialAddress;
 
     if (address.streetAddressLines.isNotEmpty) {
       _streetAddressController.text = address.streetAddressLines.first;
@@ -144,7 +145,7 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
 
     if (_areAllFieldsValid()) {
       // Update the customer data in the provider
-      final provider = Provider.of<RegisterProvider>(context, listen: false);
+      final registerState = ref.read(registerProvider.notifier);
 
       final address = CustomerAddress(
             (b) => b
@@ -155,7 +156,7 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
           ..countryCode = _selectedCountry!.countryCode,
       );
 
-      provider.updateAddress(address);
+      registerState.updateAddress(address);
 
       // Navigate to next screen using named route
       Navigator.pushNamed(context, '/register/phone');

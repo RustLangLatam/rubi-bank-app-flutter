@@ -1,12 +1,12 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/common/widgets/custom_back_button.dart';
 import '../../../../../core/common/widgets/custom_button.dart';
 import '../../../../../core/common/widgets/elegant_progress_indicator.dart';
 import '../../providers/register_provider.dart';
 
-class RegisterIdentityScreen extends StatefulWidget {
+class RegisterIdentityScreen extends ConsumerStatefulWidget {
   final VoidCallback onBack;
 
   const RegisterIdentityScreen({
@@ -15,10 +15,10 @@ class RegisterIdentityScreen extends StatefulWidget {
   });
 
   @override
-  State<RegisterIdentityScreen> createState() => _RegisterIdentityScreenState();
+  ConsumerState<RegisterIdentityScreen> createState() => _RegisterIdentityScreenState();
 }
 
-class _RegisterIdentityScreenState extends State<RegisterIdentityScreen> {
+class _RegisterIdentityScreenState extends ConsumerState<RegisterIdentityScreen> {
   final _documentNumberController = TextEditingController();
 
   Country? _selectedCountry;
@@ -37,25 +37,24 @@ class _RegisterIdentityScreenState extends State<RegisterIdentityScreen> {
   @override
   void initState() {
     super.initState();
-    // Prefill with existing customer data from provider
-    final provider = Provider.of<RegisterProvider>(context, listen: false);
+    final registerState = ref.read(registerProvider);
 
-    if (provider.customer.nationality.isNotEmpty) {
+    if (registerState.customer.nationality.isNotEmpty) {
       try {
-        final country = Country.parse(provider.customer.nationality);
+        final country = Country.parse(registerState.customer.nationality);
         _selectedCountry = country;
       } catch (e) {
         // If not found, leave as null
       }
     }
 
-    if (provider.customer.idn.number.isNotEmpty) {
-      _documentNumberController.text = provider.customer.idn.number;
-      _documentNumber = provider.customer.idn.number;
+    if (registerState.customer.idn.number.isNotEmpty) {
+      _documentNumberController.text = registerState.customer.idn.number;
+      _documentNumber = registerState.customer.idn.number;
     }
 
-    if (provider.customer.idn.type.isNotEmpty) {
-      _documentType = provider.customer.idn.type;
+    if (registerState.customer.idn.type.isNotEmpty) {
+      _documentType = registerState.customer.idn.type;
     }
   }
 
@@ -100,9 +99,9 @@ class _RegisterIdentityScreenState extends State<RegisterIdentityScreen> {
 
     if (_areAllFieldsValid()) {
       // Update the customer data in the provider
-      final provider = Provider.of<RegisterProvider>(context, listen: false);
+      final registerState = ref.read(registerProvider.notifier);
 
-      provider.updateIdentity(
+      registerState.updateIdentity(
         _selectedCountry!.countryCode,
         _documentType,
         _documentNumber,

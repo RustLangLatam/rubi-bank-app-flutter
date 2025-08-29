@@ -1,109 +1,161 @@
 import 'package:flutter/foundation.dart';
 import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart';
 
-class RegisterProvider with ChangeNotifier {
-  Customer _customer = Customer(
-    (b) => b
-      ..givenName = ""
-      ..familyName = ""
-      ..nationality = "US"
-      ..email = ""
-      ..idn = Idn(
-        (b) => b
-          ..number = ""
-          ..type = "IdentityCard",
-      ).toBuilder()
-      ..phoneNumber = Phone(
-        (b) => b
-          ..number = ""
-          ..countryCode = 1,
-      ).toBuilder()
-      ..residentialAddress = CustomerAddress(
-        (b) => b
-          ..streetAddressLines = ListBuilder([""])
-          ..locality = ""
-          ..administrativeArea = ""
-          ..postalCode = ""
-          ..countryCode = "US",
-      ).toBuilder()
-      ..state = CustomerStateEnum.CUSTOMER_STATE_PENDING_VERIFICATION
-      ..kycStatus = CustomerKycStatusEnum.KYC_STATUS_NONE,
-  );
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart';
 
-  String _password = "";
+final registerProvider = StateNotifierProvider<RegisterNotifier, RegisterState>(
+  (ref) {
+    return RegisterNotifier();
+  },
+);
 
-  Customer get customer => _customer;
+class RegisterState {
+  final Customer customer;
+  final String password;
+  final bool isLoading;
+  final String? error;
 
-  String get password => _password;
+  RegisterState({
+    required this.customer,
+    required this.password,
+    this.isLoading = false,
+    this.error,
+  });
+
+  RegisterState copyWith({
+    Customer? customer,
+    String? password,
+    bool? isLoading,
+    String? error,
+  }) {
+    return RegisterState(
+      customer: customer ?? this.customer,
+      password: password ?? this.password,
+      isLoading: isLoading ?? this.isLoading,
+      error: error ?? this.error,
+    );
+  }
+}
+
+class RegisterNotifier extends StateNotifier<RegisterState> {
+  RegisterNotifier()
+    : super(
+        RegisterState(
+          customer: Customer(
+            (b) => b
+              ..givenName = ""
+              ..familyName = ""
+              ..nationality = "US"
+              ..email = ""
+              ..idn = Idn(
+                (b) => b
+                  ..number = ""
+                  ..type = "IdentityCard",
+              ).toBuilder()
+              ..phoneNumber = Phone(
+                (b) => b
+                  ..number = ""
+                  ..countryCode = 1,
+              ).toBuilder()
+              ..residentialAddress = CustomerAddress(
+                (b) => b
+                  ..streetAddressLines = ListBuilder([""])
+                  ..locality = ""
+                  ..administrativeArea = ""
+                  ..postalCode = ""
+                  ..countryCode = "US",
+              ).toBuilder()
+              ..state = CustomerStateEnum.CUSTOMER_STATE_PENDING_VERIFICATION
+              ..kycStatus = CustomerKycStatusEnum.KYC_STATUS_NONE,
+          ),
+          password: "",
+        ),
+      );
 
   void updatePersonalInfo(String givenName, String familyName, String email) {
-   _customer = _customer.rebuild(
-      (r) => r
-        ..givenName = givenName
-        ..familyName = familyName
-        ..email = email,
+    state = state.copyWith(
+      customer: state.customer.rebuild(
+        (r) => r
+          ..givenName = givenName
+          ..familyName = familyName
+          ..email = email,
+      ),
     );
-
-    notifyListeners();
   }
 
   void updateIdentity(String nationality, String docType, String docNumber) {
-    _customer = _customer.rebuild(
-      (r) => r
-        ..nationality = nationality
-        ..idn = Idn(
-          (b) => b
-            ..number = docNumber
-            ..type = docType,
-        ).toBuilder(),
+    state = state.copyWith(
+      customer: state.customer.rebuild(
+        (r) => r
+          ..nationality = nationality
+          ..idn = Idn(
+            (b) => b
+              ..number = docNumber
+              ..type = docType,
+          ).toBuilder(),
+      ),
     );
-    notifyListeners();
   }
 
   void updateAddress(CustomerAddress address) {
-    _customer = _customer.rebuild((r) => r..residentialAddress = address.toBuilder());
-    notifyListeners();
+    state = state.copyWith(
+      customer: state.customer.rebuild(
+        (r) => r..residentialAddress = address.toBuilder(),
+      ),
+    );
   }
 
   void updatePhone(Phone phone) {
-    _customer = _customer.rebuild((r) => r..phoneNumber = phone.toBuilder());
-    notifyListeners();
+    state = state.copyWith(
+      customer: state.customer.rebuild(
+        (r) => r..phoneNumber = phone.toBuilder(),
+      ),
+    );
   }
 
   void updatePassword(String password) {
-    _password = password;
-    notifyListeners();
+    state = state.copyWith(password: password);
+  }
+
+  void setLoading(bool loading) {
+    state = state.copyWith(isLoading: loading);
+  }
+
+  void setError(String? error) {
+    state = state.copyWith(error: error);
   }
 
   void reset() {
-    _customer = Customer(
-      (b) => b
-        ..givenName = ""
-        ..familyName = ""
-        ..nationality = "US"
-        ..email = ""
-        ..idn = Idn(
-          (b) => b
-            ..number = ""
-            ..type = "IdentityCard",
-        ).toBuilder()
-        ..phoneNumber = Phone(
-          (b) => b
-            ..number = ""
-            ..countryCode = 1,
-        ).toBuilder()
-        ..residentialAddress = CustomerAddress(
-          (b) => b
-            ..streetAddressLines = ListBuilder([""])
-            ..locality = ""
-            ..administrativeArea = ""
-            ..postalCode = ""
-            ..countryCode = "US",
-        ).toBuilder()
-        ..state = CustomerStateEnum.CUSTOMER_STATE_PENDING_VERIFICATION
-        ..kycStatus = CustomerKycStatusEnum.KYC_STATUS_NONE,
+    state = RegisterState(
+      customer: Customer(
+        (b) => b
+          ..givenName = ""
+          ..familyName = ""
+          ..nationality = "US"
+          ..email = ""
+          ..idn = Idn(
+            (b) => b
+              ..number = ""
+              ..type = "IdentityCard",
+          ).toBuilder()
+          ..phoneNumber = Phone(
+            (b) => b
+              ..number = ""
+              ..countryCode = 1,
+          ).toBuilder()
+          ..residentialAddress = CustomerAddress(
+            (b) => b
+              ..streetAddressLines = ListBuilder([""])
+              ..locality = ""
+              ..administrativeArea = ""
+              ..postalCode = ""
+              ..countryCode = "US",
+          ).toBuilder()
+          ..state = CustomerStateEnum.CUSTOMER_STATE_PENDING_VERIFICATION
+          ..kycStatus = CustomerKycStatusEnum.KYC_STATUS_NONE,
+      ),
+      password: "",
     );
-    _password = "";
-    notifyListeners();
   }
 }

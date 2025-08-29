@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/common/widgets/custom_back_button.dart';
 import '../../../../../core/common/widgets/custom_button.dart';
 import '../../../../../core/common/widgets/elegant_progress_indicator.dart';
 import '../../../../../core/common/widgets/password_strength_meter.dart';
 import '../../providers/register_provider.dart';
 
-class RegisterPersonalInfoScreen extends StatefulWidget {
+class RegisterPersonalInfoScreen extends ConsumerStatefulWidget {
   final VoidCallback onBack;
 
-  const RegisterPersonalInfoScreen({
-    super.key,
-    required this.onBack,
-  });
+  const RegisterPersonalInfoScreen({super.key, required this.onBack});
 
   @override
-  State<RegisterPersonalInfoScreen> createState() => _RegisterPersonalInfoScreenState();
+  ConsumerState<RegisterPersonalInfoScreen> createState() =>
+      _RegisterPersonalInfoScreenState();
 }
 
-class _RegisterPersonalInfoScreenState extends State<RegisterPersonalInfoScreen> {
+class _RegisterPersonalInfoScreenState
+    extends ConsumerState<RegisterPersonalInfoScreen> {
   final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
@@ -34,23 +33,22 @@ class _RegisterPersonalInfoScreenState extends State<RegisterPersonalInfoScreen>
   String _passwordError = '';
 
   final RegExp _emailRegex = RegExp(
-      r'^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$'
+    r'^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$',
   );
 
   @override
   void initState() {
     super.initState();
-    // Prefill with existing customer data from provider
-    final provider = Provider.of<RegisterProvider>(context, listen: false);
+    final registerState = ref.read(registerProvider);
 
-    if (provider.customer.givenName.isNotEmpty) {
-      _firstNameController.text = provider.customer.givenName;
+    if (registerState.customer.givenName.isNotEmpty) {
+      _firstNameController.text = registerState.customer.givenName;
     }
-    if (provider.customer.familyName.isNotEmpty) {
-      _lastNameController.text = provider.customer.familyName;
+    if (registerState.customer.familyName.isNotEmpty) {
+      _lastNameController.text = registerState.customer.familyName;
     }
-    if (provider.customer.email.isNotEmpty) {
-      _emailController.text = provider.customer.email;
+    if (registerState.customer.email.isNotEmpty) {
+      _emailController.text = registerState.customer.email;
     }
   }
 
@@ -105,7 +103,9 @@ class _RegisterPersonalInfoScreenState extends State<RegisterPersonalInfoScreen>
     if (firstName.isEmpty) {
       setState(() => _firstNameError = 'First name is required');
     } else if (firstName.length < 2) {
-      setState(() => _firstNameError = 'First name must be at least 2 characters');
+      setState(
+        () => _firstNameError = 'First name must be at least 2 characters',
+      );
     } else {
       setState(() => _firstNameError = '');
     }
@@ -115,7 +115,9 @@ class _RegisterPersonalInfoScreenState extends State<RegisterPersonalInfoScreen>
     if (lastName.isEmpty) {
       setState(() => _lastNameError = 'Last name is required');
     } else if (lastName.length < 2) {
-      setState(() => _lastNameError = 'Last name must be at least 2 characters');
+      setState(
+        () => _lastNameError = 'Last name must be at least 2 characters',
+      );
     } else {
       setState(() => _lastNameError = '');
     }
@@ -152,6 +154,8 @@ class _RegisterPersonalInfoScreenState extends State<RegisterPersonalInfoScreen>
   }
 
   void _handleNext() {
+    final registerState = ref.read(registerProvider.notifier);
+
     // Validate all fields
     _validateFirstName(_firstNameController.text);
     _validateLastName(_lastNameController.text);
@@ -159,16 +163,13 @@ class _RegisterPersonalInfoScreenState extends State<RegisterPersonalInfoScreen>
     _validatePassword(_passwordController.text);
 
     if (_areAllFieldsValid()) {
-      // Update the customer data in the provider
-      final provider = Provider.of<RegisterProvider>(context, listen: false);
-
-      provider.updatePersonalInfo(
+      registerState.updatePersonalInfo(
         _firstNameController.text,
         _lastNameController.text,
         _emailController.text,
       );
 
-      provider.updatePassword(_passwordController.text);
+      registerState.updatePassword(_passwordController.text);
 
       // Navigate to next screen using named route
       Navigator.pushNamed(context, '/register/identity');
@@ -207,10 +208,7 @@ class _RegisterPersonalInfoScreenState extends State<RegisterPersonalInfoScreen>
                 ),
 
                 // Progress indicator
-                ElegantProgressIndicator(
-                  currentStep: 1,
-                  totalSteps: 4,
-                ),
+                ElegantProgressIndicator(currentStep: 1, totalSteps: 4),
                 const SizedBox(height: 32),
 
                 // Title
@@ -240,7 +238,9 @@ class _RegisterPersonalInfoScreenState extends State<RegisterPersonalInfoScreen>
                               color: const Color(0xFF94A3B8),
                             ),
                             contentPadding: const EdgeInsets.all(16),
-                            errorText: _firstNameError.isNotEmpty ? _firstNameError : null,
+                            errorText: _firstNameError.isNotEmpty
+                                ? _firstNameError
+                                : null,
                           ),
                           onChanged: _validateFirstName,
                         ),
@@ -258,7 +258,9 @@ class _RegisterPersonalInfoScreenState extends State<RegisterPersonalInfoScreen>
                               color: const Color(0xFF94A3B8),
                             ),
                             contentPadding: const EdgeInsets.all(16),
-                            errorText: _lastNameError.isNotEmpty ? _lastNameError : null,
+                            errorText: _lastNameError.isNotEmpty
+                                ? _lastNameError
+                                : null,
                           ),
                           onChanged: _validateLastName,
                         ),
@@ -277,7 +279,9 @@ class _RegisterPersonalInfoScreenState extends State<RegisterPersonalInfoScreen>
                               color: const Color(0xFF94A3B8),
                             ),
                             contentPadding: const EdgeInsets.all(16),
-                            errorText: _emailError.isNotEmpty ? _emailError : null,
+                            errorText: _emailError.isNotEmpty
+                                ? _emailError
+                                : null,
                           ),
                           onChanged: _validateEmail,
                         ),
@@ -303,7 +307,9 @@ class _RegisterPersonalInfoScreenState extends State<RegisterPersonalInfoScreen>
                                   : const Icon(Icons.visibility),
                               color: const Color(0xFF94A3B8),
                             ),
-                            errorText: _passwordError.isNotEmpty ? _passwordError : null,
+                            errorText: _passwordError.isNotEmpty
+                                ? _passwordError
+                                : null,
                           ),
                           onChanged: _handlePasswordChange,
                         ),
@@ -338,13 +344,17 @@ class _RegisterPersonalInfoScreenState extends State<RegisterPersonalInfoScreen>
   }
 }
 
-class RegisterPersonalInfoScreenWrapper extends StatelessWidget {
+class RegisterPersonalInfoScreenWrapper extends ConsumerWidget {
   const RegisterPersonalInfoScreenWrapper({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return RegisterPersonalInfoScreen(
-        onBack: () => Navigator.pop(context)
+      onBack: () {
+        final registerState = ref.read(registerProvider.notifier);
+        registerState.reset();
+        Navigator.pop(context);
+      },
     );
   }
 }

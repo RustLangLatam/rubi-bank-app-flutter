@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' hide Provider;
 import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart';
-import 'package:rubi_bank_app/features/authentication/presentation/pages/register/register_success_screen.dart';
 import '../../../../../core/common/widgets/custom_button.dart';
 import '../../../../../core/common/widgets/custom_back_button.dart';
 import '../../../../../core/common/widgets/elegant_progress_indicator.dart';
-import '../../../../../core/transitions/custom_page_route.dart';
 import '../../providers/register_provider.dart';
 
-class RegisterPhoneScreen extends StatefulWidget {
+class RegisterPhoneScreen extends ConsumerStatefulWidget {
   final VoidCallback onBack;
 
   const RegisterPhoneScreen({super.key, required this.onBack});
 
   @override
-  State<RegisterPhoneScreen> createState() => _RegisterPhoneScreenState();
+  ConsumerState<RegisterPhoneScreen> createState() => _RegisterPhoneScreenState();
 }
 
-class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
+class _RegisterPhoneScreenState extends ConsumerState<RegisterPhoneScreen> {
   final _phoneNumberController = TextEditingController();
   bool _agreedToTerms = false;
   String _phoneError = '';
@@ -27,9 +25,10 @@ class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
   void initState() {
     super.initState();
     // Prefill with existing customer data from provider
-    final provider = Provider.of<RegisterProvider>(context, listen: false);
-    if (provider.customer.phoneNumber.number.isNotEmpty) {
-      _phoneNumberController.text = provider.customer.phoneNumber.number;
+    final registerState = ref.read(registerProvider);
+
+    if (registerState.customer.phoneNumber.number.isNotEmpty) {
+      _phoneNumberController.text = registerState.customer.phoneNumber.number;
     }
   }
 
@@ -73,7 +72,7 @@ class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
         _agreedToTerms;
   }
 
-  void _handleNext() {
+  Future<void> _handleNext() async {
     final cleanedNumber = _phoneNumberController.text.replaceAll(
       RegExp(r'\D'),
       '',
@@ -83,7 +82,7 @@ class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
     _validateTerms(_agreedToTerms);
 
     if (_areAllFieldsValid()) {
-      final provider = Provider.of<RegisterProvider>(context, listen: false);
+      final registerState = ref.read(registerProvider.notifier);
 
       final newPhone = Phone(
         (r) => r
@@ -91,7 +90,7 @@ class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
           ..countryCode = 1,
       );
 
-      provider.updatePhone(newPhone);
+      registerState.updatePhone(newPhone);
 
       Navigator.pushNamed(context, '/register/otp');
     }

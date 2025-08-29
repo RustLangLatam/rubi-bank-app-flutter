@@ -1,15 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' hide Provider;
+import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart';
 import 'package:rubi_bank_app/features/authentication/presentation/pages/register/register_success_screen.dart';
 import '../../../../../core/common/widgets/custom_button.dart';
 import '../../../../../core/common/widgets/custom_back_button.dart';
 import '../../../../../core/common/widgets/elegant_progress_indicator.dart';
 import '../../../../../core/transitions/custom_page_route.dart';
+import '../../providers/create_customer_provider.dart';
 import '../../providers/register_provider.dart';
 
-class RegisterOtpScreen extends StatefulWidget {
+class RegisterOtpScreen extends ConsumerStatefulWidget {
   final VoidCallback onBack;
   final VoidCallback onVerify;
 
@@ -20,10 +22,10 @@ class RegisterOtpScreen extends StatefulWidget {
   });
 
   @override
-  State<RegisterOtpScreen> createState() => _RegisterOtpScreenState();
+  ConsumerState<RegisterOtpScreen> createState() => _RegisterOtpScreenState();
 }
 
-class _RegisterOtpScreenState extends State<RegisterOtpScreen> {
+class _RegisterOtpScreenState extends ConsumerState<RegisterOtpScreen> {
   final List<TextEditingController> _otpControllers = List.generate(
     6,
     (index) => TextEditingController(),
@@ -154,8 +156,8 @@ class _RegisterOtpScreenState extends State<RegisterOtpScreen> {
   }
 
   String get _formattedPhoneNumber {
-    final provider = Provider.of<RegisterProvider>(context, listen: false);
-    final phone = provider.customer.phoneNumber.number;
+    final registerState = ref.watch(registerProvider);
+    final phone = registerState.customer.phoneNumber.number;
     if (phone.length <= 3) return '+1 $phone';
 
     return '+1 (${phone.substring(0, 3)}) ${phone.substring(3, 6)}-${phone.substring(6)}';
@@ -349,24 +351,42 @@ class _RegisterOtpScreenState extends State<RegisterOtpScreen> {
   }
 }
 
-class RegisterOtpScreenWrapper extends StatelessWidget {
+class RegisterOtpScreenWrapper extends ConsumerWidget {
   const RegisterOtpScreenWrapper({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final provider = Provider.of<RegisterProvider>(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final registerState = ref.watch(registerProvider);
+    final createCustomerState = ref.watch(createCustomerProvider);
+
     return RegisterOtpScreen(
       onBack: () => Navigator.pop(context),
-      onVerify: () {
-        Navigator.push(
-          context,
-          CustomPageRoute.fade(
-            RegisterSuccessScreen(
-              onGoToDashboard: () => Navigator.pop(context),
-              userName: '${provider.customer.givenName} ${provider.customer.familyName}',
+      onVerify: () async {
+        try {
+          await ref.read(createCustomerProvider.notifier).createCustomer(
+            customer: registerState.customer,
+            password: registerState.password,
+          );
+
+          if (createCustomerState is AsyncData<Customer> && createCustomerState.value != null) {
+            Navigator.push(
+              context,
+              CustomPageRoute.fade(
+                RegisterSuccessScreen(
+                  onGoToDashboard: () => Navigator.pop(context),
+                  userName: '${registerState.customer.givenName} ${registerState.customer.familyName}',
+                ),
+              ),
+            );
+          }
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${e.toString()}'),
+              backgroundColor: Colors.red,
             ),
-          ),
-        );
+          );
+        }
       },
     );
   }

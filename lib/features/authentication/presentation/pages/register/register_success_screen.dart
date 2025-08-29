@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../../core/common/widgets/custom_button.dart';
 import '../../../../../core/common/widgets/elegant_check_painter.dart';
-import '../../providers/register_provider.dart';
 
 class RegisterSuccessScreen extends StatefulWidget {
   final VoidCallback onGoToDashboard;
