@@ -7,6 +7,7 @@ import '../../features/authentication/presentation/pages/register/register_ident
 import '../../features/authentication/presentation/pages/register/register_otp_screen.dart';
 import '../../features/authentication/presentation/pages/register/register_personal_info_screen.dart';
 import '../../features/authentication/presentation/pages/register/register_phone_screen.dart';
+import '../../features/common/presentation/pages/under_development_screen.dart';
 import '../../features/onboarding/presentation/pages/onboarding_screen.dart';
 import '../../features/onboarding/presentation/pages/splash_screen.dart';
 import '../transitions/custom_page_route.dart';
@@ -15,7 +16,7 @@ class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case '/':
-        return MaterialPageRoute(builder: (_) => const SplashScreen());
+        return MaterialPageRoute(builder: (_) => const UnderDevelopmentScreen());
 
       case '/onboarding':
         return CustomPageRoute.fade(const OnboardingScreen());
@@ -37,6 +38,9 @@ class AppRouter {
 
       case '/register/otp':
         return CustomPageRoute.slide(const RegisterOtpScreenWrapper());
+
+      case '/under_development':
+        return CustomPageRoute.scale(const UnderDevelopmentScreen());
 
       default:
         return MaterialPageRoute(
