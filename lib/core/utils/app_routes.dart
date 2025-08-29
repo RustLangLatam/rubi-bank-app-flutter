@@ -39,7 +39,7 @@ class AppRouter {
       case '/register/otp':
         return CustomPageRoute.slide(const RegisterOtpScreenWrapper());
 
-      case '/under_development':
+      case '/under-development':
         return CustomPageRoute.scale(const UnderDevelopmentScreen());
 
       default:

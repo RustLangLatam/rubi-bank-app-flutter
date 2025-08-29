@@ -2,14 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide Provider;
-import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart';
 import 'package:rubi_bank_app/features/authentication/presentation/pages/register/register_success_screen.dart';
 import '../../../../../core/common/widgets/custom_button.dart';
 import '../../../../../core/common/widgets/custom_back_button.dart';
 import '../../../../../core/common/widgets/elegant_progress_indicator.dart';
-import '../../../../../core/transitions/custom_page_route.dart';
-import '../../providers/create_customer_provider.dart';
 import '../../providers/register_provider.dart';
+import 'create_customer_screen.dart';
 
 class RegisterOtpScreen extends ConsumerStatefulWidget {
   final VoidCallback onBack;
@@ -191,7 +189,7 @@ class _RegisterOtpScreenState extends ConsumerState<RegisterOtpScreen> {
               ElegantProgressIndicator(
                 currentStep: 4,
                 totalSteps: 4,
-                color: _isOtpComplete ? Colors.green: null,
+                color: _isOtpComplete ? Colors.green : null,
               ),
               const SizedBox(height: 32),
 
@@ -357,36 +355,33 @@ class RegisterOtpScreenWrapper extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final registerState = ref.watch(registerProvider);
-    final createCustomerState = ref.watch(createCustomerProvider);
 
     return RegisterOtpScreen(
       onBack: () => Navigator.pop(context),
-      onVerify: () async {
-        try {
-          await ref.read(createCustomerProvider.notifier).createCustomer(
-            customer: registerState.customer,
-            password: registerState.password,
-          );
-
-          if (createCustomerState is AsyncData<Customer> && createCustomerState.value != null) {
-            Navigator.push(
-              context,
-              CustomPageRoute.fade(
-                RegisterSuccessScreen(
-                  onGoToDashboard: () => Navigator.pop(context),
-                  userName: '${registerState.customer.givenName} ${registerState.customer.familyName}',
-                ),
-              ),
-            );
-          }
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: ${e.toString()}'),
-              backgroundColor: Colors.red,
+      onVerify: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CreateCustomerScreen(
+              onSuccess: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RegisterSuccessScreen(
+                      onGoToDashboard: () {
+                        Navigator.pushReplacementNamed(context, '/under-development');
+                      },
+                      userName:
+                          '${registerState.customer.givenName} ${registerState.customer.familyName}',
+                    ),
+                  ),
+                );
+              },
+              userName:
+                  '${registerState.customer.givenName} ${registerState.customer.familyName}',
             ),
-          );
-        }
+          ),
+        );
       },
     );
   }
