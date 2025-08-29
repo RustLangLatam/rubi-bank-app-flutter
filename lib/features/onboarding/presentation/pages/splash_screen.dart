@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../core/common/widgets/rubiBank_logo.dart';
-import '../../../../core/transitions/custom_page_route.dart';
+import '../../../../core/common/widgets/elegant_rubi_loader.dart';
 import '../../../../core/common/theme/app_theme.dart';
-import 'onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -36,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const RubiBankLogo(size: 96), // Logo SVG animable
+                    const ElegantRubiLoader(), // Logo SVG animable
                     const SizedBox(height: 24),
                     Text(
                       'RUBIBANK',

@@ -185,22 +185,8 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
   }
 
   Widget _buildElegantRubiLoader() {
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.white.withOpacity(0.5),
-            blurRadius: 10,
-            spreadRadius: 0,
-          ),
-        ],
-      ),
-      child: const ElegantRubiLoader(
-        size: 96, // w-24 in React = 24 * 4 = 96
-      ),
-    );
+    return ElegantRubiLoader();
   }
-
 
   Widget _buildStepItem(StepItem step) {
     final theme = Theme.of(context);
