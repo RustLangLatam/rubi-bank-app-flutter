@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rubi_bank_app/features/authentication/presentation/pages/register/register_success_screen.dart';
 import '../../../../../core/common/widgets/custom_button.dart';
 import '../../../../../core/common/widgets/custom_back_button.dart';
 import '../../../../../core/common/widgets/elegant_progress_indicator.dart';
+import '../../../../../core/transitions/custom_page_route.dart';
 import '../../providers/register_provider.dart';
 
 class RegisterOtpScreen extends StatefulWidget {
@@ -352,10 +354,19 @@ class RegisterOtpScreenWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<RegisterProvider>(context);
     return RegisterOtpScreen(
       onBack: () => Navigator.pop(context),
       onVerify: () {
-        Navigator.pushNamed(context, '/register/success');
+        Navigator.push(
+          context,
+          CustomPageRoute.fade(
+            RegisterSuccessScreen(
+              onGoToDashboard: () => Navigator.pop(context),
+              userName: '${provider.customer.givenName} ${provider.customer.familyName}',
+            ),
+          ),
+        );
       },
     );
   }

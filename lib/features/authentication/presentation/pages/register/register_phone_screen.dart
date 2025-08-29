@@ -93,15 +93,7 @@ class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
 
       provider.updatePhone(newPhone);
 
-      Navigator.push(
-        context,
-        CustomPageRoute.fade(
-          RegisterSuccessScreen(
-            onGoToDashboard: () => Navigator.pop(context),
-            userName: '${provider.customer.givenName} ${provider.customer.familyName}',
-          ),
-        ),
-      );
+      Navigator.pushNamed(context, '/register/otp');
     }
     // else {
     //   // Show error message if any field is invalid

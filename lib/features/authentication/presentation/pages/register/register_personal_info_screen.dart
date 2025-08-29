@@ -168,6 +168,8 @@ class _RegisterPersonalInfoScreenState extends State<RegisterPersonalInfoScreen>
         _emailController.text,
       );
 
+      provider.updatePassword(_passwordController.text);
+
       // Navigate to next screen using named route
       Navigator.pushNamed(context, '/register/identity');
     }

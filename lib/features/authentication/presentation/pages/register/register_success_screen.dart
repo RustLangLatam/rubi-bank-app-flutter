@@ -59,7 +59,6 @@ class _RegisterSuccessScreenState extends State<RegisterSuccessScreen>
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<RegisterProvider>(context, listen: false);
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
 
@@ -69,7 +68,8 @@ class _RegisterSuccessScreenState extends State<RegisterSuccessScreen>
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center, // Cambiado de start a center
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
                 child: SingleChildScrollView(
@@ -98,7 +98,6 @@ class _RegisterSuccessScreenState extends State<RegisterSuccessScreen>
                         ),
                       ),
 
-                      // Spacing
                       const SizedBox(height: 48),
 
                       // Welcome Title
@@ -145,13 +144,16 @@ class _RegisterSuccessScreenState extends State<RegisterSuccessScreen>
                       const SizedBox(height: 32),
                       FadeTransition(
                         opacity: _fadeAnimation,
-                        child: Text(
-                          "You now have access to exclusive financial services designed for discerning clients.",
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            height: 1.6,
-                            fontSize: 15,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 0), // Asegurar padding simétrico
+                          child: Text(
+                            "You now have access to exclusive financial services designed for discerning clients.",
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              height: 1.6,
+                              fontSize: 15,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                       ),
                     ],
@@ -161,10 +163,13 @@ class _RegisterSuccessScreenState extends State<RegisterSuccessScreen>
 
               const SizedBox(height: 32),
 
-              CustomButton(
-                text: "Access Dashboard",
-                onPressed: widget.onGoToDashboard,
-                type: ButtonType.primary,
+              // Botón centrado
+              Center(
+                child: CustomButton(
+                  text: "Access Dashboard",
+                  onPressed: widget.onGoToDashboard,
+                  type: ButtonType.primary,
+                ),
               ),
             ],
           ),

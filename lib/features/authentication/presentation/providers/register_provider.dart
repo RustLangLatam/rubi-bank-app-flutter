@@ -30,7 +30,11 @@ class RegisterProvider with ChangeNotifier {
       ..kycStatus = CustomerKycStatusEnum.KYC_STATUS_NONE,
   );
 
+  String _password = "";
+
   Customer get customer => _customer;
+
+  String get password => _password;
 
   void updatePersonalInfo(String givenName, String familyName, String email) {
    _customer = _customer.rebuild(
@@ -66,6 +70,11 @@ class RegisterProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void updatePassword(String password) {
+    _password = password;
+    notifyListeners();
+  }
+
   void reset() {
     _customer = Customer(
       (b) => b
@@ -94,6 +103,7 @@ class RegisterProvider with ChangeNotifier {
         ..state = CustomerStateEnum.CUSTOMER_STATE_PENDING_VERIFICATION
         ..kycStatus = CustomerKycStatusEnum.KYC_STATUS_NONE,
     );
+    _password = "";
     notifyListeners();
   }
 }
