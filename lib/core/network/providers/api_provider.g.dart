@@ -8,7 +8,7 @@ part of 'api_provider.dart';
 
 String _$rubiBankApiHash() => r'f3d1f918bfdcd3c104c17c35e8c49cc6141931cd';
 
-/// ✅ **Provider to get the Dubai-Auto API (uses global baseUrlProvider)**
+/// ✅ **Provider to get the RubiBank API (uses global baseUrlProvider)**
 ///
 /// Copied from [rubiBankApi].
 @ProviderFor(rubiBankApi)
@@ -27,7 +27,7 @@ final rubiBankApiProvider = Provider<RubiBankApiSdk>.internal(
 typedef RubiBankApiRef = ProviderRef<RubiBankApiSdk>;
 String _$customersApiHash() => r'e00a7dcf6135065a76d2e677b4fe895b372eb4ff';
 
-/// ✅ **Provider Authentication API**
+/// ✅ **Provider Customers API**
 ///
 /// Copied from [customersApi].
 @ProviderFor(customersApi)
@@ -46,7 +46,7 @@ final customersApiProvider = Provider<CustomersServiceApi>.internal(
 typedef CustomersApiRef = ProviderRef<CustomersServiceApi>;
 String _$accountsApiHash() => r'2011b09c3b002adabf30d05c36c2d0b4a04a111a';
 
-/// ✅ **Provider to get the Cars API**
+/// ✅ **Provider to get the Accounts API**
 ///
 /// Copied from [accountsApi].
 @ProviderFor(accountsApi)
