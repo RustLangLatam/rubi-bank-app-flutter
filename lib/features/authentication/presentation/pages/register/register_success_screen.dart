@@ -68,7 +68,7 @@ class _RegisterSuccessScreenState extends State<RegisterSuccessScreen>
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center, // Cambiado de start a center
+            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
@@ -145,7 +145,7 @@ class _RegisterSuccessScreenState extends State<RegisterSuccessScreen>
                       FadeTransition(
                         opacity: _fadeAnimation,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 0), // Asegurar padding simétrico
+                          padding: const EdgeInsets.symmetric(horizontal: 0),
                           child: Text(
                             "You now have access to exclusive financial services designed for discerning clients.",
                             style: theme.textTheme.bodyMedium?.copyWith(
@@ -163,7 +163,6 @@ class _RegisterSuccessScreenState extends State<RegisterSuccessScreen>
 
               const SizedBox(height: 32),
 
-              // Botón centrado
               Center(
                 child: CustomButton(
                   text: "Access Dashboard",

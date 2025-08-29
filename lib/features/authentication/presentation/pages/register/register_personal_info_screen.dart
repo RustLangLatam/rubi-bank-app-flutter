@@ -20,10 +20,10 @@ class RegisterPersonalInfoScreen extends StatefulWidget {
 
 class _RegisterPersonalInfoScreenState extends State<RegisterPersonalInfoScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _firstNameController = TextEditingController(text: "eleleazar");
-  final _lastNameController = TextEditingController(text: "garrido");
-  final _emailController = TextEditingController(text: "eleleazar@gmail.com");
-  final _passwordController = TextEditingController(text: "12345678");
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   bool _showPassword = false;
   String _passwordStrengthLabel = '';
