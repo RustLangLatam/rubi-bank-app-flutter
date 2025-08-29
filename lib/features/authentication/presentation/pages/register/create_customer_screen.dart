@@ -132,52 +132,60 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final ColorScheme colorScheme = theme.colorScheme;
 
-    return Scaffold(
-      backgroundColor: colorScheme.primary,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Elegant Rubi Loader (you'll need to create this widget)
-              _buildElegantRubiLoader(),
-              const SizedBox(height: 32),
+    return Theme( // Wrap with Theme to apply the custom color scheme locally
+      data: theme,
+      child: Scaffold(
+        backgroundColor: theme.colorScheme.primary,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0), // Consistent padding
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Elegant Rubi Loader (you'll need to create this widget)
+                _buildElegantRubiLoader(),
+                const SizedBox(height: 32), // Adjusted spacing
 
-              // Welcome title
-              Text(
-                'Welcome, ${widget.userName.split(' ').first}!',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  color: colorScheme.onPrimary,
+                // Welcome title
+                Text(
+                  'Welcome, ${widget.userName.split(' ').first}!',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontSize: 28, // Explicitly set for consistency
+                    fontWeight: FontWeight.w700,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16), // Adjusted spacing
 
-              // Description
-              Text(
-                _allDone
-                    ? "You're all set! Redirecting to your dashboard..."
-                    : "We're just getting your account ready. This will only take a moment.",
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFFA9B4C4),
+                // Description
+                SizedBox(
+                  width: 300, // Max-width for the description, similar to React max-w-sm
+                  child: Text(
+                    _allDone
+                        ? "You're all set! Redirecting to your dashboard..."
+                        : "We're just getting your account ready. This will only take a moment.",
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal, // Regular weight for description
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-              ),
-              const SizedBox(height: 48),
+                const SizedBox(height: 48), // Adjusted spacing
 
-              // Steps list
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: _steps.map((step) => _buildStepItem(step)).toList(),
-              ),
-            ],
+                // Steps list
+                SizedBox(
+                  width: 300, // Max-width for the steps column
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: _steps.map((step) => _buildStepItem(step)).toList(),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -185,6 +193,8 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
   }
 
   Widget _buildElegantRubiLoader() {
+    // Assuming ElegantRubiLoader is a widget that matches the React version's visual style.
+    // Ensure its internal styling aligns with the overall theme.
     return ElegantRubiLoader();
   }
 
@@ -195,25 +205,25 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
 
     Color textColor;
     if (isCompleted) {
-      textColor = theme.colorScheme.onPrimary;
+      textColor = theme.textTheme.bodyMedium!.color!; // White for completed
     } else if (isInProgress) {
-      textColor = theme.colorScheme.secondary;
+      textColor = theme.colorScheme.secondary; // Accent gold for in-progress
     } else {
-      textColor = const Color(0xFFA9B4C4);
+      textColor = const Color(0xFFA9B4C4); // Muted grey for pending
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      padding: const EdgeInsets.symmetric(vertical: 12.0), // Consistent vertical spacing
       child: Row(
         children: [
           _buildStatusIcon(step.status),
-          const SizedBox(width: 16),
+          const SizedBox(width: 16), // Gap between icon and text
           Expanded(
             child: Text(
               step.label,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: textColor,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w600, // Semi-bold for step labels
               ),
             ),
           ),
@@ -223,11 +233,13 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
   }
 
   Widget _buildStatusIcon(StepStatus status) {
+    final accentGold = Theme.of(context).colorScheme.secondary; // Using accent gold from theme
+
     switch (status) {
       case StepStatus.completed:
         return Icon(
-          Icons.check_circle,
-          color: Colors.green,
+          Icons.check_circle, // Or Icons.check for a simpler checkmark
+          color: Colors.green, // Green for completed, as in React example
           size: 20,
         );
       case StepStatus.inProgress:
@@ -236,20 +248,17 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
           height: 20,
           child: CircularProgressIndicator(
             strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).colorScheme.secondary,
-            ),
+            valueColor: AlwaysStoppedAnimation<Color>(accentGold), // Accent gold for spinner
           ),
         );
       case StepStatus.pending:
-      default:
-        return Container(
+      return Container(
           width: 20,
           height: 20,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: const Color(0xFFA9B4C4),
+              color: const Color(0xFFA9B4C4), // Muted grey border for pending
               width: 2,
             ),
           ),

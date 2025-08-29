@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/common/widgets/custom_back_button.dart';
 import '../../../../../core/common/widgets/custom_button.dart';
@@ -99,16 +100,30 @@ class _RegisterPersonalInfoScreenState
     }
   }
 
-  void _validateFirstName(String firstName) {
-    if (firstName.isEmpty) {
+  void _validateFirstName(String value) {
+    final trimmedValue = value.trim();
+
+    if (trimmedValue.isEmpty) {
       setState(() => _firstNameError = 'First name is required');
-    } else if (firstName.length < 2) {
-      setState(
-        () => _firstNameError = 'First name must be at least 2 characters',
-      );
-    } else {
-      setState(() => _firstNameError = '');
+      return;
     }
+
+    if (trimmedValue.length < 2) {
+      setState(() => _firstNameError = 'First name must be at least 2 characters');
+      return;
+    }
+
+    if (RegExp(r'[0-9]').hasMatch(trimmedValue)) {
+      setState(() => _firstNameError = 'First name cannot contain numbers');
+      return;
+    }
+
+    if (RegExp(r'[!@#\$%^&*()_+={}\[\]:;"<>,?/\\|~`]').hasMatch(trimmedValue)) {
+      setState(() => _firstNameError = 'First name cannot contain special characters');
+      return;
+    }
+
+    setState(() => _firstNameError = '');
   }
 
   void _validateLastName(String lastName) {
@@ -242,6 +257,10 @@ class _RegisterPersonalInfoScreenState
                                 ? _firstNameError
                                 : null,
                           ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.deny(RegExp(r'[0-9]')),
+                            FilteringTextInputFormatter.deny(RegExp(r'[!@#\$%^&*()_+={}\[\]|;:"<>,.?/\\~`]')),
+                          ],
                           onChanged: _validateFirstName,
                         ),
                         const SizedBox(height: 20),
@@ -262,6 +281,10 @@ class _RegisterPersonalInfoScreenState
                                 ? _lastNameError
                                 : null,
                           ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.deny(RegExp(r'[0-9]')),
+                            FilteringTextInputFormatter.deny(RegExp(r'[!@#\$%^&*()_+={}\[\]|;:"<>,.?/\\~`]')),
+                          ],
                           onChanged: _validateLastName,
                         ),
                         const SizedBox(height: 20),
