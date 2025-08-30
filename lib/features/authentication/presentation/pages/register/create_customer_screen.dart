@@ -133,6 +133,8 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
 
+    // TODO: Remove this theme
+    // TODO: block pop
     return Theme(
       // Wrap with Theme to apply the custom color scheme locally
       data: theme,
