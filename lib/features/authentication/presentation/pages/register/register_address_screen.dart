@@ -26,7 +26,7 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
   final _postalCodeController = TextEditingController(text: "25314");
   final _administrativeAreaController = TextEditingController();
 
-  Country? _selectedCountry;
+  Country _selectedCountry = Country.parse("AE");
   String _streetAddressError = '';
   String _cityError = '';
   String _postalCodeError = '';
@@ -94,14 +94,6 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
     }
   }
 
-  void _validateCountry() {
-    if (_selectedCountry == null) {
-      setState(() => _countryError = 'Country is required');
-    } else {
-      setState(() => _countryError = '');
-    }
-  }
-
   bool _areAllFieldsValid() {
     return _streetAddressError.isEmpty &&
         _cityError.isEmpty &&
@@ -109,18 +101,17 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
         _countryError.isEmpty &&
         _streetAddressController.text.isNotEmpty &&
         _cityController.text.isNotEmpty &&
-        _postalCodeController.text.isNotEmpty &&
-        _selectedCountry != null;
+        _postalCodeController.text.isNotEmpty;
   }
 
   void _showCountryPicker() {
     showCountryPicker(
       context: context,
       showPhoneCode: false,
+      exclude: ['IR', 'SY'],
       onSelect: (Country country) {
         setState(() {
           _selectedCountry = country;
-          _validateCountry();
         });
       },
       countryListTheme: CountryListThemeData(
@@ -130,8 +121,15 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
         borderRadius: BorderRadius.circular(10.5),
         inputDecoration: InputDecoration(
           labelText: 'Search',
+          labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: const Color(0xFF94A3B8),
+          ),
           hintText: 'Start typing to search',
-          prefixIcon: const Icon(Icons.search),
+          fillColor: Theme.of(context).colorScheme.surface,
+          prefixIcon: const Icon(Icons.search, color: Color(0xFF94A3B8)),
+          hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: const Color(0xFF94A3B8),
+          ),
         ),
       ),
     );
@@ -142,7 +140,6 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
     _validateStreetAddress(_streetAddressController.text);
     _validateCity(_cityController.text);
     _validatePostalCode(_postalCodeController.text);
-    _validateCountry();
 
     if (_areAllFieldsValid()) {
       // Update the customer data in the provider
@@ -154,7 +151,7 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
           ..locality = _cityController.text
           ..administrativeArea = _administrativeAreaController.text
           ..postalCode = _postalCodeController.text
-          ..countryCode = _selectedCountry!.countryCode,
+          ..countryCode = _selectedCountry.countryCode,
       );
 
       registerState.updateAddress(address);
@@ -333,9 +330,9 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
                               ),
                               child: Row(
                                 children: [
-                                  if (_selectedCountry != null)
+                                  if (_selectedCountry.countryCode.isNotEmpty)
                                     Text(
-                                      _selectedCountry!.name,
+                                      _selectedCountry.name,
                                       style: theme.textTheme.bodyLarge,
                                     )
                                   else

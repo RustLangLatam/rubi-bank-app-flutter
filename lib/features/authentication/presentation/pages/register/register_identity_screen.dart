@@ -113,9 +113,8 @@ class _RegisterIdentityScreenState
   void _showCountryPicker() {
     showCountryPicker(
       context: context,
-      favorite: ['AE'],
-      countryFilter: ['AE'],
       showPhoneCode: false,
+      exclude: ['IR', 'SY'],
       onSelect: (Country country) {
         setState(() {
           _selectedCountry = country;
@@ -128,8 +127,15 @@ class _RegisterIdentityScreenState
         borderRadius: BorderRadius.circular(10.5),
         inputDecoration: InputDecoration(
           labelText: 'Search',
+          labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: const Color(0xFF94A3B8),
+          ),
           hintText: 'Start typing to search',
-          prefixIcon: const Icon(Icons.search),
+          fillColor: Theme.of(context).colorScheme.surface,
+          prefixIcon: const Icon(Icons.search, color: Color(0xFF94A3B8)),
+          hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: const Color(0xFF94A3B8),
+          ),
         ),
       ),
     );
@@ -187,7 +193,7 @@ class _RegisterIdentityScreenState
                         children: [
                           // Nationality selector
                           GestureDetector(
-                            // onTap: _showCountryPicker,
+                            onTap: _showCountryPicker,
                             child: Container(
                               width: double.infinity,
                               padding: const EdgeInsets.all(13),
