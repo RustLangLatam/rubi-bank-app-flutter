@@ -46,7 +46,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
             (b) => b
               ..givenName = ""
               ..familyName = ""
-              ..nationality = "US"
+              ..nationality = "AE"
               ..email = ""
               ..idn = Idn(
                 (b) => b
@@ -56,15 +56,15 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
               ..phoneNumber = Phone(
                 (b) => b
                   ..number = ""
-                  ..countryCode = 1,
+                  ..countryCode = 971,
               ).toBuilder()
               ..residentialAddress = CustomerAddress(
                 (b) => b
                   ..streetAddressLines = ListBuilder([""])
-                  ..locality = ""
+                  ..locality = "Dubai"
                   ..administrativeArea = ""
                   ..postalCode = ""
-                  ..countryCode = "US",
+                  ..countryCode = "AE",
               ).toBuilder()
               ..state = CustomerStateEnum.CUSTOMER_STATE_PENDING_VERIFICATION
               ..kycStatus = CustomerKycStatusEnum.KYC_STATUS_NONE,
@@ -132,7 +132,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
         (b) => b
           ..givenName = ""
           ..familyName = ""
-          ..nationality = "US"
+          ..nationality = "AE"
           ..email = ""
           ..idn = Idn(
             (b) => b
@@ -142,7 +142,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           ..phoneNumber = Phone(
             (b) => b
               ..number = ""
-              ..countryCode = 1,
+              ..countryCode = 971,
           ).toBuilder()
           ..residentialAddress = CustomerAddress(
             (b) => b
@@ -150,7 +150,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
               ..locality = ""
               ..administrativeArea = ""
               ..postalCode = ""
-              ..countryCode = "US",
+              ..countryCode = "AE",
           ).toBuilder()
           ..state = CustomerStateEnum.CUSTOMER_STATE_PENDING_VERIFICATION
           ..kycStatus = CustomerKycStatusEnum.KYC_STATUS_NONE,

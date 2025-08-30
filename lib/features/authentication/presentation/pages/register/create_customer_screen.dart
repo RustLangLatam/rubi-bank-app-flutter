@@ -107,10 +107,10 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
       final accountsApi = ref.read(accountsApiProvider);
 
       final newAccount = Account(
-            (a) => a
+        (a) => a
           ..displayName = "Primary Savings"
           ..accountDetails = AccountDetails(
-                (ad) => ad
+            (ad) => ad
               ..type = AccountDetailsTypeEnum.ACCOUNT_TYPE_SAVINGS
               ..productCode = "SAVINGS_PREMIUM",
           ).toBuilder(),
@@ -133,7 +133,8 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
 
-    return Theme( // Wrap with Theme to apply the custom color scheme locally
+    return Theme(
+      // Wrap with Theme to apply the custom color scheme locally
       data: theme,
       child: Scaffold(
         backgroundColor: theme.colorScheme.primary,
@@ -147,7 +148,6 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
                 // Elegant Rubi Loader (you'll need to create this widget)
                 _buildElegantRubiLoader(),
                 const SizedBox(height: 32), // Adjusted spacing
-
                 // Welcome title
                 Text(
                   'Welcome, ${widget.userName.split(' ').first}!',
@@ -158,30 +158,32 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16), // Adjusted spacing
-
                 // Description
                 SizedBox(
-                  width: 300, // Max-width for the description, similar to React max-w-sm
+                  width: 300,
+                  // Max-width for the description, similar to React max-w-sm
                   child: Text(
                     _allDone
                         ? "You're all set! Redirecting to your dashboard..."
                         : "We're just getting your account ready. This will only take a moment.",
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontSize: 16,
-                      fontWeight: FontWeight.normal, // Regular weight for description
+                      fontWeight:
+                          FontWeight.normal, // Regular weight for description
                     ),
                     textAlign: TextAlign.center,
                     maxLines: 2,
                   ),
                 ),
                 const SizedBox(height: 48), // Adjusted spacing
-
                 // Steps list
                 SizedBox(
                   width: 300, // Max-width for the steps column
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _steps.map((step) => _buildStepItem(step)).toList(),
+                    children: _steps
+                        .map((step) => _buildStepItem(step))
+                        .toList(),
                   ),
                 ),
               ],
@@ -213,7 +215,8 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0), // Consistent vertical spacing
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      // Consistent vertical spacing
       child: Row(
         children: [
           _buildStatusIcon(step.status),
@@ -233,7 +236,9 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
   }
 
   Widget _buildStatusIcon(StepStatus status) {
-    final accentGold = Theme.of(context).colorScheme.secondary; // Using accent gold from theme
+    final accentGold = Theme.of(
+      context,
+    ).colorScheme.secondary; // Using accent gold from theme
 
     switch (status) {
       case StepStatus.completed:
@@ -248,11 +253,13 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
           height: 20,
           child: CircularProgressIndicator(
             strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation<Color>(accentGold), // Accent gold for spinner
+            valueColor: AlwaysStoppedAnimation<Color>(
+              accentGold,
+            ), // Accent gold for spinner
           ),
         );
       case StepStatus.pending:
-      return Container(
+        return Container(
           width: 20,
           height: 20,
           decoration: BoxDecoration(
@@ -275,13 +282,7 @@ class StepItem {
 
   StepItem(this.label, this.status);
 
-  StepItem copyWith({
-    String? label,
-    StepStatus? status,
-  }) {
-    return StepItem(
-      label ?? this.label,
-      status ?? this.status,
-    );
+  StepItem copyWith({String? label, StepStatus? status}) {
+    return StepItem(label ?? this.label, status ?? this.status);
   }
 }

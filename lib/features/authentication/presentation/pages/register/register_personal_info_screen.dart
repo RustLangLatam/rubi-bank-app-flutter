@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../../core/common/widgets/custom_back_button.dart';
 import '../../../../../core/common/widgets/custom_button.dart';
 import '../../../../../core/common/widgets/elegant_progress_indicator.dart';
@@ -19,7 +21,6 @@ class RegisterPersonalInfoScreen extends ConsumerStatefulWidget {
 
 class _RegisterPersonalInfoScreenState
     extends ConsumerState<RegisterPersonalInfoScreen> {
-  final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -90,10 +91,15 @@ class _RegisterPersonalInfoScreenState
     return {'score': score, 'label': labels[score]};
   }
 
-  void _validateEmail(String email) {
-    if (email.isEmpty) {
+  void _validateEmail(String value) {
+    final trimmedValue = value.trim();
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+
+    if (trimmedValue.isEmpty) {
       setState(() => _emailError = 'Email is required');
-    } else if (!_emailRegex.hasMatch(email)) {
+    } else if (!emailRegex.hasMatch(trimmedValue)) {
       setState(() => _emailError = 'Please enter a valid email address');
     } else {
       setState(() => _emailError = '');
@@ -105,34 +111,44 @@ class _RegisterPersonalInfoScreenState
 
     if (trimmedValue.isEmpty) {
       setState(() => _firstNameError = 'First name is required');
-      return;
-    }
-
-    if (trimmedValue.length < 2) {
-      setState(() => _firstNameError = 'First name must be at least 2 characters');
-      return;
-    }
-
-    if (RegExp(r'[0-9]').hasMatch(trimmedValue)) {
+    } else if (trimmedValue.length < 2) {
+      setState(
+        () => _firstNameError = 'First name must be at least 2 characters',
+      );
+    } else if (RegExp(r'[0-9]').hasMatch(trimmedValue)) {
       setState(() => _firstNameError = 'First name cannot contain numbers');
-      return;
+    } else if (RegExp(
+      r'[!@#\$%^&*()_+={}\[\]|;:"<>?/\\~`]',
+    ).hasMatch(trimmedValue)) {
+      setState(
+        () => _firstNameError = 'First name cannot contain special characters',
+      );
+    } else if (RegExp(r'^\s|\s$').hasMatch(trimmedValue)) {
+      setState(() => _firstNameError = 'Cannot start or end with spaces');
+    } else {
+      setState(() => _firstNameError = '');
     }
-
-    if (RegExp(r'[!@#\$%^&*()_+={}\[\]:;"<>,?/\\|~`]').hasMatch(trimmedValue)) {
-      setState(() => _firstNameError = 'First name cannot contain special characters');
-      return;
-    }
-
-    setState(() => _firstNameError = '');
   }
 
-  void _validateLastName(String lastName) {
-    if (lastName.isEmpty) {
+  void _validateLastName(String value) {
+    final trimmedValue = value.trim();
+
+    if (trimmedValue.isEmpty) {
       setState(() => _lastNameError = 'Last name is required');
-    } else if (lastName.length < 2) {
+    } else if (trimmedValue.length < 2) {
       setState(
         () => _lastNameError = 'Last name must be at least 2 characters',
       );
+    } else if (RegExp(r'[0-9]').hasMatch(trimmedValue)) {
+      setState(() => _lastNameError = 'Last name cannot contain numbers');
+    } else if (RegExp(
+      r'[!@#\$%^&*()_+={}\[\]|;:"<>?/\\~`]',
+    ).hasMatch(trimmedValue)) {
+      setState(
+        () => _lastNameError = 'Last name cannot contain special characters',
+      );
+    } else if (RegExp(r'^\s|\s$').hasMatch(trimmedValue)) {
+      setState(() => _lastNameError = 'Cannot start or end with spaces');
     } else {
       setState(() => _lastNameError = '');
     }
@@ -208,159 +224,183 @@ class _RegisterPersonalInfoScreenState
     return Scaffold(
       backgroundColor: colorScheme.primary,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Back button
-                CustomBackButtonWithSpacing(
-                  onPressed: widget.onBack,
-                  color: colorScheme.secondary,
-                  spacing: 16,
-                ),
-
-                // Progress indicator
-                ElegantProgressIndicator(currentStep: 1, totalSteps: 4),
-                const SizedBox(height: 32),
-
-                // Title
-                Text(
-                  'Create your Profile',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
+        child: KeyboardVisibilityBuilder(
+          builder: (context, isKeyboardVisible) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 32.0,
+                vertical: 24.0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Back button
+                  CustomBackButtonWithSpacing(
+                    onPressed: widget.onBack,
+                    color: colorScheme.secondary,
+                    spacing: 16,
                   ),
-                ),
-                const SizedBox(height: 40),
 
-                // Form fields
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        // First Name
-                        TextFormField(
-                          controller: _firstNameController,
-                          style: theme.textTheme.bodyLarge,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: colorScheme.surface,
-                            hintText: 'First Name *',
-                            hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                              color: const Color(0xFF94A3B8),
-                            ),
-                            contentPadding: const EdgeInsets.all(16),
-                            errorText: _firstNameError.isNotEmpty
-                                ? _firstNameError
-                                : null,
-                          ),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.deny(RegExp(r'[0-9]')),
-                            FilteringTextInputFormatter.deny(RegExp(r'[!@#\$%^&*()_+={}\[\]|;:"<>,.?/\\~`]')),
-                          ],
-                          onChanged: _validateFirstName,
-                        ),
-                        const SizedBox(height: 20),
+                  // // Progress indicator
+                  ElegantProgressIndicator(currentStep: 2, totalSteps: 4),
+                  const SizedBox(height: 32),
 
-                        // Last Name
-                        TextFormField(
-                          controller: _lastNameController,
-                          style: theme.textTheme.bodyLarge,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: colorScheme.surface,
-                            hintText: 'Last Name *',
-                            hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                              color: const Color(0xFF94A3B8),
-                            ),
-                            contentPadding: const EdgeInsets.all(16),
-                            errorText: _lastNameError.isNotEmpty
-                                ? _lastNameError
-                                : null,
-                          ),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.deny(RegExp(r'[0-9]')),
-                            FilteringTextInputFormatter.deny(RegExp(r'[!@#\$%^&*()_+={}\[\]|;:"<>,.?/\\~`]')),
-                          ],
-                          onChanged: _validateLastName,
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Email
-                        TextFormField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          style: theme.textTheme.bodyLarge,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: colorScheme.surface,
-                            hintText: 'Email Address *',
-                            hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                              color: const Color(0xFF94A3B8),
-                            ),
-                            contentPadding: const EdgeInsets.all(16),
-                            errorText: _emailError.isNotEmpty
-                                ? _emailError
-                                : null,
-                          ),
-                          onChanged: _validateEmail,
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Password
-                        TextFormField(
-                          controller: _passwordController,
-                          obscureText: !_showPassword,
-                          style: theme.textTheme.bodyLarge,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: colorScheme.surface,
-                            hintText: 'Create Password *',
-                            hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                              color: const Color(0xFF94A3B8),
-                            ),
-                            contentPadding: const EdgeInsets.all(16),
-                            suffixIcon: IconButton(
-                              onPressed: _togglePasswordVisibility,
-                              icon: _showPassword
-                                  ? const Icon(Icons.visibility_off)
-                                  : const Icon(Icons.visibility),
-                              color: const Color(0xFF94A3B8),
-                            ),
-                            errorText: _passwordError.isNotEmpty
-                                ? _passwordError
-                                : null,
-                          ),
-                          onChanged: _handlePasswordChange,
-                        ),
-
-                        // Password strength meter
-                        if (_passwordController.text.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: PasswordStrengthMeter(
-                              score: _passwordStrengthScore,
-                              label: _passwordStrengthLabel,
-                            ),
-                          ),
-                      ],
+                  // Title
+                  Text(
+                    'Create your Profile',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                ),
+                  const SizedBox(height: 40),
 
-                // Next button
-                const SizedBox(height: 32),
-                CustomButton(
-                  text: "Next",
-                  onPressed: _handleNext,
-                  type: ButtonType.primary,
-                ),
-              ],
-            ),
-          ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        // Essential for content to take only necessary space
+                        children: [
+                          // First Name
+                          TextFormField(
+                            controller: _firstNameController,
+                            style: theme.textTheme.bodyLarge,
+                            textCapitalization: TextCapitalization.words,
+                            keyboardType: TextInputType.text,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: colorScheme.surface,
+                              hintText: 'First Name *',
+                              hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                                color: const Color(0xFF94A3B8),
+                              ),
+                              contentPadding: const EdgeInsets.all(16),
+                              errorText: _firstNameError.isNotEmpty
+                                  ? _firstNameError
+                                  : null,
+                            ),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.deny(
+                                RegExp(r'[0-9]'),
+                              ),
+                              FilteringTextInputFormatter.deny(
+                                RegExp(r'[!@#\$%^&*()_+={}\[\]|;:"<>,.?/\\~`]'),
+                              ),
+                            ],
+                            onChanged: _validateFirstName,
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Last Name
+                          TextFormField(
+                            controller: _lastNameController,
+                            style: theme.textTheme.bodyLarge,
+                            textCapitalization: TextCapitalization.words,
+                            keyboardType: TextInputType.text,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: colorScheme.surface,
+                              hintText: 'Last Name *',
+                              hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                                color: const Color(0xFF94A3B8),
+                              ),
+                              contentPadding: const EdgeInsets.all(16),
+                              errorText: _lastNameError.isNotEmpty
+                                  ? _lastNameError
+                                  : null,
+                            ),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.deny(
+                                RegExp(r'[0-9]'),
+                              ),
+                              FilteringTextInputFormatter.deny(
+                                RegExp(r'[!@#\$%^&*()_+={}\[\]|;:"<>,.?/\\~`]'),
+                              ),
+                            ],
+                            onChanged: _validateLastName,
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Email
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            style: theme.textTheme.bodyLarge,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: colorScheme.surface,
+                              hintText: 'Email Address *',
+                              hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                                color: const Color(0xFF94A3B8),
+                              ),
+                              contentPadding: const EdgeInsets.all(16),
+                              errorText: _emailError.isNotEmpty
+                                  ? _emailError
+                                  : null,
+                            ),
+                            onChanged: _validateEmail,
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Password
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: !_showPassword,
+                            style: theme.textTheme.bodyLarge,
+                            textInputAction: TextInputAction.done,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: colorScheme.surface,
+                              hintText: 'Create Password *',
+                              hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                                color: const Color(0xFF94A3B8),
+                              ),
+                              contentPadding: const EdgeInsets.all(16),
+                              suffixIcon: IconButton(
+                                onPressed: _togglePasswordVisibility,
+                                icon: _showPassword
+                                    ? const Icon(Icons.visibility_off)
+                                    : const Icon(Icons.visibility),
+                                color: const Color(0xFF94A3B8),
+                              ),
+                              errorText: _passwordError.isNotEmpty
+                                  ? _passwordError
+                                  : null,
+                            ),
+                            onChanged: _handlePasswordChange,
+                            onFieldSubmitted: (_) {
+                              if (_areAllFieldsValid()) {
+                                _handleNext();
+                              }
+                            },
+                          ),
+
+                          // Password strength meter
+                          if (_passwordController.text.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: PasswordStrengthMeter(
+                                score: _passwordStrengthScore,
+                                label: _passwordStrengthLabel,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  if (!isKeyboardVisible) ...[
+                    const SizedBox(height: 32),
+                    CustomButton(
+                      text: "Next",
+                      onPressed: _handleNext,
+                      type: ButtonType.primary,
+                    ),
+                  ],
+                ],
+              ),
+            );
+          },
         ),
       ),
     );

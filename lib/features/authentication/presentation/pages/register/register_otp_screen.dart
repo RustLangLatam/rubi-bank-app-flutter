@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide Provider;
 import 'package:rubi_bank_app/features/authentication/presentation/pages/register/register_success_screen.dart';
-import '../../../../../core/common/widgets/custom_button.dart';
+
 import '../../../../../core/common/widgets/custom_back_button.dart';
+import '../../../../../core/common/widgets/custom_button.dart';
 import '../../../../../core/common/widgets/elegant_progress_indicator.dart';
+import '../../../../../core/common/widgets/responsive_otp_fields.dart';
 import '../../providers/register_provider.dart';
 import 'create_customer_screen.dart';
 
@@ -156,9 +159,9 @@ class _RegisterOtpScreenState extends ConsumerState<RegisterOtpScreen> {
   String get _formattedPhoneNumber {
     final registerState = ref.watch(registerProvider);
     final phone = registerState.customer.phoneNumber.number;
-    if (phone.length <= 3) return '+1 $phone';
+    if (phone.length <= 3) return '+971 $phone';
 
-    return '+1 (${phone.substring(0, 3)}) ${phone.substring(3, 6)}-${phone.substring(6)}';
+    return '+971 (${phone.substring(0, 3)}) ${phone.substring(3, 6)}-${phone.substring(6)}';
   }
 
   bool get _isOtpComplete {
@@ -185,7 +188,7 @@ class _RegisterOtpScreenState extends ConsumerState<RegisterOtpScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Progress indicator (hidden, just for layout)
+              // Progress indicator
               ElegantProgressIndicator(
                 currentStep: 4,
                 totalSteps: 4,
@@ -193,123 +196,88 @@ class _RegisterOtpScreenState extends ConsumerState<RegisterOtpScreen> {
               ),
               const SizedBox(height: 32),
 
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Title
-                  Text(
-                    'Enter Verification Code',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Subtitle with phone number
-                  Text(
-                    'A 6-digit code has been sent to',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: const Color(0xFFA9B4C4),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _formattedPhoneNumber,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-
-                  // OTP input fields
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(6, (index) {
-                      return Container(
-                        width: 48,
-                        height: 56,
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        child: TextField(
-                          controller: _otpControllers[index],
-                          focusNode: _otpFocusNodes[index],
-                          keyboardType: TextInputType.number,
-                          textAlign: TextAlign.center,
-                          maxLength: 1,
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                          ),
-                          decoration: InputDecoration(
-                            counterText: '',
-                            filled: true,
-                            fillColor: colorScheme.surface,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: colorScheme.surface.withOpacity(0.8),
-                                width: 1,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: colorScheme.surface.withOpacity(0.8),
-                                width: 1,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: colorScheme.secondary,
-                                width: 1.5,
-                              ),
-                            ),
-                          ),
-                          onChanged: (value) => _handleOtpChange(value, index),
-                          enabled: !_isAutoFilling,
-                        ),
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Resend code section
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+              // Content
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      // Title
                       Text(
-                        "Didn't receive the code? ",
-                        style: theme.textTheme.bodySmall?.copyWith(
+                        'Enter Verification Code',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Subtitle with phone number
+                      Text(
+                        'A 6-digit code has been sent to',
+                        style: theme.textTheme.bodyMedium?.copyWith(
                           color: const Color(0xFFA9B4C4),
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                      _timer > 0
-                          ? Text(
-                              'Resend in ${_timer}s',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: const Color(0xFF94A3B8),
-                              ),
-                            )
-                          : GestureDetector(
-                              onTap: _handleResend,
-                              child: Text(
-                                'Resend Code',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: colorScheme.secondary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _formattedPhoneNumber,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 40),
+
+                      // OTP input fields - Simple responsive version
+                  Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                      child: ResponsiveOtpFields(
+                        controllers: _otpControllers,
+                        focusNodes: _otpFocusNodes,
+                        onChanged: _handleOtpChange,
+                        enabled: !_isAutoFilling,
+                        theme: theme,
+                      )),
+                      const SizedBox(height: 24),
+
+                      // Resend code section
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Didn't receive the code? ",
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: const Color(0xFFA9B4C4),
                             ),
+                          ),
+                          _timer > 0
+                              ? Text(
+                                  'Resend in ${_timer}s',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: const Color(0xFF94A3B8),
+                                  ),
+                                )
+                              : GestureDetector(
+                                  onTap: _handleResend,
+                                  child: Text(
+                                    'Resend Code',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: colorScheme.secondary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                        ],
+                      ),
                     ],
                   ),
-                ],
+                ),
               ),
 
-              // Spacer to push content to top
-              const Expanded(child: SizedBox()),
-
-              // Verify button with progress indicator
+              // Verify button
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
@@ -369,10 +337,13 @@ class RegisterOtpScreenWrapper extends ConsumerWidget {
                   MaterialPageRoute(
                     builder: (context) => RegisterSuccessScreen(
                       onGoToDashboard: () {
-                        Navigator.pushReplacementNamed(context, '/under-development');
+                        Navigator.pushReplacementNamed(
+                          context,
+                          '/under-development',
+                        );
                       },
                       userName:
-                          '${registerState.customer.givenName} ${registerState.customer.familyName}',
+                      registerState.customer.givenName,
                     ),
                   ),
                 );

@@ -33,10 +33,7 @@ class _RegisterSuccessScreenState extends State<RegisterSuccessScreen>
     );
 
     _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOutQuint,
-      ),
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOutQuint),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -89,9 +86,7 @@ class _RegisterSuccessScreenState extends State<RegisterSuccessScreen>
                                 width: 1.5,
                               ),
                             ),
-                            child: CustomPaint(
-                              painter: ElegantCheckPainter(),
-                            ),
+                            child: CustomPaint(painter: ElegantCheckPainter()),
                           ),
                         ),
                       ),
@@ -102,26 +97,10 @@ class _RegisterSuccessScreenState extends State<RegisterSuccessScreen>
                       FadeTransition(
                         opacity: _fadeAnimation,
                         child: Text(
-                          'WELCOME TO RUBIBANK',
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 2.0,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-
-                      // Client Name
-                      const SizedBox(height: 8),
-                      FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: Text(
-                          widget.userName.isNotEmpty ? widget.userName : 'VALUED CLIENT',
+                          'Account Created',
                           style: theme.textTheme.headlineSmall?.copyWith(
                             fontSize: 28,
                             fontWeight: FontWeight.w700,
-                            letterSpacing: 1.2,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -143,14 +122,47 @@ class _RegisterSuccessScreenState extends State<RegisterSuccessScreen>
                       FadeTransition(
                         opacity: _fadeAnimation,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 0),
-                          child: Text(
-                            "You now have access to exclusive financial services designed for discerning clients.",
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              height: 1.6,
-                              fontSize: 15,
-                            ),
-                            textAlign: TextAlign.center,
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              // Línea 1
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  "Your exclusive RubiBank account is now active.",
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: const Color(0xFFA9B4C4),
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              // Línea 2
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  "We are delighted to have you with us.",
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: const Color(0xFFA9B4C4),
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              // Línea 3
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  "Begin your unparalleled banking journey.",
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: const Color(0xFFA9B4C4),
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),

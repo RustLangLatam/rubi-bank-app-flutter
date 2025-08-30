@@ -36,6 +36,7 @@ dependencies:
   country_picker: ^2.0.27
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
+  flutter_keyboard_visibility: ^6.0.0
   dio: ^5.9.0
 
   rubi_bank_api_sdk:

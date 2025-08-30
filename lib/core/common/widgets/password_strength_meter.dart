@@ -12,7 +12,7 @@ class PasswordStrengthMeter extends StatelessWidget {
       1: Colors.red,
       2: Colors.yellow,
       3: Colors.green,
-      4: Colors.green,
+      4: Colors.greenAccent,
     };
 
     final color = strengthColors[score] ?? Colors.grey;
@@ -26,7 +26,7 @@ class PasswordStrengthMeter extends StatelessWidget {
                 children: List.generate(4, (index) {
                   return Expanded(
                     child: Container(
-                      height: 4,
+                      height: 2,
                       margin: const EdgeInsets.symmetric(horizontal: 2),
                       decoration: BoxDecoration(
                         color: index < score ? color : const Color(0xFF304A6E),
