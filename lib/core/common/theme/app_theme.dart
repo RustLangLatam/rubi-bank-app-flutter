@@ -16,6 +16,9 @@ class AppTheme {
         surface: Color(0xFF1E3A5F),
         onSurface: Color(0xFF304A6E),
       ),
+      primaryTextTheme: GoogleFonts.latoTextTheme(
+        ThemeData.dark().primaryTextTheme,
+      ),
       textTheme: GoogleFonts.latoTextTheme(base.textTheme).copyWith(
         headlineSmall: GoogleFonts.lato(
           fontWeight: FontWeight.bold,
@@ -95,6 +98,9 @@ class AppTheme {
       brightness: Brightness.light,
       scaffoldBackgroundColor: const Color(0xFFF1F5F9), // primary-light
       primaryColor: const Color(0xFF0A2540), // accent/deep-blue
+      primaryTextTheme: GoogleFonts.latoTextTheme(
+        ThemeData.light().primaryTextTheme,
+      ),
       colorScheme: const ColorScheme.light(
         primary: Color(0xFFF1F5F9),
         secondary: Color(0xFFFCD34D),

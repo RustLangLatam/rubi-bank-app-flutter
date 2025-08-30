@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app.dart';
 import 'data/providers/api_provider.dart';
 
@@ -9,6 +10,10 @@ const String apiBaseUrl = 'http://127.0.0.1:8000';
 void main() async {
   // Ensure that the Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
+
+  await GoogleFonts.pendingFonts([
+    GoogleFonts.getFont('Lato'),
+  ]);
 
   // Create a new provider container
   final container = ProviderContainer(
