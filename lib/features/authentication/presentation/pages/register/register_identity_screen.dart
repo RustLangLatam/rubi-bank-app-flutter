@@ -196,13 +196,13 @@ class _RegisterIdentityScreenState
                             onTap: _showCountryPicker,
                             child: Container(
                               width: double.infinity,
-                              padding: const EdgeInsets.all(13),
+                              padding: const EdgeInsets.all(15),
                               decoration: BoxDecoration(
                                 color: colorScheme.surface,
                                 borderRadius: BorderRadius.circular(10.5),
                                 border: Border.all(
-                                  color: colorScheme.onSurface.withOpacity(0.5),
-                                  width: 0.2,
+                                  color: colorScheme.onSurface.withOpacity(0.8),
+                                  width: 1,
                                 ),
                               ),
                               child: Row(
@@ -256,23 +256,12 @@ class _RegisterIdentityScreenState
                                     _validateDocumentType(_documentType);
                                   });
                                 },
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                  ),
-                                  hintText: 'Document Type *',
-                                  hintStyle: theme.textTheme.bodyMedium,
-                                  errorText: _documentTypeError.isNotEmpty
-                                      ? _documentTypeError
-                                      : null,
-                                ),
                                 style: theme.textTheme.bodyLarge,
                                 dropdownColor: colorScheme.surface,
                                 borderRadius: BorderRadius.circular(10.5),
                                 icon: Icon(
                                   Icons.arrow_drop_down,
-                                  color: colorScheme.onSurface,
+                                  color: Color(0xFF94A3B8),
                                 ),
                                 iconSize: 24,
                                 isExpanded: true,
@@ -307,12 +296,7 @@ class _RegisterIdentityScreenState
 
                           // Document Number
                           TextFormField(
-                            onChanged: (value) {
-                              setState(() {
-                                _documentNumber = value;
-                                _validateDocumentNumber(_documentNumber);
-                              });
-                            },
+                            textInputAction: TextInputAction.done,
                             controller: _documentNumberController,
                             style: theme.textTheme.bodyLarge,
                             decoration: InputDecoration(
@@ -323,19 +307,21 @@ class _RegisterIdentityScreenState
                                 color: const Color(0xFF94A3B8),
                               ),
                               contentPadding: const EdgeInsets.all(16),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.5),
-                                borderSide: BorderSide(
-                                  color: _documentNumberError.isNotEmpty
-                                      ? Colors.red
-                                      : colorScheme.surface.withOpacity(0.8),
-                                  width: 1,
-                                ),
-                              ),
                               errorText: _documentNumberError.isNotEmpty
                                   ? _documentNumberError
                                   : null,
                             ),
+                            onChanged: (value) {
+                              setState(() {
+                                _documentNumber = value;
+                                _validateDocumentNumber(_documentNumber);
+                              });
+                            },
+                            onFieldSubmitted: (_) {
+                              if (_areAllFieldsValid()) {
+                                _handleNext();
+                              }
+                            },
                           ),
                         ],
                       ),

@@ -242,7 +242,7 @@ class _RegisterPersonalInfoScreenState
                   ),
 
                   // // Progress indicator
-                  ElegantProgressIndicator(currentStep: 2, totalSteps: 4),
+                  ElegantProgressIndicator(currentStep: 1, totalSteps: 4),
                   const SizedBox(height: 32),
 
                   // Title
@@ -267,6 +267,7 @@ class _RegisterPersonalInfoScreenState
                             style: theme.textTheme.bodyLarge,
                             textCapitalization: TextCapitalization.words,
                             keyboardType: TextInputType.text,
+                            textInputAction: TextInputAction.next,
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: colorScheme.surface,
@@ -297,6 +298,7 @@ class _RegisterPersonalInfoScreenState
                             style: theme.textTheme.bodyLarge,
                             textCapitalization: TextCapitalization.words,
                             keyboardType: TextInputType.text,
+                            textInputAction: TextInputAction.next,
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: colorScheme.surface,
@@ -326,6 +328,7 @@ class _RegisterPersonalInfoScreenState
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             style: theme.textTheme.bodyLarge,
+                            textInputAction: TextInputAction.next,
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: colorScheme.surface,

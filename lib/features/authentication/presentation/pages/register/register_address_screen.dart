@@ -30,7 +30,6 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
   String _streetAddressError = '';
   String _cityError = '';
   String _postalCodeError = '';
-  String _countryError = '';
 
   @override
   void initState() {
@@ -98,7 +97,6 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
     return _streetAddressError.isEmpty &&
         _cityError.isEmpty &&
         _postalCodeError.isEmpty &&
-        _countryError.isEmpty &&
         _streetAddressController.text.isNotEmpty &&
         _cityController.text.isNotEmpty &&
         _postalCodeController.text.isNotEmpty;
@@ -217,6 +215,7 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
                           // Street Address
                           TextFormField(
                             controller: _streetAddressController,
+                            textInputAction: TextInputAction.next,
                             style: theme.textTheme.bodyLarge,
                             decoration: InputDecoration(
                               filled: true,
@@ -240,6 +239,7 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
                             style: theme.textTheme.bodyLarge,
                             textCapitalization: TextCapitalization.words,
                             keyboardType: TextInputType.text,
+                            textInputAction: TextInputAction.next,
                             inputFormatters: [
                               FilteringTextInputFormatter.deny(
                                 RegExp(r'[0-9]'),
@@ -270,6 +270,7 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
                             controller: _postalCodeController,
                             style: theme.textTheme.bodyLarge,
                             keyboardType: TextInputType.number,
+                            textInputAction: TextInputAction.next,
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: colorScheme.surface,
@@ -292,6 +293,7 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
                             style: theme.textTheme.bodyLarge,
                             textCapitalization: TextCapitalization.words,
                             keyboardType: TextInputType.text,
+                            textInputAction: TextInputAction.next,
                             inputFormatters: [
                               FilteringTextInputFormatter.deny(
                                 RegExp(r'[0-9]'),
@@ -317,14 +319,12 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
                             onTap: _showCountryPicker,
                             child: Container(
                               width: double.infinity,
-                              padding: const EdgeInsets.all(13),
+                              padding: const EdgeInsets.all(15),
                               decoration: BoxDecoration(
                                 color: colorScheme.surface,
                                 borderRadius: BorderRadius.circular(10.5),
                                 border: Border.all(
-                                  color: _countryError.isNotEmpty
-                                      ? Colors.red
-                                      : colorScheme.surface.withOpacity(0.8),
+                                  color: colorScheme.onSurface.withOpacity(0.8),
                                   width: 1,
                                 ),
                               ),
@@ -351,18 +351,7 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
                                 ],
                               ),
                             ),
-                          ),
-                          if (_countryError.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                _countryError,
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
+                          )
                         ],
                       ),
                     ),

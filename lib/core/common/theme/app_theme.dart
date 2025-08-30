@@ -38,10 +38,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: const Color(0xFF1E3A5F), // input-bg
-        border: OutlineInputBorder(
-          borderSide: const BorderSide(color: Color(0xFF304A6E)), // border-dark
-          borderRadius: BorderRadius.circular(10.5),
-        ),
+        // border: OutlineInputBorder(
+        //   borderSide: const BorderSide(color: Color(0xFF304A6E)), // border-dark
+        //   borderRadius: BorderRadius.circular(10.5),
+        // ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.5),
           borderSide: BorderSide(
