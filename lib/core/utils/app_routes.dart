@@ -12,6 +12,7 @@ import '../../features/dashboard/presentation/pages/dashboard_screen.dart';
 import '../../features/onboarding/presentation/pages/onboarding_screen.dart';
 import '../../features/onboarding/presentation/pages/splash_screen.dart';
 import '../transitions/custom_page_route.dart';
+import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -44,7 +45,8 @@ class AppRouter {
         return CustomPageRoute.scale(const UnderDevelopmentScreen());
 
       case '/dashboard':
-        return CustomPageRoute.fade(const DashboardScreen());
+        final customer = settings.arguments as sdk.Customer;
+        return CustomPageRoute.fade(DashboardScreen(customer: customer));
 
       default:
         return MaterialPageRoute(

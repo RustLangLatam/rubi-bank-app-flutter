@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/common/theme/app_theme.dart';
 import '../../../../core/common/widgets/custom_button.dart';
+import '../providers/customer_provider.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _showPassword = false;
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final _emailController = TextEditingController(text: 'eleazarrios@gmail.com');
+  final _passwordController = TextEditingController(text: 'Y!R3t@qW5uPoIe');
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final RegExp _emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
@@ -42,10 +44,28 @@ class _LoginScreenState extends State<LoginScreen> {
     return null;
   }
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
+
+      try {
+      await ref
+          .read(customerProvider.notifier)
+          .loginCustomer(_emailController.text, _passwordController.text);
+
+      final customer = ref.read(customerProvider).value;
+
       // Form is valid, proceed with login
-      Navigator.pushReplacementNamed(context, '/dashboard');
+      Navigator.pushReplacementNamed(context, '/dashboard', arguments: customer );
+      } catch (e) {
+        // if (mounted) {
+        //   final errorMsg = _getErrorMessage(e);
+        //   setState(() {
+        //     _hasError = true;
+        //     _errorMessage = errorMsg;
+        //   });
+        // }
+        debugPrint('Error: $e');
+      }
     }
   }
 

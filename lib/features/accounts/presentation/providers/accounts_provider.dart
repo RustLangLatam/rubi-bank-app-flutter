@@ -118,7 +118,8 @@ class Accounts extends _$Accounts {
       final accountsApi = ref.read(accountsApiProvider);
 
       final response = await accountsApi.listAccounts(
-        filterPeriodCustomerIdentifier: customerId
+        filterPeriodCustomerIdentifier: customerId,
+          pageParamsPeriodOrder: 'ORDER_ASC',
       );
 
       if (response.statusCode == 200 && response.data != null) {
