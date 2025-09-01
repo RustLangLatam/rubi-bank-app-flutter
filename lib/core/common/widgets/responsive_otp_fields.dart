@@ -31,7 +31,7 @@ class ResponsiveOtpFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final  colorScheme = theme.colorScheme;
+    final colorScheme = theme.colorScheme;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -105,7 +105,6 @@ class ResponsiveOtpFields extends StatelessWidget {
         actualSpacing = math.max(minSpacing, actualSpacing);
         actualSpacing = math.min(maxSpacing, actualSpacing);
 
-
         return SizedBox(
           width: availableWidth,
           child: Row(
@@ -114,27 +113,204 @@ class ResponsiveOtpFields extends StatelessWidget {
               return SizedBox(
                 width: actualFieldWidth,
                 height: fieldHeight,
-                child: TextField(
+                child: AnimatedOtpDigit(
                   controller: controllers[index],
                   focusNode: focusNodes[index],
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  maxLength: 1,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontSize: actualFieldWidth > 42 ? 24 : 20,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  decoration: InputDecoration(
-                    counterText: '',
-                    filled: true,
-                    fillColor: colorScheme.surface,
-                    contentPadding: EdgeInsets.zero,
-                  ),
                   onChanged: (value) => onChanged(value, index),
                   enabled: enabled,
+                  theme: theme,
+                  fieldWidth: actualFieldWidth,
+                  fieldHeight: fieldHeight,
                 ),
               );
             }),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class AnimatedOtpDigit extends StatefulWidget {
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final Function(String) onChanged;
+  final bool enabled;
+  final ThemeData theme;
+  final double fieldWidth;
+  final double fieldHeight;
+
+  const AnimatedOtpDigit({
+    super.key,
+    required this.controller,
+    required this.focusNode,
+    required this.onChanged,
+    required this.enabled,
+    required this.theme,
+    required this.fieldWidth,
+    required this.fieldHeight,
+  });
+
+  @override
+  State<AnimatedOtpDigit> createState() => _AnimatedOtpDigitState();
+}
+
+class _AnimatedOtpDigitState extends State<AnimatedOtpDigit> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  String _currentValue = '';
+  String _previousValue = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    // Initialize current value
+    _currentValue = widget.controller.text;
+
+    // Listen to controller changes
+    widget.controller.addListener(_handleTextChange);
+  }
+
+  void _handleTextChange() {
+    if (widget.controller.text != _currentValue) {
+      setState(() {
+        _previousValue = _currentValue;
+        _currentValue = widget.controller.text;
+        _animationController.forward(from: 0.0);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    widget.controller.removeListener(_handleTextChange);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = widget.theme.colorScheme;
+    final fontSize = widget.fieldWidth > 42 ? 24.0 : 20.0;
+
+    return Stack(
+      children: [
+        TextField(
+          controller: widget.controller,
+          focusNode: widget.focusNode,
+          keyboardType: TextInputType.number,
+          textAlign: TextAlign.center,
+          maxLength: 1,
+          style: TextStyle(
+            fontSize: 0,
+            color: Colors.transparent,
+          ),
+          decoration: InputDecoration(
+            counterText: '',
+            filled: true,
+            fillColor: colorScheme.surface,
+            contentPadding: EdgeInsets.zero,
+          ),
+          onChanged: (value) => widget.onChanged(value),
+          enabled: widget.enabled,
+        ),
+
+        Center(
+          child: Container(
+            width: widget.fieldWidth,
+            height: widget.fieldHeight,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              borderRadius: BorderRadius.circular(10.5),
+            ),
+            child: _AnimatedDigit(
+              animation: _animationController,
+              currentValue: _currentValue,
+              previousValue: _previousValue,
+              fontSize: fontSize,
+              color: colorScheme.secondary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AnimatedDigit extends StatelessWidget {
+  final Animation<double> animation;
+  final String currentValue;
+  final String previousValue;
+  final double fontSize;
+  final Color color;
+
+  const _AnimatedDigit({
+    required this.animation,
+    required this.currentValue,
+    required this.previousValue,
+    required this.fontSize,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, child) {
+        return SizedBox(
+          width: fontSize * 1.2,
+          height: fontSize * 1.2,
+          child: ClipRect(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                if (previousValue.isNotEmpty)
+                  Positioned(
+                    top: -animation.value * fontSize,
+                    child: Opacity(
+                      opacity: 1.0 - animation.value,
+                      child: Text(
+                        previousValue,
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.w700,
+                          color: color,
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                if (currentValue.isNotEmpty)
+                  Positioned(
+                    top: (1 - animation.value) * fontSize,
+                    child: Opacity(
+                      opacity: animation.value,
+                      child: Text(
+                        currentValue,
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.w700,
+                          color: color,
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                if (currentValue.isEmpty && previousValue.isEmpty)
+                  Container(
+                    width: 2,
+                    height: fontSize * 1.5,
+                    color: Colors.transparent,
+                  ),
+              ],
+            ),
           ),
         );
       },

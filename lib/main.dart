@@ -5,15 +5,19 @@ import 'app.dart';
 import 'data/providers/api_provider.dart';
 
 // Define the base URL for the RubiBank API
-const String apiBaseUrl = 'http://127.0.0.1:8000';
+const String apiBaseUrl = 'http://192.168.1.141:8080';
 
 void main() async {
   // Ensure that the Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
-  await GoogleFonts.pendingFonts([
-    GoogleFonts.getFont('Lato'),
-  ]);
+  try {
+    await GoogleFonts.pendingFonts([
+      GoogleFonts.getFont('Lato'),
+    ]).timeout(const Duration(seconds: 3));
+  } catch (e) {
+    debugPrint('Font loading failed: $e');
+  }
 
   // Create a new provider container
   final container = ProviderContainer(
