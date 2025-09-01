@@ -28,7 +28,7 @@ class _RegisterSuccessScreenState extends State<RegisterSuccessScreen>
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1100),
       vsync: this,
     );
 
@@ -64,14 +64,14 @@ class _RegisterSuccessScreenState extends State<RegisterSuccessScreen>
           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      const SizedBox(height: 48),
                       ScaleTransition(
                         scale: _scaleAnimation,
                         child: FadeTransition(
@@ -169,7 +169,6 @@ class _RegisterSuccessScreenState extends State<RegisterSuccessScreen>
                     ],
                   ),
                 ),
-              ),
 
               const SizedBox(height: 32),
 

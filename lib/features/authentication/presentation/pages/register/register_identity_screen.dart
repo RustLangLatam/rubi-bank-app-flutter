@@ -24,7 +24,7 @@ class _RegisterIdentityScreenState
 
   Country _selectedCountry = Country.parse('AE');
   String _documentType = '';
-  String _documentNumber = '';
+  String _documentNumber = '12323456';
   String _documentNumberError = '';
   String _documentTypeError = '';
 

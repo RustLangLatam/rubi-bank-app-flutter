@@ -19,7 +19,7 @@ class RegisterPhoneScreen extends ConsumerStatefulWidget {
 }
 
 class _RegisterPhoneScreenState extends ConsumerState<RegisterPhoneScreen> {
-  final _phoneNumberController = TextEditingController();
+  final _phoneNumberController = TextEditingController(text: '501234567');
   bool _agreedToTerms = false;
   String _phoneError = '';
   String _termsError = '';

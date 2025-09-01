@@ -21,10 +21,10 @@ class RegisterAddressScreen extends ConsumerStatefulWidget {
 }
 
 class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
-  final _streetAddressController = TextEditingController();
+  final _streetAddressController = TextEditingController(text: "Casa");
   final _cityController = TextEditingController(text: "Dubai");
   final _postalCodeController = TextEditingController(text: "25314");
-  final _administrativeAreaController = TextEditingController();
+  final _administrativeAreaController = TextEditingController(text: "Dubai");
 
   Country _selectedCountry = Country.parse("AE");
   String _streetAddressError = '';

@@ -7,6 +7,8 @@ import 'data/providers/api_provider.dart';
 // Define the base URL for the RubiBank API
 const String apiBaseUrl = 'http://192.168.1.141:8080';
 
+const String apiKey = 'dev123';
+
 void main() async {
   // Ensure that the Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +28,9 @@ void main() async {
   );
 
   // Initialize the API providers with the base URL
-  initializeApiProviders(container, baseUrl: apiBaseUrl);
+  initializeApiProviders(container, apiKey: apiKey, baseUrl: apiBaseUrl);
+
+
 
   // Run the application
   runApp(UncontrolledProviderScope(container: container, child: MyApp()));

@@ -33,11 +33,13 @@ AccountsServiceApi accountsApi(Ref ref) {
 /// ✅ **Function to Initialize All API Providers with a Custom Base URL**
 void initializeApiProviders(
   ProviderContainer container, {
+  required String apiKey,
   required String baseUrl,
 }) {
   container.read(baseUrlProvider.notifier).state = baseUrl;
-  container
-    ..read(rubiBankApiProvider)
-    ..read(customersApiProvider)
-    ..read(accountsApiProvider);
+  final rubiBankApi = container.read(rubiBankApiProvider);
+  rubiBankApi.setApiKey('ApiKey', apiKey);
+
+  container.read(customersApiProvider);
+  container.read(accountsApiProvider);
 }

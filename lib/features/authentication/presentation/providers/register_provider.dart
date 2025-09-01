@@ -1,5 +1,4 @@
-import 'package:flutter/foundation.dart';
-import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart';
+import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart';
@@ -11,7 +10,7 @@ final registerProvider = StateNotifierProvider<RegisterNotifier, RegisterState>(
 );
 
 class RegisterState {
-  final Customer customer;
+  final sdk.Customer customer;
   final String password;
   final bool isLoading;
   final String? error;
@@ -60,7 +59,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
               ).toBuilder()
               ..residentialAddress = CustomerAddress(
                 (b) => b
-                  ..streetAddressLines = ListBuilder([""])
+                  ..streetAddressLines = ListBuilder()
                   ..locality = "Dubai"
                   ..administrativeArea = ""
                   ..postalCode = ""
@@ -146,7 +145,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           ).toBuilder()
           ..residentialAddress = CustomerAddress(
             (b) => b
-              ..streetAddressLines = ListBuilder([""])
+              ..streetAddressLines = ListBuilder()
               ..locality = ""
               ..administrativeArea = ""
               ..postalCode = ""
