@@ -8,6 +8,7 @@ import '../../features/authentication/presentation/pages/register/register_otp_s
 import '../../features/authentication/presentation/pages/register/register_personal_info_screen.dart';
 import '../../features/authentication/presentation/pages/register/register_phone_screen.dart';
 import '../../features/common/presentation/pages/under_development_screen.dart';
+import '../../features/dashboard/presentation/pages/dashboard_screen.dart';
 import '../../features/onboarding/presentation/pages/onboarding_screen.dart';
 import '../../features/onboarding/presentation/pages/splash_screen.dart';
 import '../transitions/custom_page_route.dart';
@@ -41,6 +42,9 @@ class AppRouter {
 
       case '/under-development':
         return CustomPageRoute.scale(const UnderDevelopmentScreen());
+
+      case '/dashboard':
+        return CustomPageRoute.fade(const DashboardScreen());
 
       default:
         return MaterialPageRoute(

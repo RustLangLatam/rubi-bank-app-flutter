@@ -209,22 +209,19 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
       child: Scaffold(
         backgroundColor: theme.colorScheme.primary,
         body: Center(
-          // Usar Center como widget principal
           child: SafeArea(
-            minimum: const EdgeInsets.all(32.0), // Mínimo padding garantizado
+            minimum: const EdgeInsets.all(32.0),
             child: ConstrainedBox(
               constraints: const BoxConstraints(
-                maxWidth: 400, // Ancho máximo para pantallas grandes
+                maxWidth: 400,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Elegant Rubi Loader or error icon
                   _buildElegantRubiLoader(),
                   const SizedBox(height: 32),
-                  // Welcome title or error title
                   Text(
                     _hasError
                         ? 'Setup Incomplete'

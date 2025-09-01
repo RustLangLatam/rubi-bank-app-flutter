@@ -339,7 +339,7 @@ class RegisterOtpScreenWrapper extends ConsumerWidget {
                       onGoToDashboard: () {
                         Navigator.pushReplacementNamed(
                           context,
-                          '/under-development',
+                          '/dashboard',
                         );
                       },
                       userName:

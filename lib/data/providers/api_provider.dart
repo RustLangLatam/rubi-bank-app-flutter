@@ -30,6 +30,14 @@ AccountsServiceApi accountsApi(Ref ref) {
   return api.getAccountsServiceApi();
 }
 
+/// ✅ **Provider to get the Transactions API**
+@Riverpod(keepAlive: true)
+TransactionsServiceApi transactionsApi(Ref ref) {
+  final api = ref.watch(rubiBankApiProvider);
+  return api.getTransactionsServiceApi();
+}
+
+
 /// ✅ **Function to Initialize All API Providers with a Custom Base URL**
 void initializeApiProviders(
   ProviderContainer container, {
@@ -42,4 +50,5 @@ void initializeApiProviders(
 
   container.read(customersApiProvider);
   container.read(accountsApiProvider);
+  container.read(transactionsApiProvider);
 }

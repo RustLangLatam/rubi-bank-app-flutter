@@ -63,5 +63,24 @@ final accountsApiProvider = Provider<AccountsServiceApi>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AccountsApiRef = ProviderRef<AccountsServiceApi>;
+String _$transactionsApiHash() => r'26600d99fc573956b739f664d5dff5dc90d856e8';
+
+/// ✅ **Provider to get the Transactions API**
+///
+/// Copied from [transactionsApi].
+@ProviderFor(transactionsApi)
+final transactionsApiProvider = Provider<TransactionsServiceApi>.internal(
+  transactionsApi,
+  name: r'transactionsApiProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$transactionsApiHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef TransactionsApiRef = ProviderRef<TransactionsServiceApi>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

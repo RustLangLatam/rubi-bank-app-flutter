@@ -45,6 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       // Form is valid, proceed with login
+      Navigator.pushReplacementNamed(context, '/dashboard');
     }
   }
 
