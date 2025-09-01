@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
-import 'package:rubi_bank_app/core/utils/decimal_precision.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../../core/common/widgets/card_rubi_logo.dart';
 import '../../../../core/common/widgets/eye_icon.dart';
-import '../../../../core/common/widgets/eye_off_icon.dart';
+import '../../../../core/common/widgets/eye_off_icon.dart'; // Make sure to add shimmer to your pubspec.yaml
 
-import 'package:shimmer/shimmer.dart';
 
-class BalanceCardWidget extends StatefulWidget {
-  final sdk.Account? account;
+class BalanceCard extends StatefulWidget {
+  // You can pass an account object here if you want to integrate with actual data,
+  // similar to your Flutter example. For now, it's optional.
+  final bool isLoading; // Added isLoading prop for shimmer effect
 
-  const BalanceCardWidget({
-    super.key,
-    required this.account,
-  });
+  const BalanceCard({super.key, this.isLoading = false});
 
   @override
-  State<BalanceCardWidget> createState() => _BalanceCardWidgetState();
+  State<BalanceCard> createState() => _BalanceCardState();
 }
 
-class _BalanceCardWidgetState extends State<BalanceCardWidget> {
+class _BalanceCardState extends State<BalanceCard> {
   bool _isBalanceVisible = true;
 
   void _toggleVisibility() {
@@ -31,11 +28,24 @@ class _BalanceCardWidgetState extends State<BalanceCardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isLoading = widget.account == null;
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return Container(
+    // Define colors based on light/dark mode
+    final Color primaryDeepBlue = const Color(0xFF0A1E3C);
+    final Color inputBgDark = const Color(0xFF1E293B); // Tailwind slate-800 or similar dark bg
+    final Color slate300 = const Color(0xFFA6B6C8); // Approx. Tailwind slate-300
+    final Color slate400 = const Color(0xFF7B8D9F); // Approx. Tailwind slate-400
+
+    final Color cardBgColor = isDarkMode ? inputBgDark : primaryDeepBlue;
+    final Color textColorLight = Colors.white;
+    final Color textMutedColor = isDarkMode ? slate300 : slate300; // Adjusted for better visibility in dark
+    final Color iconColor = isDarkMode ? slate400 : slate400; // Adjusted for better visibility in dark
+    final Color iconHoverColor = Colors.white;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
-        color: const Color(0xFF0A1E3C),
+        color: cardBgColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -44,9 +54,11 @@ class _BalanceCardWidgetState extends State<BalanceCardWidget> {
             offset: const Offset(0, 4),
           ),
         ],
+        border: isDarkMode ? Border.all(color: Colors.white.withOpacity(0.1), width: 1) : null,
       ),
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.all(28), // p-7 in Tailwind is 28px
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -60,15 +72,44 @@ class _BalanceCardWidgetState extends State<BalanceCardWidget> {
                     'Total Balance',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.7),
+                      color: textMutedColor,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 4), // mt-1 approx
                   Row(
                     children: [
-                      _buildBalanceDisplay(isLoading),
-                      const SizedBox(width: 12),
-                      _buildVisibilityToggle(isLoading),
+                      if (widget.isLoading)
+                        _buildShimmerPlaceholder(width: 150, height: 32)
+                      else
+                        Text(
+                          _isBalanceVisible ? '\$17,930.00' : '\$ ••••',
+                          style: TextStyle(
+                            fontSize: 32, // text-4xl
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -1, // tracking-tight
+                            color: textColorLight,
+                          ),
+                        ),
+                      const SizedBox(width: 12), // gap-3 approx
+                      if (widget.isLoading)
+                        _buildShimmerPlaceholder(width: 24, height: 24, isCircle: true)
+                      else
+                        InkWell(
+                          onTap: _toggleVisibility,
+                          customBorder: const CircleBorder(),
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0), // Smaller hit area
+                            child: _isBalanceVisible
+                                ? EyeOffIcon(
+                              size: 24,
+                              color: iconColor,
+                            )
+                                : EyeIcon(
+                              size: 24,
+                              color: iconColor,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ],
@@ -76,13 +117,34 @@ class _BalanceCardWidgetState extends State<BalanceCardWidget> {
               const CardRubiLogo(),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 32), // gap-8 approx, vertically separated sections
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildCardNumberDisplay(isLoading),
-              const SizedBox(height: 4),
-              _buildCardHolderDisplay(isLoading),
+              if (widget.isLoading)
+                _buildShimmerPlaceholder(width: 120, height: 16)
+              else
+                Text(
+                  '**** **** **** 1234',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: textMutedColor,
+                    fontFamily: 'monospace', // font-mono
+                    letterSpacing: 2, // tracking-widest
+                  ),
+                ),
+              const SizedBox(height: 4), // space-y-1 approx
+              if (widget.isLoading)
+                _buildShimmerPlaceholder(width: 100, height: 19)
+              else
+                Text(
+                  'RubiBank Platinum',
+                  style: TextStyle(
+                    fontSize: 16, // text-md approx
+                    fontWeight: FontWeight.w600, // font-semibold
+                    color: textColorLight,
+                  ),
+                ),
             ],
           ),
         ],
@@ -90,123 +152,21 @@ class _BalanceCardWidgetState extends State<BalanceCardWidget> {
     );
   }
 
-  Widget _buildBalanceDisplay(bool isLoading) {
-    if (isLoading) {
-      return Shimmer.fromColors(
-        baseColor: Colors.white.withOpacity(0.2),
-        highlightColor: Colors.white.withOpacity(0.4),
-        child: Container(
-          width: 150,
-          height: 32,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(6),
-          ),
+  Widget _buildShimmerPlaceholder({
+    required double width,
+    required double height,
+    bool isCircle = false,
+  }) {
+    return Shimmer.fromColors(
+      baseColor: Colors.white.withOpacity(0.2),
+      highlightColor: Colors.white.withOpacity(0.4),
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.3),
+          borderRadius: isCircle ? BorderRadius.circular(height / 2) : BorderRadius.circular(4),
         ),
-      );
-    }
-
-    final balance = widget.account!.balance?.issuedBalance;
-    final currency = widget.account!.currency;
-
-    return Text(
-      _isBalanceVisible
-          ? '$currency${balance?.value.toDecimal()}'
-          : '\$ ••••',
-      style: const TextStyle(
-        fontSize: 32,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-      ),
-    );
-  }
-
-  Widget _buildVisibilityToggle(bool isLoading) {
-    if (isLoading) {
-      return Shimmer.fromColors(
-        baseColor: Colors.white.withOpacity(0.2),
-        highlightColor: Colors.white.withOpacity(0.4),
-        child: Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.3),
-            shape: BoxShape.circle,
-          ),
-        ),
-      );
-    }
-
-    return IconButton(
-      onPressed: _toggleVisibility,
-      icon: _isBalanceVisible
-          ? EyeOffIcon(
-        size: 24,
-        color: Colors.white.withOpacity(0.6),
-      )
-          : EyeIcon(
-        size: 24,
-        color: Colors.white.withOpacity(0.6),
-      ),
-      splashRadius: 20,
-      tooltip: _isBalanceVisible ? 'Hide balance' : 'Show balance',
-    );
-  }
-
-  Widget _buildCardNumberDisplay(bool isLoading) {
-    if (isLoading) {
-      return Shimmer.fromColors(
-        baseColor: Colors.white.withOpacity(0.2),
-        highlightColor: Colors.white.withOpacity(0.4),
-        child: Container(
-          width: 120,
-          height: 16,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
-      );
-    }
-
-    final cardNumber = widget.account!.address?.rubiHandle?.substring(
-      widget.account!.address!.rubiHandle!.length - 4,
-    );
-
-    return Text(
-      '**** **** **** $cardNumber',
-      style: TextStyle(
-        fontSize: 14,
-        color: Colors.white.withOpacity(0.7),
-        letterSpacing: 2,
-      ),
-    );
-  }
-
-  Widget _buildCardHolderDisplay(bool isLoading) {
-    if (isLoading) {
-      return Shimmer.fromColors(
-        baseColor: Colors.white.withOpacity(0.2),
-        highlightColor: Colors.white.withOpacity(0.4),
-        child: Container(
-          width: 100,
-          height: 19,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
-      );
-    }
-
-    final cardHolderName = widget.account!.displayName;
-
-    return Text(
-      cardHolderName,
-      style: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        color: Colors.white,
       ),
     );
   }

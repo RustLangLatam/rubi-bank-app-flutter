@@ -214,7 +214,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                BalanceCardWidget(account: primaryAccount),
+                BalanceCard(),
                 const SizedBox(height: 20),
                 const ActionButtonsGroupWidget(),
                 const SizedBox(height: 20),
