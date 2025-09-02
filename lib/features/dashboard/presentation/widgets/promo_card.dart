@@ -1,4 +1,3 @@
-// promo_card.dart
 import 'package:flutter/material.dart';
 import 'custom_icons.dart';
 import 'types.dart';
@@ -41,58 +40,75 @@ class PromoCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 128,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16), // Reduced padding
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  _getIcon(promotion.icon, textColor),
-                  const SizedBox(width: 12),
-                  Text(
-                    promotion.title,
+              // Top content with flexible space
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        _getIcon(promotion.icon, textColor),
+                        const SizedBox(width: 8), // Reduced spacing
+                        Expanded(
+                          child: Text(
+                            promotion.title,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16, // Reduced font size
+                              color: textColor,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6), // Reduced spacing
+                    Expanded(
+                      child: Text(
+                        promotion.description,
+                        style: TextStyle(
+                          fontSize: 12, // Reduced font size
+                          color: textColor,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Learn More button at the bottom
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: GestureDetector(
+                  onTap: () {
+                    // Handle learn more action
+                  },
+                  child: Text(
+                    'Learn More →',
                     style: TextStyle(
+                      fontSize: 12, // Reduced font size
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: textColor,
+                      color: textColor.withOpacity(0.8),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                promotion.description,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: textColor,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
             ],
-          ),
-          GestureDetector(
-            onTap: () {
-              // Handle learn more action
-            },
-            child: Text(
-              'Learn More →',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: textColor.withOpacity(0.8),
-              ),
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

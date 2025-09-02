@@ -41,16 +41,16 @@ class _BalanceCardState extends State<BalanceCard> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(10.5),
+        color: theme.scaffoldBackgroundColor,
+        borderRadius: BorderRadius.circular(16.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: theme.colorScheme.surface.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.3), width: 1),
       ),
       padding: const EdgeInsets.all(28), // p-7 in Tailwind is 28px
       child: Column(
@@ -70,7 +70,7 @@ class _BalanceCardState extends State<BalanceCard> {
                       fontWeight: FontWeight.w200,
                     ),
                   ),
-                  const SizedBox(height: 4), // mt-1 approx
+                  const SizedBox(height: 2), // mt-1 approx
                   Row(
                     children: [
                       if (widget.isLoading)
@@ -78,7 +78,10 @@ class _BalanceCardState extends State<BalanceCard> {
                       else
                         Text(
                           _isBalanceVisible ? balance : '\$ ••••',
-                          style: theme.textTheme.headlineSmall,
+                          style: theme.textTheme.bodyLarge!.copyWith(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       const SizedBox(width: 12), // gap-3 approx
                       if (widget.isLoading)
@@ -112,11 +115,35 @@ class _BalanceCardState extends State<BalanceCard> {
                   ),
                 ],
               ),
-              CardRubiLogo(color: theme.textTheme.bodyMedium!.color),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CardRubiLogo(
+                    size: 20,
+                    color: theme.textTheme.bodyMedium!.color,
+                  ),
+                  const SizedBox(width: 6),
+                  RichText(
+                    text: TextSpan(
+                      style: theme.textTheme.bodyMedium,
+                      children: [
+                        TextSpan(
+                          text: 'Rubi',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const TextSpan(
+                          text: 'Bank',
+                          style: TextStyle(fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
           const SizedBox(
-            height: 32,
+            height: 24,
           ), // gap-8 approx, vertically separated sections
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,10 +152,10 @@ class _BalanceCardState extends State<BalanceCard> {
                 _buildShimmerPlaceholder(width: 120, height: 16)
               else
                 Text(
-                  '**** **** **** ${cardNumber!.substring(cardNumber.length - 4)}',
+                  'xxxx xxxx xxxx ${cardNumber!.substring(cardNumber.length - 4)}',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontSize: 14,
-                    letterSpacing: 2
+                    letterSpacing: 2,
                   ),
                 ),
               const SizedBox(height: 8), // space-y-1 approx
@@ -136,10 +163,10 @@ class _BalanceCardState extends State<BalanceCard> {
                 _buildShimmerPlaceholder(width: 100, height: 19)
               else
                 Text(
-                  'RubiBank Platinum',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal,
+                  cardHolderName,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
             ],

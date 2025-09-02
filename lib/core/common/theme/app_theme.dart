@@ -7,7 +7,7 @@ class AppTheme {
     final base = ThemeData.dark();
     return base.copyWith(
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: const Color(0xFF02040F), // primary-darkest
+      scaffoldBackgroundColor: const Color(0xFF02040F).withOpacity(0.3), // primary-darkest
       primaryColor: const Color(0xFF0A2540), // deep-blue
       colorScheme: const ColorScheme.dark(
         primary: Color(0xFF0A2540),
@@ -25,9 +25,9 @@ class AppTheme {
           fontSize: 28,
           color: Colors.white,
         ),
-        bodyLarge: GoogleFonts.lato(color: Colors.white),
+        bodyLarge: GoogleFonts.lato(color: Colors.white, fontSize: 20),
         bodyMedium: GoogleFonts.lato(
-          color: const Color(0xFFCBD5E1), // muted text
+          color: Color(0xFFCBD5E1).withOpacity(0.8), // muted text
         ),
         labelLarge: GoogleFonts.lato(
           fontWeight: FontWeight.bold,
@@ -96,7 +96,7 @@ class AppTheme {
     final base = ThemeData.light();
     return base.copyWith(
       brightness: Brightness.light,
-      scaffoldBackgroundColor: const Color(0xFFF1F5F9), // primary-light
+      scaffoldBackgroundColor: const Color(0xFF64748B).withOpacity(0.1), // primary-light
       primaryColor: const Color(0xFF0A2540), // accent/deep-blue
       primaryTextTheme: GoogleFonts.latoTextTheme(
         ThemeData.light().primaryTextTheme,
@@ -114,7 +114,7 @@ class AppTheme {
           fontSize: 28,
           color: const Color(0xFF0A2540),
         ),
-        bodyLarge: GoogleFonts.lato(color: const Color(0xFF0A2540)),
+        bodyLarge: GoogleFonts.lato(color: const Color(0xFF0A2540), fontSize: 20),
         bodyMedium: GoogleFonts.lato(
           color: const Color(0xFF64748B), // muted
         ),

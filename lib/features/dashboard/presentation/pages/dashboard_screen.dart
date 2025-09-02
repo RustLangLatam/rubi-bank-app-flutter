@@ -7,6 +7,7 @@ import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
 import '../../../../core/common/widgets/elegant_rubi_loader.dart';
 import '../../../accounts/presentation/providers/accounts_provider.dart';
 import '../widgets/action_buttons_group_widget.dart';
+import '../widgets/promotional_carousel.dart';
 import '../widgets/types.dart';
 
 final List<Promotion> promotions = [
@@ -215,20 +216,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 BalanceCard(account: primaryAccount!),
-                const SizedBox(height: 20),
+                const SizedBox(height: 18),
                 const ActionButtonsGroupWidget(),
-                // const SizedBox(height: 20),
-                // PromotionalCarousel(promotions: promotions),
-                // const SizedBox(height: 20),
-                // Text(
-                //   'Recent Activity',
-                //   style: theme.textTheme.headlineSmall?.copyWith(
-                //     fontSize: 28,
-                //     fontWeight: FontWeight.w700,
-                //     color: theme.colorScheme.onPrimary,
-                //   ),
-                // ),
-                // const SizedBox(height: 12),
+                const SizedBox(height: 18),
+                PromotionalCarousel(promotions: promotions),
+                const SizedBox(height: 18),
+                Text(
+                  'Recent Activity',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                  ),
+                ),
+                const SizedBox(height: 12),
                 Expanded(
                   child: RecentActivityWidget(transactions: recentActivity),
                 ),

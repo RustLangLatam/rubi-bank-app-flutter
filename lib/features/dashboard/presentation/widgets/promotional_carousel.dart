@@ -1,28 +1,30 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'types.dart';
 import 'promo_card.dart';
 
-class PromotionalCarousel extends ConsumerStatefulWidget {
+class PromotionalCarousel extends StatefulWidget {
   final List<Promotion> promotions;
 
   const PromotionalCarousel({super.key, required this.promotions});
 
   @override
-  ConsumerState<PromotionalCarousel> createState() => _PromotionalCarouselState();
+  State<PromotionalCarousel> createState() => _PromotionalCarouselState();
 }
 
-class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> {
-  final PageController _pageController = PageController();
+class _PromotionalCarouselState extends State<PromotionalCarousel> {
+  late PageController _pageController;
   int _currentIndex = 0;
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _startAutoPlay();
+    _pageController = PageController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startAutoPlay();
+    });
   }
 
   @override
@@ -33,50 +35,29 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> {
   }
 
   void _startAutoPlay() {
+    if (widget.promotions.length <= 1) return;
+
     _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (_currentIndex < widget.promotions.length - 1) {
-        _pageController.nextPage(
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-      } else {
-        _pageController.animateToPage(
-          0,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-      }
+      if (!mounted || !_pageController.hasClients) return;
+
+      final nextIndex = (_currentIndex + 1) % widget.promotions.length;
+
+      _pageController.animateToPage(
+        nextIndex,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
     });
   }
 
-  void _goToPrevious() {
-    if (_currentIndex > 0) {
-      _pageController.previousPage(
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
-    } else {
-      _pageController.animateToPage(
-        widget.promotions.length - 1,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
+  void _goToPage(int newIndex) {
+    if (!mounted || !_pageController.hasClients) return;
 
-  void _goToNext() {
-    if (_currentIndex < widget.promotions.length - 1) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
-    } else {
-      _pageController.animateToPage(
-        0,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
-    }
+    _pageController.animateToPage(
+      newIndex,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -84,11 +65,15 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final buttonColor = isDark ? Colors.white : Colors.black;
 
-    return Stack(
-      children: [
-        SizedBox(
-          height: 128,
-          child: PageView.builder(
+    if (widget.promotions.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return SizedBox(
+      height: 122,
+      child: Stack(
+        children: [
+          PageView.builder(
             controller: _pageController,
             itemCount: widget.promotions.length,
             onPageChanged: (index) {
@@ -103,36 +88,44 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> {
               );
             },
           ),
-        ),
-        Positioned(
-          left: 4,
-          top: 0,
-          bottom: 0,
-          child: Center(
-            child: IconButton(
-              icon: Icon(Icons.chevron_left, color: buttonColor),
-              onPressed: _goToPrevious,
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.black.withOpacity(0.1),
+          if (widget.promotions.length > 1)
+            Positioned(
+              left: 4,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: IconButton(
+                  icon: Icon(Icons.chevron_left, color: buttonColor),
+                  onPressed: () => _goToPage(
+                      _currentIndex > 0
+                          ? _currentIndex - 1
+                          : widget.promotions.length - 1
+                  ),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.black.withOpacity(0.1),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-        Positioned(
-          right: 4,
-          top: 0,
-          bottom: 0,
-          child: Center(
-            child: IconButton(
-              icon: Icon(Icons.chevron_right, color: buttonColor),
-              onPressed: _goToNext,
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.black.withOpacity(0.1),
+          if (widget.promotions.length > 1)
+            Positioned(
+              right: 4,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: IconButton(
+                  icon: Icon(Icons.chevron_right, color: buttonColor),
+                  onPressed: () => _goToPage(
+                      (_currentIndex + 1) % widget.promotions.length
+                  ),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.black.withOpacity(0.1),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
