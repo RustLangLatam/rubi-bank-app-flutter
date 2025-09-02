@@ -89,47 +89,47 @@ class Transactions extends _$Transactions {
       );
     }
   }
-  //
-  // Future<void> fetchAccountTransactions(String accountId, {DateTime? startDate, DateTime? endDate}) async {
-  //   debugPrint('Fetching transactions for account: $accountId');
-  //
-  //   state = const AsyncValue.loading();
-  //
-  //   try {
-  //     final transactionsApi = ref.read(transactionsApiProvider);
-  //
-  //     final response = await transactionsApi.listTransactions(
-  //       account: accountId
-  //     );
-  //
-  //     if (response.statusCode == 200 && response.data. != null) {
-  //       state = AsyncValue.data(response.data!.transactions?.toList() ?? []);
-  //     } else {
-  //       state = AsyncValue.error(
-  //         TransactionApiException('Failed to fetch transactions: Status code ${response.statusCode}', statusCode: response.statusCode),
-  //         StackTrace.current,
-  //       );
-  //     }
-  //
-  //   } on DioException catch (e) {
-  //     debugPrint('DioException: ${e}');
-  //     final errorMessage = e.response?.data?['message'] ?? e.message ?? 'Unknown API error';
-  //     final statusCode = e.response?.statusCode ?? 0;
-  //
-  //     String parsedMessage = _parseDioError(e, errorMessage.toString());
-  //
-  //     state = AsyncValue.error(
-  //       TransactionApiException(parsedMessage, statusCode: statusCode, errorData: e.response?.data),
-  //       StackTrace.current,
-  //     );
-  //   } catch (e) {
-  //     state = AsyncValue.error(
-  //       TransactionException('Unexpected error: ${e.toString()}'),
-  //       StackTrace.current,
-  //     );
-  //   }
-  // }
-  //
+
+  Future<void> fetchAccountTransactions(String parentIdentifier, {DateTime? startDate, DateTime? endDate}) async {
+    debugPrint('Fetching transactions for account: $parentIdentifier');
+
+    state = const AsyncValue.loading();
+
+    try {
+      final transactionsApi = ref.read(transactionsApiProvider);
+
+      final response = await transactionsApi.listTransactions(
+        parentIdentifier: parentIdentifier
+      );
+
+      if (response.statusCode == 200 && response.data?.transactions != null) {
+        state = AsyncValue.data(response.data!.transactions?.toList() ?? []);
+      } else {
+        state = AsyncValue.error(
+          TransactionApiException('Failed to fetch transactions: Status code ${response.statusCode}', statusCode: response.statusCode),
+          StackTrace.current,
+        );
+      }
+
+    } on DioException catch (e) {
+      debugPrint('DioException: ${e}');
+      final errorMessage = e.response?.data?['message'] ?? e.message ?? 'Unknown API error';
+      final statusCode = e.response?.statusCode ?? 0;
+
+      String parsedMessage = _parseDioError(e, errorMessage.toString());
+
+      state = AsyncValue.error(
+        TransactionApiException(parsedMessage, statusCode: statusCode, errorData: e.response?.data),
+        StackTrace.current,
+      );
+    } catch (e) {
+      state = AsyncValue.error(
+        TransactionException('Unexpected error: ${e.toString()}'),
+        StackTrace.current,
+      );
+    }
+  }
+
   // Future<void> getTransactionById(String transactionId) async {
   //   debugPrint('Fetching transaction: $transactionId');
   //

@@ -232,15 +232,16 @@ class _RegisterOtpScreenState extends ConsumerState<RegisterOtpScreen> {
                       const SizedBox(height: 40),
 
                       // OTP input fields - Simple responsive version
-                  Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                      child: ResponsiveOtpFields(
-                        controllers: _otpControllers,
-                        focusNodes: _otpFocusNodes,
-                        onChanged: _handleOtpChange,
-                        enabled: !_isAutoFilling,
-                        theme: theme,
-                      )),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                        child: ResponsiveOtpFields(
+                          controllers: _otpControllers,
+                          focusNodes: _otpFocusNodes,
+                          onChanged: _handleOtpChange,
+                          enabled: !_isAutoFilling,
+                          theme: theme,
+                        ),
+                      ),
                       const SizedBox(height: 24),
 
                       // Resend code section
@@ -340,10 +341,10 @@ class RegisterOtpScreenWrapper extends ConsumerWidget {
                         Navigator.pushReplacementNamed(
                           context,
                           '/dashboard',
+                          arguments: registerState.customer,
                         );
                       },
-                      userName:
-                      registerState.customer.givenName,
+                      userName: registerState.customer.givenName,
                     ),
                   ),
                 );

@@ -6,6 +6,7 @@ import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
 
 import '../../../../core/common/widgets/elegant_rubi_loader.dart';
 import '../../../accounts/presentation/providers/accounts_provider.dart';
+import '../../../transactions/presentation/providers/transactions_provider.dart';
 import '../widgets/action_buttons_group_widget.dart';
 import '../widgets/promotional_carousel.dart';
 import '../widgets/types.dart';
@@ -40,9 +41,8 @@ class DashboardScreen extends ConsumerStatefulWidget {
 enum TransitionType { fade, scale, slide, combined }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  // Add this enum for different transition types
-
   final TransitionType _transitionType = TransitionType.combined;
+  bool _transactionsLoaded = false;
 
   @override
   void initState() {
@@ -57,6 +57,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           .fetchCustomerAccounts(widget.customer.identifier!);
     } catch (e) {
       debugPrint('Error fetching accounts: $e');
+    }
+  }
+
+  Future<void> _fetchTransactions(sdk.Account account) async {
+    if (_transactionsLoaded) return;
+
+    final accountsIdentifier = account.name!.split("/").last;
+
+    try {
+      await ref
+          .read(transactionsProvider.notifier)
+          .fetchAccountTransactions(accountsIdentifier);
+      setState(() {
+        _transactionsLoaded = true;
+      });
+    } catch (e) {
+      debugPrint('Error fetching transactions: $e');
     }
   }
 
@@ -75,23 +92,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       case TransitionType.slide:
         return SlideTransition(
           position:
-              Tween<Offset>(
-                begin: const Offset(0.0, 0.3),
-                end: Offset.zero,
-              ).animate(
-                CurvedAnimation(parent: animation, curve: Curves.easeInOut),
-              ),
+          Tween<Offset>(
+            begin: const Offset(0.0, 0.3),
+            end: Offset.zero,
+          ).animate(
+            CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+          ),
           child: child,
         );
       case TransitionType.combined:
         return SlideTransition(
           position:
-              Tween<Offset>(
-                begin: const Offset(0.0, 0.1),
-                end: Offset.zero,
-              ).animate(
-                CurvedAnimation(parent: animation, curve: Curves.easeInOut),
-              ),
+          Tween<Offset>(
+            begin: const Offset(0.0, 0.1),
+            end: Offset.zero,
+          ).animate(
+            CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+          ),
           child: FadeTransition(
             opacity: CurvedAnimation(
               parent: animation,
@@ -107,6 +124,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final accountsState = ref.watch(accountsProvider);
+    final transactionsState = ref.watch(transactionsProvider);
 
     return PopScope(
       canPop: false,
@@ -129,7 +147,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
               data: (accounts) => KeyedSubtree(
                 key: const ValueKey('data'),
-                child: _buildDashboardScreen(accounts, theme),
+                child: _buildDashboardScreen(accounts, transactionsState, theme),
               ),
             ),
           ),
@@ -201,11 +219,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildDashboardScreen(List<sdk.Account> accounts, ThemeData theme) {
+  Widget _buildDashboardScreen(List<sdk.Account> accounts, AsyncValue<List<sdk.Transaction>> transactionsState, ThemeData theme) {
     final primaryAccount = accounts.isNotEmpty ? accounts.first : null;
-    final recentActivity = primaryAccount != null
-        ? _getRecentTransactions(primaryAccount)
-        : <sdk.Transaction>[];
+
+    if (primaryAccount != null && !_transactionsLoaded) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _fetchTransactions(primaryAccount);
+      });
+    }
 
     return Column(
       children: [
@@ -215,7 +236,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                BalanceCard(account: primaryAccount!),
+                Text(
+                  widget.customer.displayName ?? widget.customer.givenName,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 18),
+
+                if (primaryAccount != null) BalanceCard(account: primaryAccount),
                 const SizedBox(height: 18),
                 const ActionButtonsGroupWidget(),
                 const SizedBox(height: 18),
@@ -223,12 +252,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 const SizedBox(height: 18),
                 Text(
                   'Recent Activity',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                  ),
+                  style: theme.textTheme.bodyLarge?.copyWith(),
                 ),
                 const SizedBox(height: 12),
                 Expanded(
-                  child: RecentActivityWidget(transactions: recentActivity),
+                  child: transactionsState.when(
+                    loading: () => const Center(child: CircularProgressIndicator()),
+                    error: (error, stackTrace) => Center(
+                      child: Text('Error loading transactions: $error'),
+                    ),
+                    data: (transactions) => RecentActivityEnhanced(transactions: transactions),
+                  ),
                 ),
               ],
             ),
@@ -236,9 +270,5 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
       ],
     );
-  }
-
-  List<sdk.Transaction> _getRecentTransactions(sdk.Account account) {
-    return [];
   }
 }

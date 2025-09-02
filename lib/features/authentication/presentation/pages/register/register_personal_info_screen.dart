@@ -21,10 +21,10 @@ class RegisterPersonalInfoScreen extends ConsumerStatefulWidget {
 
 class _RegisterPersonalInfoScreenState
     extends ConsumerState<RegisterPersonalInfoScreen> {
-  final _firstNameController = TextEditingController(text: 'Eleazar');
-  final _lastNameController = TextEditingController(text: 'Rios');
-  final _emailController = TextEditingController(text: 'eleazarrios@gmail.com');
-  final _passwordController = TextEditingController(text: 'Y!R3t@qW5uPoIe');
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   bool _showPassword = false;
   String _passwordStrengthLabel = '';
