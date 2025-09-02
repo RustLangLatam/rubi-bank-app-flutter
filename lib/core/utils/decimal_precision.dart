@@ -1,4 +1,5 @@
 import 'package:decimal/decimal.dart';
+import 'package:intl/intl.dart';
 import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart';
 
 extension DecimalPrecisionExtensions on DecimalPrecision {
@@ -66,5 +67,17 @@ extension DecimalPrecisionExtensions on DecimalPrecision {
     return DecimalPrecision((b) => b
       ..coefficient = coefficient
       ..scale = scale);
+  }
+}
+
+extension DecimalFormatting on Decimal {
+  String toFormattedString() {
+    final formatter = NumberFormat('#,##0.00', 'en_US');
+    return formatter.format(toDouble());
+  }
+
+  String toCurrencyString({String symbol = '\$'}) {
+    final formatter = NumberFormat('$symbol#,##0.00', 'en_US');
+    return formatter.format(toDouble());
   }
 }

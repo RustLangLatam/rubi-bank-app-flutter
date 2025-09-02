@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rubi_bank_app/features/accounts/presentation/widgets/balance_card.dart';
-import 'package:rubi_bank_app/features/dashboard/presentation/widgets/action_buttons_group_widget.dart';
-import 'package:rubi_bank_app/features/dashboard/presentation/widgets/promotional_carousel.dart';
 import 'package:rubi_bank_app/features/dashboard/presentation/widgets/recent_activity_widget.dart';
 import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
 
 import '../../../../core/common/widgets/elegant_rubi_loader.dart';
 import '../../../accounts/presentation/providers/accounts_provider.dart';
+import '../widgets/action_buttons_group_widget.dart';
 import '../widgets/types.dart';
 
 final List<Promotion> promotions = [
@@ -112,23 +111,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       canPop: false,
       child: Scaffold(
         backgroundColor: theme.colorScheme.primary,
-        body: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 800),
-          switchInCurve: Curves.easeInOut,
-          switchOutCurve: Curves.easeInOut,
-          transitionBuilder: _buildTransition,
-          child: accountsState.when(
-            loading: () => KeyedSubtree(
-              key: const ValueKey('loading'),
-              child: _buildLoadingScreen(theme),
-            ),
-            error: (error, stackTrace) => KeyedSubtree(
-              key: const ValueKey('error'),
-              child: _buildErrorScreen(error, theme),
-            ),
-            data: (accounts) => KeyedSubtree(
-              key: const ValueKey('data'),
-              child: _buildDashboardScreen(accounts, theme),
+        body: SafeArea(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 800),
+            switchInCurve: Curves.easeInOut,
+            switchOutCurve: Curves.easeInOut,
+            transitionBuilder: _buildTransition,
+            child: accountsState.when(
+              loading: () => KeyedSubtree(
+                key: const ValueKey('loading'),
+                child: _buildLoadingScreen(theme),
+              ),
+              error: (error, stackTrace) => KeyedSubtree(
+                key: const ValueKey('error'),
+                child: _buildErrorScreen(error, theme),
+              ),
+              data: (accounts) => KeyedSubtree(
+                key: const ValueKey('data'),
+                child: _buildDashboardScreen(accounts, theme),
+              ),
             ),
           ),
         ),
@@ -149,7 +150,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             child: Text(
               'RUBIBANK',
               style: TextStyle(
-                fontFamily: 'Lato',
                 color: theme.colorScheme.secondary,
                 fontSize: 36,
                 fontWeight: FontWeight.bold,
@@ -214,21 +214,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                BalanceCard(),
+                BalanceCard(account: primaryAccount!),
                 const SizedBox(height: 20),
                 const ActionButtonsGroupWidget(),
-                const SizedBox(height: 20),
-                PromotionalCarousel(promotions: promotions),
-                const SizedBox(height: 20),
-                Text(
-                  'Recent Activity',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color: theme.colorScheme.onPrimary,
-                  ),
-                ),
-                const SizedBox(height: 12),
+                // const SizedBox(height: 20),
+                // PromotionalCarousel(promotions: promotions),
+                // const SizedBox(height: 20),
+                // Text(
+                //   'Recent Activity',
+                //   style: theme.textTheme.headlineSmall?.copyWith(
+                //     fontSize: 28,
+                //     fontWeight: FontWeight.w700,
+                //     color: theme.colorScheme.onPrimary,
+                //   ),
+                // ),
+                // const SizedBox(height: 12),
                 Expanded(
                   child: RecentActivityWidget(transactions: recentActivity),
                 ),

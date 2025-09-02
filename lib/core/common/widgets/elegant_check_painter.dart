@@ -6,10 +6,9 @@ class ElegantCheckPainter extends CustomPainter {
     final Paint checkPaint = Paint()
       ..color = const Color(0xFF22C55E)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5 // Línea muy delgada
+      ..strokeWidth = 1.5
       ..strokeCap = StrokeCap.round;
 
-    // Check mark minimalista
     final Path checkPath = Path();
 
     checkPath.moveTo(size.width * 0.3, size.height * 0.5);
@@ -18,7 +17,6 @@ class ElegantCheckPainter extends CustomPainter {
 
     canvas.drawPath(checkPath, checkPaint);
 
-    // Puntos de énfasis en los extremos
     final Paint dotPaint = Paint()
       ..color = const Color(0xFF22C55E)
       ..style = PaintingStyle.fill;

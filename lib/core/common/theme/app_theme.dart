@@ -27,7 +27,7 @@ class AppTheme {
         ),
         bodyLarge: GoogleFonts.lato(color: Colors.white),
         bodyMedium: GoogleFonts.lato(
-          color: const Color(0xFFA9B4C4), // muted text
+          color: const Color(0xFFCBD5E1), // muted text
         ),
         labelLarge: GoogleFonts.lato(
           fontWeight: FontWeight.bold,

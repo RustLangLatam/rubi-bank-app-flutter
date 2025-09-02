@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
+import 'package:rubi_bank_app/core/utils/decimal_precision.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../core/common/widgets/card_rubi_logo.dart';
 import '../../../../core/common/widgets/eye_icon.dart';
-import '../../../../core/common/widgets/eye_off_icon.dart'; // Make sure to add shimmer to your pubspec.yaml
-
+import '../../../../core/common/widgets/eye_off_icon.dart';
 
 class BalanceCard extends StatefulWidget {
+  final sdk.Account account;
   // You can pass an account object here if you want to integrate with actual data,
   // similar to your Flutter example. For now, it's optional.
   final bool isLoading; // Added isLoading prop for shimmer effect
 
-  const BalanceCard({super.key, this.isLoading = false});
+  const BalanceCard({super.key, required this.account, this.isLoading = false});
 
   @override
   State<BalanceCard> createState() => _BalanceCardState();
@@ -28,25 +30,19 @@ class _BalanceCardState extends State<BalanceCard> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final ThemeData theme = Theme.of(context);
 
-    // Define colors based on light/dark mode
-    final Color primaryDeepBlue = const Color(0xFF0A1E3C);
-    final Color inputBgDark = const Color(0xFF1E293B); // Tailwind slate-800 or similar dark bg
-    final Color slate300 = const Color(0xFFA6B6C8); // Approx. Tailwind slate-300
-    final Color slate400 = const Color(0xFF7B8D9F); // Approx. Tailwind slate-400
-
-    final Color cardBgColor = isDarkMode ? inputBgDark : primaryDeepBlue;
-    final Color textColorLight = Colors.white;
-    final Color textMutedColor = isDarkMode ? slate300 : slate300; // Adjusted for better visibility in dark
-    final Color iconColor = isDarkMode ? slate400 : slate400; // Adjusted for better visibility in dark
-    final Color iconHoverColor = Colors.white;
+    final money = widget.account.balance!.issuedBalance;
+    final currency = money.currencyCode;
+    final balance = money.value.toDecimal().toCurrencyString();
+    final cardNumber = widget.account.address!.rubiHandle;
+    final cardHolderName = widget.account.displayName;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
-        color: cardBgColor,
-        borderRadius: BorderRadius.circular(16),
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(10.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -54,7 +50,7 @@ class _BalanceCardState extends State<BalanceCard> {
             offset: const Offset(0, 4),
           ),
         ],
-        border: isDarkMode ? Border.all(color: Colors.white.withOpacity(0.1), width: 1) : null,
+        border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
       ),
       padding: const EdgeInsets.all(28), // p-7 in Tailwind is 28px
       child: Column(
@@ -70,9 +66,8 @@ class _BalanceCardState extends State<BalanceCard> {
                 children: [
                   Text(
                     'Total Balance',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: textMutedColor,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w200,
                     ),
                   ),
                   const SizedBox(height: 4), // mt-1 approx
@@ -82,42 +77,47 @@ class _BalanceCardState extends State<BalanceCard> {
                         _buildShimmerPlaceholder(width: 150, height: 32)
                       else
                         Text(
-                          _isBalanceVisible ? '\$17,930.00' : '\$ ••••',
-                          style: TextStyle(
-                            fontSize: 32, // text-4xl
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: -1, // tracking-tight
-                            color: textColorLight,
-                          ),
+                          _isBalanceVisible ? balance : '\$ ••••',
+                          style: theme.textTheme.headlineSmall,
                         ),
                       const SizedBox(width: 12), // gap-3 approx
                       if (widget.isLoading)
-                        _buildShimmerPlaceholder(width: 24, height: 24, isCircle: true)
+                        _buildShimmerPlaceholder(
+                          width: 24,
+                          height: 24,
+                          isCircle: true,
+                        )
                       else
                         InkWell(
                           onTap: _toggleVisibility,
                           customBorder: const CircleBorder(),
                           child: Padding(
-                            padding: const EdgeInsets.all(4.0), // Smaller hit area
+                            padding: const EdgeInsets.all(
+                              4.0,
+                            ), // Smaller hit area
                             child: _isBalanceVisible
                                 ? EyeOffIcon(
-                              size: 24,
-                              color: iconColor,
-                            )
+                                    size: 24,
+                                    color: theme.textTheme.bodyMedium!.color!
+                                        .withOpacity(0.6),
+                                  )
                                 : EyeIcon(
-                              size: 24,
-                              color: iconColor,
-                            ),
+                                    size: 24,
+                                    color: theme.textTheme.bodyMedium!.color!
+                                        .withOpacity(0.6),
+                                  ),
                           ),
                         ),
                     ],
                   ),
                 ],
               ),
-              const CardRubiLogo(),
+              CardRubiLogo(color: theme.textTheme.bodyMedium!.color),
             ],
           ),
-          const SizedBox(height: 32), // gap-8 approx, vertically separated sections
+          const SizedBox(
+            height: 32,
+          ), // gap-8 approx, vertically separated sections
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -125,24 +125,21 @@ class _BalanceCardState extends State<BalanceCard> {
                 _buildShimmerPlaceholder(width: 120, height: 16)
               else
                 Text(
-                  '**** **** **** 1234',
-                  style: TextStyle(
+                  '**** **** **** ${cardNumber!.substring(cardNumber.length - 4)}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
                     fontSize: 14,
-                    color: textMutedColor,
-                    fontFamily: 'monospace', // font-mono
-                    letterSpacing: 2, // tracking-widest
+                    letterSpacing: 2
                   ),
                 ),
-              const SizedBox(height: 4), // space-y-1 approx
+              const SizedBox(height: 8), // space-y-1 approx
               if (widget.isLoading)
                 _buildShimmerPlaceholder(width: 100, height: 19)
               else
                 Text(
                   'RubiBank Platinum',
-                  style: TextStyle(
-                    fontSize: 16, // text-md approx
-                    fontWeight: FontWeight.w600, // font-semibold
-                    color: textColorLight,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
                   ),
                 ),
             ],
@@ -165,7 +162,9 @@ class _BalanceCardState extends State<BalanceCard> {
         height: height,
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.3),
-          borderRadius: isCircle ? BorderRadius.circular(height / 2) : BorderRadius.circular(4),
+          borderRadius: isCircle
+              ? BorderRadius.circular(height / 2)
+              : BorderRadius.circular(4),
         ),
       ),
     );
