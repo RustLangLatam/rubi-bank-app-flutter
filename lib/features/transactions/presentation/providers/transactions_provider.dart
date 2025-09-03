@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -9,8 +11,16 @@ part 'transactions_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 class Transactions extends _$Transactions {
+  Timer? _pollingTimer;
+  String? _currentAccountId;
+
   @override
   AsyncValue<List<sdk.Transaction>> build() {
+    ref.onDispose(() {
+      _pollingTimer?.cancel();
+      _pollingTimer = null;
+    });
+
     return const AsyncValue.loading();
   }
 
@@ -39,7 +49,10 @@ class Transactions extends _$Transactions {
           break;
         case 400:
           state = AsyncValue.error(
-            TransactionApiException('Bad request: Invalid transaction data', statusCode: 400),
+            TransactionApiException(
+              'Bad request: Invalid transaction data',
+              statusCode: 400,
+            ),
             StackTrace.current,
           );
           return;
@@ -57,27 +70,37 @@ class Transactions extends _$Transactions {
           return;
         case 500:
           state = AsyncValue.error(
-            TransactionApiException('Server error: Please try again later', statusCode: 500),
+            TransactionApiException(
+              'Server error: Please try again later',
+              statusCode: 500,
+            ),
             StackTrace.current,
           );
           return;
         default:
           state = AsyncValue.error(
-            TransactionApiException('Unexpected error: Status code ${response.statusCode}', statusCode: response.statusCode),
+            TransactionApiException(
+              'Unexpected error: Status code ${response.statusCode}',
+              statusCode: response.statusCode,
+            ),
             StackTrace.current,
           );
           return;
       }
-
     } on DioException catch (e) {
       debugPrint('DioException: ${e}');
-      final errorMessage = e.response?.data?['message'] ?? e.message ?? 'Unknown API error';
+      final errorMessage =
+          e.response?.data?['message'] ?? e.message ?? 'Unknown API error';
       final statusCode = e.response?.statusCode ?? 0;
 
       String parsedMessage = _parseDioError(e, errorMessage.toString());
 
       state = AsyncValue.error(
-        TransactionApiException(parsedMessage, statusCode: statusCode, errorData: e.response?.data),
+        TransactionApiException(
+          parsedMessage,
+          statusCode: statusCode,
+          errorData: e.response?.data,
+        ),
         StackTrace.current,
       );
     } on TransactionException catch (e) {
@@ -90,8 +113,10 @@ class Transactions extends _$Transactions {
     }
   }
 
-  Future<void> fetchAccountTransactions(String parentIdentifier, {DateTime? startDate, DateTime? endDate}) async {
+  Future<void> fetchAccountTransactions(String parentIdentifier) async {
     debugPrint('Fetching transactions for account: $parentIdentifier');
+
+    _currentAccountId = parentIdentifier;
 
     state = const AsyncValue.loading();
 
@@ -99,27 +124,35 @@ class Transactions extends _$Transactions {
       final transactionsApi = ref.read(transactionsApiProvider);
 
       final response = await transactionsApi.listTransactions(
-        parentIdentifier: parentIdentifier
+        parentIdentifier: _currentAccountId,
+          pageParamsPeriodOrder: 'ORDER_ASC',
       );
 
       if (response.statusCode == 200 && response.data?.transactions != null) {
         state = AsyncValue.data(response.data!.transactions?.toList() ?? []);
       } else {
         state = AsyncValue.error(
-          TransactionApiException('Failed to fetch transactions: Status code ${response.statusCode}', statusCode: response.statusCode),
+          TransactionApiException(
+            'Failed to fetch transactions: Status code ${response.statusCode}',
+            statusCode: response.statusCode,
+          ),
           StackTrace.current,
         );
       }
-
     } on DioException catch (e) {
       debugPrint('DioException: ${e}');
-      final errorMessage = e.response?.data?['message'] ?? e.message ?? 'Unknown API error';
+      final errorMessage =
+          e.response?.data?['message'] ?? e.message ?? 'Unknown API error';
       final statusCode = e.response?.statusCode ?? 0;
 
       String parsedMessage = _parseDioError(e, errorMessage.toString());
 
       state = AsyncValue.error(
-        TransactionApiException(parsedMessage, statusCode: statusCode, errorData: e.response?.data),
+        TransactionApiException(
+          parsedMessage,
+          statusCode: statusCode,
+          errorData: e.response?.data,
+        ),
         StackTrace.current,
       );
     } catch (e) {
@@ -130,45 +163,89 @@ class Transactions extends _$Transactions {
     }
   }
 
-  // Future<void> getTransactionById(String transactionId) async {
-  //   debugPrint('Fetching transaction: $transactionId');
-  //
-  //   state = const AsyncValue.loading();
-  //
-  //   try {
-  //     final transactionsApi = ref.read(transactionsApiProvider);
-  //
-  //     final response = await transactionsApi.getTransaction(
-  //       transaction: transactionId,
-  //     );
-  //
-  //     if (response.statusCode == 200 && response.data != null) {
-  //       state = AsyncValue.data([response.data!]);
-  //     } else {
-  //       state = AsyncValue.error(
-  //         TransactionApiException('Failed to fetch transaction: Status code ${response.statusCode}', statusCode: response.statusCode),
-  //         StackTrace.current,
-  //       );
-  //     }
-  //
-  //   } on DioException catch (e) {
-  //     debugPrint('DioException: ${e}');
-  //     final errorMessage = e.response?.data?['message'] ?? e.message ?? 'Unknown API error';
-  //     final statusCode = e.response?.statusCode ?? 0;
-  //
-  //     String parsedMessage = _parseDioError(e, errorMessage.toString());
-  //
-  //     state = AsyncValue.error(
-  //       TransactionApiException(parsedMessage, statusCode: statusCode, errorData: e.response?.data),
-  //       StackTrace.current,
-  //     );
-  //   } catch (e) {
-  //     state = AsyncValue.error(
-  //       TransactionException('Unexpected error: ${e.toString()}'),
-  //       StackTrace.current,
-  //     );
-  //   }
-  // }
+  void startPollingTransactions(String accountsIdentifier) {
+    _currentAccountId ?? accountsIdentifier;
+    _stopPolling(); // Stop any existing timer
+
+    // Fetch immediately
+    _fetchTransactionsInBackground();
+
+    // Set up timer to poll every 3 seconds
+    _pollingTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _fetchTransactionsInBackground();
+    });
+  }
+
+  void stopPolling() {
+    _stopPolling();
+    _currentAccountId = null;
+  }
+
+  void reset() {
+    state = const AsyncValue.loading();
+  }
+
+  bool hasErrorType<T extends TransactionException>() {
+    return state.hasError && state.error is T;
+  }
+
+  T? getError<T extends TransactionException>() {
+    return state.hasError && state.error is T ? state.error as T : null;
+  }
+
+  List<sdk.Transaction> getTransactionsByType(sdk.TransactionTypeEnum type) {
+    return state.valueOrNull
+            ?.where((transaction) => transaction.type == type)
+            .toList() ??
+        [];
+  }
+
+  void _stopPolling() {
+    _pollingTimer?.cancel();
+    _pollingTimer = null;
+  }
+
+  Future<void> _fetchTransactionsInBackground() async {
+    if (_currentAccountId == null) return;
+
+    // debugPrint('Fetching transactions for account: $_currentAccountId');
+
+    try {
+      final transactionsApi = ref.read(transactionsApiProvider);
+
+      final response = await transactionsApi.listTransactions(
+        parentIdentifier: _currentAccountId,
+        pageParamsPeriodOrder: 'ORDER_DESC',
+      );
+
+      if (response.statusCode == 200 && response.data?.transactions != null) {
+        final newTransactions = response.data!.transactions?.toList() ?? [];
+
+        // Update state only if we have new data
+        if (!_areTransactionsEqual(state.valueOrNull, newTransactions)) {
+          state = AsyncValue.data(newTransactions);
+        }
+      }
+    } on DioException catch (e) {
+      debugPrint('Background polling error: ${e.message}');
+      // Don't update state on background errors to avoid UI disruption
+    } catch (e) {
+      debugPrint('Unexpected background error: $e');
+    }
+  }
+
+  bool _areTransactionsEqual(
+    List<sdk.Transaction>? current,
+    List<sdk.Transaction>? newTransactions,
+  ) {
+    if (current == null || newTransactions == null) return false;
+    if (current.length != newTransactions.length) return false;
+
+    for (int i = 0; i < current.length; i++) {
+      if (current[i].name != newTransactions[i].name) return false;
+    }
+    return true;
+  }
 
   String _parseDioError(DioException e, String defaultMessage) {
     try {
@@ -194,35 +271,14 @@ class Transactions extends _$Transactions {
     return defaultMessage;
   }
 
-  void reset() {
-    state = const AsyncValue.loading();
+  List<sdk.Transaction> getTransactionsByState(
+    sdk.TransactionStateEnum status,
+  ) {
+    return state.valueOrNull
+            ?.where((transaction) => transaction.state == status)
+            .toList() ??
+        [];
   }
-
-  bool hasErrorType<T extends TransactionException>() {
-    return state.hasError && state.error is T;
-  }
-
-  T? getError<T extends TransactionException>() {
-    return state.hasError && state.error is T ? state.error as T : null;
-  }
-
-  List<sdk.Transaction> getTransactionsByType(sdk.TransactionTypeEnum type) {
-    return state.valueOrNull?.where(
-          (transaction) => transaction.type == type,
-    ).toList() ?? [];
-  }
-
-  List<sdk.Transaction> getTransactionsByState(sdk.TransactionStateEnum status) {
-    return state.valueOrNull?.where(
-          (transaction) => transaction.state == status,
-    ).toList() ?? [];
-  }
-
-  // double getTotalAmountByType(sdk.TransactionTypeEnum type) {
-  //   return state.valueOrNull
-  //       ?.where((transaction) => transaction.type == type)
-  //       .fold(0.0, (sum, transaction) => sum + (transaction.amount ?? 0.0)) ?? 0.0;
-  // }
 }
 
 class TransactionException implements Exception {
@@ -233,7 +289,8 @@ class TransactionException implements Exception {
   TransactionException(this.message, {this.statusCode, this.errorData});
 
   @override
-  String toString() => 'TransactionException: $message${statusCode != null ? ' (Status: $statusCode)' : ''}';
+  String toString() =>
+      'TransactionException: $message${statusCode != null ? ' (Status: $statusCode)' : ''}';
 }
 
 class TransactionValidationException extends TransactionException {
@@ -245,5 +302,6 @@ class TransactionApiException extends TransactionException {
 }
 
 class TransactionAlreadyExistsException extends TransactionApiException {
-  TransactionAlreadyExistsException() : super('Transaction already exists', statusCode: 409);
+  TransactionAlreadyExistsException()
+    : super('Transaction already exists', statusCode: 409);
 }

@@ -72,6 +72,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       setState(() {
         _transactionsLoaded = true;
       });
+      // Start polling when entering a transactions screen
+      ref.read(transactionsProvider.notifier).startPollingTransactions(accountsIdentifier);
     } catch (e) {
       debugPrint('Error fetching transactions: $e');
     }
@@ -118,6 +120,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
         );
     }
+  }
+
+  @override
+  void dispose() {
+    ref.read(transactionsProvider.notifier).stopPolling();
+    super.dispose();
   }
 
   @override
