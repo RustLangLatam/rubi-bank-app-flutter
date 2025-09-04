@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/common/theme/app_theme.dart';
 import '../../../../core/common/widgets/custom_button.dart';
+import '../../../../core/common/widgets/rubi_bank_logo.dart';
 import '../providers/customer_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -46,24 +47,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-
       try {
-      await ref
-          .read(customerProvider.notifier)
-          .loginCustomer(_emailController.text, _passwordController.text);
+        await ref
+            .read(customerProvider.notifier)
+            .loginCustomer(_emailController.text, _passwordController.text);
 
-      final customer = ref.read(customerProvider).value;
-
-      // Form is valid, proceed with login
-      Navigator.pushReplacementNamed(context, '/dashboard', arguments: customer );
+        final customer = ref.read(customerProvider).value;
+        Navigator.pushReplacementNamed(context, '/dashboard', arguments: customer);
       } catch (e) {
-        // if (mounted) {
-        //   final errorMsg = _getErrorMessage(e);
-        //   setState(() {
-        //     _hasError = true;
-        //     _errorMessage = errorMsg;
-        //   });
-        // }
         debugPrint('Error: $e');
       }
     }
@@ -80,35 +71,47 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final ThemeData theme = AppTheme.darkTheme;
     final ColorScheme colorScheme = theme.colorScheme;
+    final TextTheme textTheme = theme.textTheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.primary,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                Expanded(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: AppTheme.appGradient,
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Form(
+              key: _formKey,
+              child: SingleChildScrollView( // ← AÑADIDO: Hace el contenido desplazable
+                child: ConstrainedBox( // ← AÑADIDO: Asegura que ocupe al menos toda la altura
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height - 64, // SafeArea padding
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        'Welcome Back',
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontSize: 36,
-                          fontWeight: FontWeight.w700,
-                          height: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Securely access your account.',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontSize: 14,
-                        ),
+                      // Logo and Header
+                      Column(
+                        children: [
+                          RubiBankLogo(
+                            size: 52,
+                            color: colorScheme.primary,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Welcome Back',
+                            style: textTheme.displayLarge?.copyWith(
+                              fontSize: 36,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Securely access your account.',
+                            style: textTheme.bodyMedium,
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 40),
 
@@ -116,82 +119,42 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
-                        style: theme.textTheme.bodyLarge,
+                        style: textTheme.bodyLarge,
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: colorScheme.surface,
                           hintText: 'Email',
-                          hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                            color: const Color(0xFF94A3B8),
-                          ),
+                          hintStyle: textTheme.titleMedium,
                           contentPadding: const EdgeInsets.all(16),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                              color: colorScheme.surface.withOpacity(0.8),
-                              width: 1,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                              color: colorScheme.surface.withOpacity(0.8),
-                              width: 1,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                              color: colorScheme.secondary,
-                              width: 1.5,
-                            ),
-                          ),
+                          border: theme.inputDecorationTheme.border,
+                          enabledBorder: theme.inputDecorationTheme.enabledBorder,
+                          focusedBorder: theme.inputDecorationTheme.focusedBorder,
                         ),
                         validator: _validateEmail,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
 
                       // Password Field
                       TextFormField(
                         controller: _passwordController,
                         obscureText: !_showPassword,
-                        style: theme.textTheme.bodyLarge,
+                        style: textTheme.bodyLarge,
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: colorScheme.surface,
                           hintText: 'Password',
-                          hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                            color: const Color(0xFF94A3B8),
-                          ),
+                          hintStyle: textTheme.titleMedium,
                           contentPadding: const EdgeInsets.all(16),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                              color: colorScheme.surface.withOpacity(0.8),
-                              width: 1,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                              color: colorScheme.surface.withOpacity(0.8),
-                              width: 1,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                              color: colorScheme.secondary,
-                              width: 1.5,
-                            ),
-                          ),
+                          border: theme.inputDecorationTheme.border,
+                          enabledBorder: theme.inputDecorationTheme.enabledBorder,
+                          focusedBorder: theme.inputDecorationTheme.focusedBorder,
                           suffixIcon: IconButton(
                             onPressed: _togglePasswordVisibility,
                             icon: _showPassword
-                                ? const Icon(Icons.visibility_off)
-                                : const Icon(Icons.visibility),
-                            color: const Color(0xFF94A3B8),
+                                ? Icon(Icons.visibility_off, color: colorScheme.shadow)
+                                : Icon(Icons.visibility, color: colorScheme.shadow),
+                            splashRadius: 20,
                           ),
                         ),
                         validator: _validatePassword,
@@ -199,29 +162,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
 
                       const SizedBox(height: 32),
-                      CustomButton(
-                        text: "Sign In",
+                      CustomButton.primary(
+                        text: 'Sign In',
                         onPressed: _submitForm,
-                        type: ButtonType.primary,
                       ),
 
                       const SizedBox(height: 24),
-                      TextButton(
+                      CustomButton.muted(
+                        text: 'Forgot Password?',
                         onPressed: () {
                           // Navigate to forgot password screen
                         },
-                        child: Text(
-                          'Forgot Password?',
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: colorScheme.secondary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
                       ),
                     ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
         ),

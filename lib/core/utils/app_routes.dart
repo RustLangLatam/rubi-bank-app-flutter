@@ -27,7 +27,7 @@ class AppRouter {
         return CustomPageRoute.fade(const LoginScreen());
 
       case '/register':
-        return CustomPageRoute.scale(const RegisterPersonalInfoScreenWrapper());
+        return CustomPageRoute.slide(const RegisterPersonalInfoScreenWrapper());
 
       case '/register/identity':
         return CustomPageRoute.slide(const RegisterIdentityScreenWrapper());
