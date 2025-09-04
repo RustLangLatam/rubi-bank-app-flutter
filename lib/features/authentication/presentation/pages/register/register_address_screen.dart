@@ -132,7 +132,10 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
           hintText: 'Start typing to search',
           filled: true,
           fillColor: Theme.of(context).colorScheme.surface,
-          prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.shadow),
+          prefixIcon: Icon(
+            Icons.search,
+            color: Theme.of(context).colorScheme.shadow,
+          ),
           hintStyle: Theme.of(context).textTheme.titleMedium,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
@@ -154,7 +157,7 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
     if (_areAllFieldsValid()) {
       final registerState = ref.read(registerProvider.notifier);
       final address = CustomerAddress(
-            (b) => b
+        (b) => b
           ..streetAddressLines = ListBuilder([_streetAddressController.text])
           ..locality = _cityController.text
           ..administrativeArea = _administrativeAreaController.text
@@ -168,15 +171,13 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = AppTheme.darkTheme;
+    final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final TextTheme textTheme = theme.textTheme;
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: AppTheme.appGradient,
-        ),
+        decoration: BoxDecoration(gradient: AppTheme.appGradient),
         child: SafeArea(
           child: KeyboardVisibilityBuilder(
             builder: (context, isKeyboardVisible) {
@@ -193,7 +194,7 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
                     ),
 
                     // Progress indicator
-                        ElegantProgressIndicator(currentStep: 3, totalSteps: 4),
+                    ElegantProgressIndicator(currentStep: 3, totalSteps: 4),
                     const SizedBox(height: 32),
 
                     // Title
@@ -216,14 +217,7 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
                               textInputAction: TextInputAction.next,
                               style: textTheme.bodyLarge,
                               decoration: InputDecoration(
-                                filled: true,
-                                fillColor: colorScheme.surface,
                                 hintText: 'Street Address',
-                                hintStyle: textTheme.titleMedium,
-                                contentPadding: const EdgeInsets.all(16),
-                                border: theme.inputDecorationTheme.border,
-                                enabledBorder: theme.inputDecorationTheme.enabledBorder,
-                                focusedBorder: theme.inputDecorationTheme.focusedBorder,
                                 errorText: _streetAddressError.isNotEmpty
                                     ? _streetAddressError
                                     : null,
@@ -244,18 +238,13 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
                                   RegExp(r'[0-9]'),
                                 ),
                                 FilteringTextInputFormatter.deny(
-                                  RegExp(r'[!@#\$%^&*()_+={}\[\]|;:"<>,.?/\\~`]'),
+                                  RegExp(
+                                    r'[!@#\$%^&*()_+={}\[\]|;:"<>,.?/\\~`]',
+                                  ),
                                 ),
                               ],
                               decoration: InputDecoration(
-                                filled: true,
-                                fillColor: colorScheme.surface,
                                 hintText: 'City',
-                                hintStyle: textTheme.titleMedium,
-                                contentPadding: const EdgeInsets.all(16),
-                                border: theme.inputDecorationTheme.border,
-                                enabledBorder: theme.inputDecorationTheme.enabledBorder,
-                                focusedBorder: theme.inputDecorationTheme.focusedBorder,
                                 errorText: _cityError.isNotEmpty
                                     ? _cityError
                                     : null,
@@ -271,14 +260,7 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
                               keyboardType: TextInputType.number,
                               textInputAction: TextInputAction.next,
                               decoration: InputDecoration(
-                                filled: true,
-                                fillColor: colorScheme.surface,
                                 hintText: 'Postal Code',
-                                hintStyle: textTheme.titleMedium,
-                                contentPadding: const EdgeInsets.all(16),
-                                border: theme.inputDecorationTheme.border,
-                                enabledBorder: theme.inputDecorationTheme.enabledBorder,
-                                focusedBorder: theme.inputDecorationTheme.focusedBorder,
                                 errorText: _postalCodeError.isNotEmpty
                                     ? _postalCodeError
                                     : null,
@@ -299,18 +281,13 @@ class _RegisterAddressScreenState extends ConsumerState<RegisterAddressScreen> {
                                   RegExp(r'[0-9]'),
                                 ),
                                 FilteringTextInputFormatter.deny(
-                                  RegExp(r'[!@#\$%^&*()_+={}\[\]|;:"<>,.?/\\~`]'),
+                                  RegExp(
+                                    r'[!@#\$%^&*()_+={}\[\]|;:"<>,.?/\\~`]',
+                                  ),
                                 ),
                               ],
                               decoration: InputDecoration(
-                                filled: true,
-                                fillColor: colorScheme.surface,
                                 hintText: 'State/Province (Optional)',
-                                hintStyle: textTheme.titleMedium,
-                                contentPadding: const EdgeInsets.all(16),
-                                border: theme.inputDecorationTheme.border,
-                                enabledBorder: theme.inputDecorationTheme.enabledBorder,
-                                focusedBorder: theme.inputDecorationTheme.focusedBorder,
                               ),
                             ),
                             const SizedBox(height: 16),

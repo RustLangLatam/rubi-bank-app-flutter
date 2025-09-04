@@ -3,15 +3,14 @@ import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
 import 'package:rubi_bank_app/core/utils/decimal_precision.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../../../core/common/widgets/card_rubi_logo.dart';
+import '../../../../core/common/theme/app_theme.dart';
 import '../../../../core/common/widgets/eye_icon.dart';
 import '../../../../core/common/widgets/eye_off_icon.dart';
+import '../../../../core/common/widgets/rubi_bank_logo.dart';
 
 class BalanceCard extends StatefulWidget {
   final sdk.Account account;
-  // You can pass an account object here if you want to integrate with actual data,
-  // similar to your Flutter example. For now, it's optional.
-  final bool isLoading; // Added isLoading prop for shimmer effect
+  final bool isLoading;
 
   const BalanceCard({super.key, required this.account, this.isLoading = false});
 
@@ -31,32 +30,36 @@ class _BalanceCardState extends State<BalanceCard> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final TextTheme textTheme = theme.textTheme;
 
     final money = widget.account.balance!.issuedBalance;
-    final currency = money.currencyCode;
     final balance = money.value.toDecimal().toCurrencyString();
     final cardNumber = widget.account.address!.rubiHandle;
     final cardHolderName = widget.account.displayName;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
+    return Container(
       decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
+        gradient: AppTheme.cardGradient,
         borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(
+          color: colorScheme.primary.withOpacity(0.2),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.surface.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.3), width: 1),
       ),
-      padding: const EdgeInsets.all(28), // p-7 in Tailwind is 28px
+      padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // First row with balance and logo
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,107 +69,104 @@ class _BalanceCardState extends State<BalanceCard> {
                 children: [
                   Text(
                     'Total Balance',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w200,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.shadow,
                     ),
                   ),
-                  const SizedBox(height: 2), // mt-1 approx
+                  const SizedBox(height: 4),
                   Row(
                     children: [
                       if (widget.isLoading)
                         _buildShimmerPlaceholder(width: 150, height: 32)
                       else
                         Text(
-                          _isBalanceVisible ? balance : '\$ ••••',
-                          style: theme.textTheme.bodyLarge!.copyWith(
-                            fontSize: 32,
+                          _isBalanceVisible ? balance : '••••••••',
+                          style: TextStyle(
+                            fontSize: 32, // text-3xl
                             fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface, // text-on-surface
+                            fontFamily: 'Inter',
+                            letterSpacing: -0.5,
+                            height: 1.1,
                           ),
                         ),
-                      const SizedBox(width: 12), // gap-3 approx
+                      const SizedBox(width: 12),
                       if (widget.isLoading)
                         _buildShimmerPlaceholder(
-                          width: 24,
-                          height: 24,
+                          width: 20,
+                          height: 20,
                           isCircle: true,
                         )
                       else
-                        InkWell(
-                          onTap: _toggleVisibility,
-                          customBorder: const CircleBorder(),
-                          child: Padding(
-                            padding: const EdgeInsets.all(
-                              4.0,
-                            ), // Smaller hit area
-                            child: _isBalanceVisible
-                                ? EyeOffIcon(
-                                    size: 24,
-                                    color: theme.textTheme.bodyMedium!.color!
-                                        .withOpacity(0.6),
-                                  )
-                                : EyeIcon(
-                                    size: 24,
-                                    color: theme.textTheme.bodyMedium!.color!
-                                        .withOpacity(0.6),
-                                  ),
+                        IconButton(
+                          onPressed: _toggleVisibility,
+                          icon: _isBalanceVisible
+                              ? EyeOffIcon(
+                            size: 20,
+                            color: colorScheme.shadow,
+                          )
+                              : EyeIcon(
+                            size: 20,
+                            color: colorScheme.shadow,
                           ),
+                          iconSize: 20,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
                         ),
                     ],
                   ),
                 ],
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CardRubiLogo(
-                    size: 20,
-                    color: theme.textTheme.bodyMedium!.color,
-                  ),
-                  const SizedBox(width: 6),
-                  RichText(
-                    text: TextSpan(
-                      style: theme.textTheme.bodyMedium,
-                      children: [
-                        TextSpan(
-                          text: 'Rubi',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const TextSpan(
-                          text: 'Bank',
-                          style: TextStyle(fontWeight: FontWeight.normal),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              )
+              RubiBankLogo(
+                size: 32,
+                color: colorScheme.onSurface.withOpacity(0.2),
+              ),
             ],
           ),
-          const SizedBox(
-            height: 24,
-          ), // gap-8 approx, vertically separated sections
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(height: 24),
+
+          // Second row with card details
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (widget.isLoading)
+                    _buildShimmerPlaceholder(width: 120, height: 16)
+                  else
+                    Text(
+                      '**** ${cardNumber!.substring(cardNumber.length - 4)}',
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.shadow,
+                        fontSize: 14,
+                        letterSpacing: 2.0,
+                        fontFamily: 'sans-serif',
+                      ),
+                    ),
+                  const SizedBox(height: 4),
+                  if (widget.isLoading)
+                    _buildShimmerPlaceholder(width: 100, height: 19)
+                  else
+                    Text(
+                      cardHolderName,
+                      style: textTheme.bodyLarge?.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'serif',
+                      ),
+                    ),
+                ],
+              ),
               if (widget.isLoading)
-                _buildShimmerPlaceholder(width: 120, height: 16)
+                _buildShimmerPlaceholder(width: 40, height: 14)
               else
                 Text(
-                  'xxxx xxxx xxxx ${cardNumber!.substring(cardNumber.length - 4)}',
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  '08/28',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.shadow,
                     fontSize: 14,
-                    letterSpacing: 2,
-                  ),
-                ),
-              const SizedBox(height: 8), // space-y-1 approx
-              if (widget.isLoading)
-                _buildShimmerPlaceholder(width: 100, height: 19)
-              else
-                Text(
-                  cardHolderName,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
             ],
@@ -181,14 +181,15 @@ class _BalanceCardState extends State<BalanceCard> {
     required double height,
     bool isCircle = false,
   }) {
+    final ThemeData theme = Theme.of(context);
     return Shimmer.fromColors(
-      baseColor: Colors.white.withOpacity(0.2),
-      highlightColor: Colors.white.withOpacity(0.4),
+      baseColor: theme.colorScheme.shadow.withOpacity(0.2),
+      highlightColor: theme.colorScheme.shadow.withOpacity(0.4),
       child: Container(
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.3),
+          color: theme.colorScheme.shadow.withOpacity(0.3),
           borderRadius: isCircle
               ? BorderRadius.circular(height / 2)
               : BorderRadius.circular(4),

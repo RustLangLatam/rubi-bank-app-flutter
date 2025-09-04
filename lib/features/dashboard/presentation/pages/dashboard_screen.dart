@@ -254,7 +254,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                 if (primaryAccount != null) BalanceCard(account: primaryAccount),
                 const SizedBox(height: 18),
-                const ActionButtonsGroupWidget(),
+                ActionButtonsGroup(),
                 const SizedBox(height: 18),
                 PromotionalCarousel(promotions: promotions),
                 const SizedBox(height: 18),

@@ -15,17 +15,20 @@ class RubiBankLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hexColor = _colorToHex(color);
+
     return SvgPicture.string(
       '''
-      <svg width="${size}px" height="${size}px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="RubiBank Logo">
-        <path d="M6 4L12 2L18 4L21 9L12 22L3 9L6 4Z" stroke="${_colorToHex(color)}" stroke-width="$strokeWidth" stroke-linejoin="round"/>
-        <path d="M3 9L12 12L21 9" stroke="${_colorToHex(color)}" stroke-width="$strokeWidth" stroke-linejoin="round"/>
-        <path d="M12 22V12" stroke="${_colorToHex(color)}" stroke-width="$strokeWidth" stroke-linejoin="round"/>
-        <path d="M6 4L12 12L18 4" stroke="${_colorToHex(color)}" stroke-width="$strokeWidth" stroke-linejoin="round"/>
+      <svg width="$size" height="$size" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="RubiBank Logo">
+        <path d="M6 4L12 2L18 4L21 9L12 22L3 9L6 4Z" stroke="$hexColor" stroke-width="$strokeWidth" stroke-linejoin="round"/>
+        <path d="M3 9L12 12L21 9" stroke="$hexColor" stroke-width="$strokeWidth" stroke-linejoin="round"/>
+        <path d="M12 22V12" stroke="$hexColor" stroke-width="$strokeWidth" stroke-linejoin="round"/>
+        <path d="M6 4L12 12L18 4" stroke="$hexColor" stroke-width="$strokeWidth" stroke-linejoin="round"/>
       </svg>
       ''',
       width: size,
       height: size,
+      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
     );
   }
 

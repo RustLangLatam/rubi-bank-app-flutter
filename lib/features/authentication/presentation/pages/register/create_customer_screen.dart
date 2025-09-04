@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart';
+import '../../../../../core/common/theme/app_theme.dart';
 import '../../../../../core/common/widgets/elegant_rubi_loader.dart';
 import '../../../../accounts/presentation/providers/accounts_provider.dart';
 import '../../providers/customer_provider.dart';
 import '../../providers/register_provider.dart';
+import '../../../../../core/common/widgets/custom_button.dart';
 
 class CreateCustomerScreen extends ConsumerStatefulWidget {
   final VoidCallback onSuccess;
@@ -68,15 +70,11 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
           final customerState = ref.read(customerProvider);
 
           if (customerState.hasError) {
-            // Handle the error from the provider
             throw customerState.error!;
           }
 
-          // Verify that the customer was actually created
           if (customerState.value == null) {
-            throw Exception(
-              'Customer creation failed: No customer data returned',
-            );
+            throw Exception('Customer creation failed: No customer data returned');
           }
 
           final email = customerState.value!.email;
@@ -88,7 +86,6 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
           // Step 2: Create savings account
           final createCustomerState = ref.read(customerProvider);
 
-          // Check if previous step had errors
           if (createCustomerState.hasError) {
             throw createCustomerState.error!;
           }
@@ -99,7 +96,6 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
             await _createSavingsAccount(createdCustomer.identifier!);
           }
         }
-        // Step 3 is just a finalization step with no API call
 
         if (mounted) {
           setState(() {
@@ -114,16 +110,15 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
           _allDone = true;
         });
 
-        await Future.delayed(const Duration(seconds: 1));
+        await Future.delayed(const Duration(milliseconds: 1500));
         widget.onSuccess();
       }
     } catch (e) {
       if (mounted) {
         final errorMsg = _getErrorMessage(e);
         setState(() {
-          _hasError = true;
+          _hasError = false;
           _errorMessage = errorMsg;
-          // Mark the current step as error
           _steps[_currentStepIndex] = _steps[_currentStepIndex].copyWith(
             status: StepStatus.error,
             errorMessage: errorMsg,
@@ -141,7 +136,6 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
         _errorMessage = null;
         _currentStepIndex = 0;
         _allDone = false;
-        // Reset all steps to pending
         for (int i = 0; i < _steps.length; i++) {
           _steps[i] = _steps[i].copyWith(
             status: StepStatus.pending,
@@ -150,12 +144,10 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
         }
       });
 
-      // Restart the process
       _startCreationProcess();
     }
   }
 
-  // Helper method to get user-friendly error messages
   String _getErrorMessage(dynamic error) {
     if (error is CustomerValidationException) {
       return error.message;
@@ -173,10 +165,10 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
   Future<void> _createSavingsAccount(String customerIdentifier) async {
     try {
       final newAccount = Account(
-        (a) => a
+            (a) => a
           ..displayName = "Primary Savings"
           ..accountDetails = AccountDetails(
-            (ad) => ad
+                (ad) => ad
               ..type = AccountDetailsTypeEnum.ACCOUNT_TYPE_SAVINGS
               ..productCode = "SAVINGS_PREMIUM",
           ).toBuilder(),
@@ -207,80 +199,75 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: theme.colorScheme.primary,
-        body: Center(
-          child: SafeArea(
-            minimum: const EdgeInsets.all(32.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: 400,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildElegantRubiLoader(),
-                  const SizedBox(height: 32),
-                  Text(
-                    _hasError
-                        ? 'Setup Incomplete'
-                        : 'Welcome, ${widget.userName.split(' ').first}!',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  // Description or error message
-                  SizedBox(
-                    width: 300,
-                    child: Text(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: AppTheme.appGradient,
+          ),
+          child: Center(
+            child: SafeArea(
+              minimum: const EdgeInsets.all(32.0), // p-8
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400), // max-w-sm
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildElegantRubiLoader(),
+                    const SizedBox(height: 32), // mt-8
+                    Text(
                       _hasError
-                          ? _errorMessage ??
-                          'An error occurred during setup. Please try again.'
-                          : _allDone
-                          ? "You're all set! Redirecting to your dashboard..."
-                          : "We're just getting your account ready. This will only take a moment.",
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.normal,
+                          ? 'Setup Incomplete'
+                          : 'Welcome, ${widget.userName.split(' ').first}!',
+                      style: theme.textTheme.displayLarge?.copyWith(
+                        fontSize: 30, // text-3xl
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface, // #FFFFFF
                       ),
                       textAlign: TextAlign.center,
-                      maxLines: 3,
                     ),
-                  ),
-                  const SizedBox(height: 48),
-                  // Steps list (only show if not in critical error state)
-                  if (!_hasError || _currentStepIndex > 0)
+                    const SizedBox(height: 16), // mb-4
                     SizedBox(
-                      width: 300,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: _steps
-                            .map((step) => _buildStepItem(step))
-                            .toList(),
-                      ),
-                    ),
-                  // Retry button for errors
-                  if (_hasError)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 24.0),
-                      child: ElevatedButton(
-                        onPressed: _retryProcess,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.secondary,
-                          foregroundColor: theme.colorScheme.onSecondary,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
+                      width: 400, // max-w-sm
+                      child: Text(
+                        _hasError
+                            ? _errorMessage ?? 'An error occurred during setup. Please try again.'
+                            : _allDone
+                            ? "You're all set! Redirecting to your dashboard..."
+                            : "We're just getting your account ready. This will only take a moment.",
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontSize: 16,
+                          color: theme.colorScheme.shadow, // text-muted
                         ),
-                        child: const Text('Try Again'),
+                        textAlign: TextAlign.center,
+                        maxLines: 3,
                       ),
                     ),
-                ],
+                    const SizedBox(height: 48), // mb-12
+                    if (!_hasError || _currentStepIndex > 0)
+                      SizedBox(
+                        width: 400, // max-w-sm
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: _steps.asMap().entries.map((entry) {
+                            return AnimatedOpacity(
+                              opacity: entry.value.status == StepStatus.pending ? 0.5 : 1.0,
+                              duration: const Duration(milliseconds: 500),
+                              child: _buildStepItem(entry.value),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    if (_hasError)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 24.0),
+                        child: CustomButton.muted(
+                          text: 'Try Again',
+                          onPressed: _retryProcess,
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -294,13 +281,11 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
       return Icon(
         Icons.error_outline,
         size: 64,
-        color: Theme.of(context).colorScheme.error,
+        color: Theme.of(context).colorScheme.error, // #EF4444
       );
     }
 
-    return _allDone
-        ? Icon(Icons.check_circle, size: 64, color: Colors.green)
-        : const ElegantRubiLoader();
+    return ElegantRubiLoader();
   }
 
   Widget _buildStepItem(StepItem step) {
@@ -311,21 +296,21 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
 
     Color textColor;
     if (isError) {
-      textColor = theme.colorScheme.error;
+      textColor = theme.colorScheme.error; // #EF4444
     } else if (isCompleted) {
-      textColor = theme.textTheme.bodyMedium!.color!;
+      textColor = theme.colorScheme.onSurface; // #FFFFFF
     } else if (isInProgress) {
-      textColor = theme.colorScheme.secondary;
+      textColor = theme.colorScheme.primary; // #C5A365
     } else {
-      textColor = const Color(0xFFA9B4C4);
+      textColor = theme.colorScheme.shadow.withOpacity(0.5); // #7A8C99/50
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0), // space-y-4
       child: Row(
         children: [
           _buildStatusIcon(step.status),
-          const SizedBox(width: 16),
+          const SizedBox(width: 16), // gap-4
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -343,7 +328,7 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
                     child: Text(
                       step.errorMessage!,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.error,
+                        color: theme.colorScheme.error, // #EF4444
                       ),
                     ),
                   ),
@@ -357,11 +342,11 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
 
   Widget _buildStatusIcon(StepStatus status) {
     final theme = Theme.of(context);
-    final accentGold = theme.colorScheme.secondary;
+    final accentGold = theme.colorScheme.primary; // #C5A365
 
     switch (status) {
       case StepStatus.completed:
-        return Icon(Icons.check_circle, color: Colors.green, size: 20);
+        return const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 20); // green-500
       case StepStatus.inProgress:
         return SizedBox(
           width: 20,
@@ -374,7 +359,7 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
       case StepStatus.error:
         return Icon(
           Icons.error_outline,
-          color: theme.colorScheme.error,
+          color: theme.colorScheme.error, // #EF4444
           size: 20,
         );
       case StepStatus.pending:
@@ -383,7 +368,7 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
           height: 20,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFFA9B4C4), width: 2),
+            border: Border.all(color: theme.colorScheme.shadow.withOpacity(0.5), width: 2), // #7A8C99/50
           ),
         );
     }

@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide Provider;
 import 'package:rubi_bank_app/features/authentication/presentation/pages/register/register_success_screen.dart';
 
+import '../../../../../core/common/theme/app_theme.dart';
 import '../../../../../core/common/widgets/custom_back_button.dart';
 import '../../../../../core/common/widgets/custom_button.dart';
 import '../../../../../core/common/widgets/elegant_progress_indicator.dart';
@@ -172,145 +174,142 @@ class _RegisterOtpScreenState extends ConsumerState<RegisterOtpScreen> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
+    final TextTheme textTheme = theme.textTheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.primary,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Back button
-              CustomBackButton(
-                onPressed: widget.onBack,
-                color: colorScheme.secondary,
-              ),
-              const SizedBox(height: 16),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: AppTheme.appGradient,
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Back button
+                CustomBackButton(
+                  onPressed: widget.onBack,
+                  color: colorScheme.onBackground,
+                ),
+                const SizedBox(height: 16),
 
-              // Progress indicator
-              ElegantProgressIndicator(
-                currentStep: 4,
-                totalSteps: 4,
-                color: _isOtpComplete ? Colors.green : null,
-              ),
-              const SizedBox(height: 32),
+                // Progress indicator
+                ElegantProgressIndicator(
+                  currentStep: 4,
+                  totalSteps: 4,
+                ),
+                const SizedBox(height: 32),
 
-              // Content
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Title
-                      Text(
-                        'Enter Verification Code',
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Subtitle with phone number
-                      Text(
-                        'A 6-digit code has been sent to',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: const Color(0xFFA9B4C4),
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _formattedPhoneNumber,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 40),
-
-                      // OTP input fields - Simple responsive version
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                        child: ResponsiveOtpFields(
-                          controllers: _otpControllers,
-                          focusNodes: _otpFocusNodes,
-                          onChanged: _handleOtpChange,
-                          enabled: !_isAutoFilling,
-                          theme: theme,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Resend code section
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Didn't receive the code? ",
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: const Color(0xFFA9B4C4),
-                            ),
+                // Content
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Title
+                        Text(
+                          'Enter Verification Code',
+                          style: textTheme.displayLarge?.copyWith(
+                            fontSize: 30, // text-3xl
                           ),
-                          _timer > 0
-                              ? Text(
-                                  'Resend in ${_timer}s',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: const Color(0xFF94A3B8),
-                                  ),
-                                )
-                              : GestureDetector(
-                                  onTap: _handleResend,
-                                  child: Text(
-                                    'Resend Code',
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: colorScheme.secondary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Subtitle with phone number
+                        Text(
+                          'A 6-digit code has been sent to',
+                          style: textTheme.bodyMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _formattedPhoneNumber,
+                          style: textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 40),
+
+                        // OTP input fields
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                          child: ResponsiveOtpFields(
+                            controllers: _otpControllers,
+                            focusNodes: _otpFocusNodes,
+                            onChanged: _handleOtpChange,
+                            enabled: !_isAutoFilling,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Resend code section
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Didn't receive the code? ",
+                              style: textTheme.bodySmall,
+                            ),
+                            _timer > 0
+                                ? Text(
+                              'Resend in ${_timer}s',
+                              style: textTheme.bodySmall?.copyWith(
+                                color: colorScheme.shadow,
+                              ),
+                            )
+                                : GestureDetector(
+                              onTap: _handleResend,
+                              child: Text(
+                                'Resend Code',
+                                style: textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                        ],
-                      ),
-                    ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              // Verify button
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: _isVerifying
-                    ? ElevatedButton(
-                        onPressed: null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colorScheme.secondary,
-                          foregroundColor: colorScheme.primary,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(32),
-                          ),
-                        ),
-                        child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              colorScheme.secondary,
-                            ),
-                            strokeWidth: 2,
-                          ),
-                        ),
-                      )
-                    : CustomButton(
-                        text: "Verify",
-                        onPressed: _isOtpComplete ? widget.onVerify : () {},
-                        type: ButtonType.primary,
+                // Verify button
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: _isVerifying
+                      ? ElevatedButton(
+                    onPressed: null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-              ),
-            ],
+                    ),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          colorScheme.primary,
+                        ),
+                        strokeWidth: 2,
+                      ),
+                    ),
+                  )
+                      : CustomButton.primary(
+                    text: "Verify",
+                    onPressed: _isOtpComplete ? widget.onVerify : () {},
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -333,20 +332,10 @@ class RegisterOtpScreenWrapper extends ConsumerWidget {
           MaterialPageRoute(
             builder: (context) => CreateCustomerScreen(
               onSuccess: () {
-                Navigator.pushReplacement(
+                Navigator.pushReplacementNamed(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => RegisterSuccessScreen(
-                      onGoToDashboard: () {
-                        Navigator.pushReplacementNamed(
-                          context,
-                          '/dashboard',
-                          arguments: registerState.customer,
-                        );
-                      },
-                      userName: registerState.customer.givenName,
-                    ),
-                  ),
+                  '/dashboard',
+                  arguments: registerState.customer,
                 );
               },
               userName:

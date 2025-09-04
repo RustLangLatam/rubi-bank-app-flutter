@@ -89,7 +89,7 @@ class _RegisterPhoneScreenState extends ConsumerState<RegisterPhoneScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = AppTheme.darkTheme;
+    final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final TextTheme textTheme = theme.textTheme;
 
@@ -178,17 +178,15 @@ class _RegisterPhoneScreenState extends ConsumerState<RegisterPhoneScreen> {
                                           keyboardType: TextInputType.phone,
                                           style: textTheme.bodyLarge,
                                           decoration: InputDecoration(
-                                            filled: true,
-                                            fillColor: colorScheme.surface,
                                             hintText: 'Phone Number',
-                                            hintStyle: textTheme.titleMedium,
                                             contentPadding: const EdgeInsets.all(16),
-                                            border: InputBorder.none,
-                                            enabledBorder: InputBorder.none,
-                                            focusedBorder: InputBorder.none,
-                                            errorBorder: InputBorder.none,
-                                            disabledBorder: InputBorder.none,
-                                            focusedErrorBorder: InputBorder.none,
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.only(
+                                                topRight: Radius.circular(12),
+                                                bottomRight: Radius.circular(12),
+                                              ),
+                                              borderSide: BorderSide(color: const Color(0xFFC5A365).withOpacity(0.125), width: 1),
+                                            )
                                           ),
                                           onChanged: (value) {
                                             final cleanedValue = value.replaceAll(RegExp(r'\D'), '');

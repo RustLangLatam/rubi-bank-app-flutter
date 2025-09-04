@@ -149,7 +149,7 @@ class _CustomButtonState extends State<CustomButton> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = AppTheme.darkTheme;
+    final ThemeData theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     final Color backgroundColor = widget.customColor ??

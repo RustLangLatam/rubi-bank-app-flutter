@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:math' as math;
+
+import '../../../../../core/common/theme/app_theme.dart';
 
 class ResponsiveOtpFields extends StatelessWidget {
   final List<TextEditingController> controllers;
   final List<FocusNode> focusNodes;
   final Function(String, int) onChanged;
   final bool enabled;
-  final ThemeData theme;
   final int fieldCount;
   final double maxFieldWidth;
   final double minFieldWidth;
@@ -20,7 +22,6 @@ class ResponsiveOtpFields extends StatelessWidget {
     required this.focusNodes,
     required this.onChanged,
     required this.enabled,
-    required this.theme,
     this.fieldCount = 6,
     this.maxFieldWidth = 48.0,
     this.minFieldWidth = 40.0,
@@ -31,17 +32,11 @@ class ResponsiveOtpFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = theme.colorScheme;
-
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
 
         // Calculate a base field width and spacing that scales with available width
-        // We want the fields to grow up to maxFieldWidth and spacing up to maxSpacing
-        // while always fitting within the available width.
-
-        // Determine target field width and spacing based on responsive breakpoints or direct calculation
         final responsiveFieldWidth = availableWidth > 400 ? maxFieldWidth : minFieldWidth;
         final responsiveSpacing = availableWidth > 400 ? maxSpacing : minSpacing;
 
@@ -53,47 +48,25 @@ class ResponsiveOtpFields extends StatelessWidget {
         double actualSpacing;
 
         if (totalWidthForFieldsAndSpacing > availableWidth) {
-          // Let's assume equal spacing is desired, so total fields + total spacing sections
-          // are our "units" to divide the remaining width by.
-          // For simplicity, we can aim for a fixed ratio of field width to spacing,
-          // or just ensure the fields take up as much as possible while maintaining spacing.
-
-          // A more robust approach:
-          // We know: (fieldWidth * fieldCount) + (spacing * totalSpacingSlots) = availableWidth
-          // And we want to maintain a certain ratio, or prioritize field size.
-          // Let's prioritize fitting the fields nicely.
-          actualSpacing = minSpacing; // Start with minimum spacing to maximize field width
+          actualSpacing = minSpacing;
           actualFieldWidth = (availableWidth - (actualSpacing * totalSpacingSlots)) / fieldCount;
 
-          // Ensure field width doesn't go below minFieldWidth if possible
           if (actualFieldWidth < minFieldWidth) {
             actualFieldWidth = minFieldWidth;
             actualSpacing = (availableWidth - (actualFieldWidth * fieldCount)) / totalSpacingSlots;
-            if (actualSpacing < 0) actualSpacing = 0; // Prevent negative spacing
+            if (actualSpacing < 0) actualSpacing = 0;
           }
-
         } else {
-          // If ideal responsive size fits, we can either:
-          // 1. Center the block of fields with the calculated sizes.
-          // 2. Expand fields and/or spacing to fill the available width.
-          // To "take advantage of all available width," we'll expand.
-          // We can use the responsiveFieldWidth and responsiveSpacing as initial targets.
-
           actualFieldWidth = responsiveFieldWidth;
           actualSpacing = responsiveSpacing;
 
-          // Now, we distribute the remaining extra space.
           final extraWidth = availableWidth - totalWidthForFieldsAndSpacing;
 
-          // We can either add this extra width to each field, or to each spacing.
-          // A common approach is to distribute it proportionally or just add it to spacing.
-          // Let's try distributing it to spacing to keep field sizes more consistent if desired.
           if (totalSpacingSlots > 0) {
             actualSpacing += extraWidth / totalSpacingSlots;
-            // Cap spacing at maxSpacing if it becomes too large
             actualSpacing = math.min(actualSpacing, maxSpacing);
           } else if (fieldCount == 1) {
-            actualFieldWidth = availableWidth; // If only one field, it takes all width
+            actualFieldWidth = availableWidth;
           }
         }
 
@@ -108,7 +81,7 @@ class ResponsiveOtpFields extends StatelessWidget {
         return SizedBox(
           width: availableWidth,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween, // This will spread out fields
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(fieldCount, (index) {
               return SizedBox(
                 width: actualFieldWidth,
@@ -118,7 +91,6 @@ class ResponsiveOtpFields extends StatelessWidget {
                   focusNode: focusNodes[index],
                   onChanged: (value) => onChanged(value, index),
                   enabled: enabled,
-                  theme: theme,
                   fieldWidth: actualFieldWidth,
                   fieldHeight: fieldHeight,
                 ),
@@ -136,7 +108,6 @@ class AnimatedOtpDigit extends StatefulWidget {
   final FocusNode focusNode;
   final Function(String) onChanged;
   final bool enabled;
-  final ThemeData theme;
   final double fieldWidth;
   final double fieldHeight;
 
@@ -146,7 +117,6 @@ class AnimatedOtpDigit extends StatefulWidget {
     required this.focusNode,
     required this.onChanged,
     required this.enabled,
-    required this.theme,
     required this.fieldWidth,
     required this.fieldHeight,
   });
@@ -168,10 +138,7 @@ class _AnimatedOtpDigitState extends State<AnimatedOtpDigit> with SingleTickerPr
       vsync: this,
     );
 
-    // Initialize current value
     _currentValue = widget.controller.text;
-
-    // Listen to controller changes
     widget.controller.addListener(_handleTextChange);
   }
 
@@ -194,7 +161,8 @@ class _AnimatedOtpDigitState extends State<AnimatedOtpDigit> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = widget.theme.colorScheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
     final fontSize = widget.fieldWidth > 42 ? 24.0 : 20.0;
 
     return Stack(
@@ -205,18 +173,19 @@ class _AnimatedOtpDigitState extends State<AnimatedOtpDigit> with SingleTickerPr
           keyboardType: TextInputType.number,
           textAlign: TextAlign.center,
           maxLength: 1,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 0,
             color: Colors.transparent,
           ),
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             counterText: '',
-            filled: true,
-            fillColor: colorScheme.surface,
             contentPadding: EdgeInsets.zero,
           ),
           onChanged: (value) => widget.onChanged(value),
           enabled: widget.enabled,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+          ],
         ),
 
         Center(
@@ -226,14 +195,18 @@ class _AnimatedOtpDigitState extends State<AnimatedOtpDigit> with SingleTickerPr
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: colorScheme.surface,
-              borderRadius: BorderRadius.circular(10.5),
+              borderRadius: BorderRadius.circular(12.0), // rounded-xl
+              border: Border.all(
+                color: colorScheme.primary.withOpacity(0.2), // border-primary/20
+                width: 1,
+              ),
             ),
             child: _AnimatedDigit(
               animation: _animationController,
               currentValue: _currentValue,
               previousValue: _previousValue,
               fontSize: fontSize,
-              color: colorScheme.secondary,
+              color: colorScheme.onSurface, // text-on-surface
             ),
           ),
         ),

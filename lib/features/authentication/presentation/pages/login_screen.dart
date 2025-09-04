@@ -14,8 +14,8 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _showPassword = false;
-  final _emailController = TextEditingController(text: 'eleazarrios@gmail.com');
-  final _passwordController = TextEditingController(text: 'Y!R3t@qW5uPoIe');
+  final _emailController = TextEditingController(text: 'eleazartovar123@gmail.com');
+  final _passwordController = TextEditingController(text: 'InstallPKG12.#');
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final RegExp _emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
@@ -69,7 +69,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = AppTheme.darkTheme;
+    final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final TextTheme textTheme = theme.textTheme;
 
@@ -83,8 +83,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             padding: const EdgeInsets.all(32.0),
             child: Form(
               key: _formKey,
-              child: SingleChildScrollView( // ← AÑADIDO: Hace el contenido desplazable
-                child: ConstrainedBox( // ← AÑADIDO: Asegura que ocupe al menos toda la altura
+              child: SingleChildScrollView(
+                child: ConstrainedBox(
                   constraints: BoxConstraints(
                     minHeight: MediaQuery.of(context).size.height - 64, // SafeArea padding
                   ),

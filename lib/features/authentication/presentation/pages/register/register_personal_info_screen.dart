@@ -230,6 +230,8 @@ class _RegisterPersonalInfoScreenState
                       color: colorScheme.onBackground,
                       spacing: 16,
                     ),
+
+                    // Progress indicator
                     ElegantProgressIndicator(currentStep: 1, totalSteps: 4),
                     const SizedBox(height: 32),
 
@@ -245,7 +247,6 @@ class _RegisterPersonalInfoScreenState
                     Expanded(
                       child: SingleChildScrollView(
                         child: Column(
-                          mainAxisSize: MainAxisSize.min,
                           children: [
                             // First Name
                             TextFormField(
@@ -255,16 +256,7 @@ class _RegisterPersonalInfoScreenState
                               keyboardType: TextInputType.text,
                               textInputAction: TextInputAction.next,
                               decoration: InputDecoration(
-                                filled: true,
-                                fillColor: colorScheme.surface,
                                 hintText: 'First Name',
-                                hintStyle: textTheme.titleMedium,
-                                contentPadding: const EdgeInsets.all(16),
-                                border: theme.inputDecorationTheme.border,
-                                enabledBorder:
-                                    theme.inputDecorationTheme.enabledBorder,
-                                focusedBorder:
-                                    theme.inputDecorationTheme.focusedBorder,
                                 errorText: _firstNameError.isNotEmpty
                                     ? _firstNameError
                                     : null,
@@ -291,16 +283,7 @@ class _RegisterPersonalInfoScreenState
                               keyboardType: TextInputType.text,
                               textInputAction: TextInputAction.next,
                               decoration: InputDecoration(
-                                filled: true,
-                                fillColor: colorScheme.surface,
                                 hintText: 'Last Name',
-                                hintStyle: textTheme.titleMedium,
-                                contentPadding: const EdgeInsets.all(16),
-                                border: theme.inputDecorationTheme.border,
-                                enabledBorder:
-                                    theme.inputDecorationTheme.enabledBorder,
-                                focusedBorder:
-                                    theme.inputDecorationTheme.focusedBorder,
                                 errorText: _lastNameError.isNotEmpty
                                     ? _lastNameError
                                     : null,
@@ -326,16 +309,7 @@ class _RegisterPersonalInfoScreenState
                               style: textTheme.bodyLarge,
                               textInputAction: TextInputAction.next,
                               decoration: InputDecoration(
-                                filled: true,
-                                fillColor: colorScheme.surface,
                                 hintText: 'Email Address',
-                                hintStyle: textTheme.titleMedium,
-                                contentPadding: const EdgeInsets.all(16),
-                                border: theme.inputDecorationTheme.border,
-                                enabledBorder:
-                                    theme.inputDecorationTheme.enabledBorder,
-                                focusedBorder:
-                                    theme.inputDecorationTheme.focusedBorder,
                                 errorText: _emailError.isNotEmpty
                                     ? _emailError
                                     : null,
@@ -351,16 +325,7 @@ class _RegisterPersonalInfoScreenState
                               style: textTheme.bodyLarge,
                               textInputAction: TextInputAction.done,
                               decoration: InputDecoration(
-                                filled: true,
-                                fillColor: colorScheme.surface,
                                 hintText: 'Create Password',
-                                hintStyle: textTheme.titleMedium,
-                                contentPadding: const EdgeInsets.all(16),
-                                border: theme.inputDecorationTheme.border,
-                                enabledBorder:
-                                    theme.inputDecorationTheme.enabledBorder,
-                                focusedBorder:
-                                    theme.inputDecorationTheme.focusedBorder,
                                 suffixIcon: IconButton(
                                   onPressed: _togglePasswordVisibility,
                                   icon: _showPassword

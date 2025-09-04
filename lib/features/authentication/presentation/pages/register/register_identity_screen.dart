@@ -115,16 +115,7 @@ class _RegisterIdentityScreenState
         inputDecoration: InputDecoration(
           labelText: 'Search',
           hintText: 'Start typing to search',
-          filled: true,
-          fillColor: Theme.of(context).colorScheme.surface,
           prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.shadow),
-          hintStyle: Theme.of(context).textTheme.titleMedium,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-            ),
-          ),
         ),
       ),
     );
@@ -138,15 +129,13 @@ class _RegisterIdentityScreenState
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = AppTheme.darkTheme;
+    final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final TextTheme textTheme = theme.textTheme;
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: AppTheme.appGradient,
-        ),
+        decoration: BoxDecoration(gradient: AppTheme.appGradient),
         child: SafeArea(
           child: KeyboardVisibilityBuilder(
             builder: (context, isKeyboardVisible) {
@@ -163,7 +152,7 @@ class _RegisterIdentityScreenState
                     ),
 
                     // Progress indicator
-                        ElegantProgressIndicator(currentStep: 2, totalSteps: 4),
+                    ElegantProgressIndicator(currentStep: 2, totalSteps: 4),
                     const SizedBox(height: 32),
 
                     // Title
@@ -190,7 +179,7 @@ class _RegisterIdentityScreenState
                                   color: colorScheme.surface,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                    color: colorScheme.primary.withOpacity(0.2),
+                                    color: colorScheme.primary.withOpacity(0.125),
                                     width: 1,
                                   ),
                                 ),

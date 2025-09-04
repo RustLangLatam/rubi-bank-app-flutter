@@ -388,4 +388,15 @@ class AppTheme {
       ],
     );
   }
+
+  static LinearGradient get cardGradient {
+    return LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        darkTheme.colorScheme.surface, // #0D1626
+        darkTheme.colorScheme.background, // #060B14
+      ],
+    );
+  }
 }
