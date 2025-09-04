@@ -1,34 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:rubi_bank_app/features/accounts/presentation/widgets/balance_card.dart';
 import 'package:rubi_bank_app/features/dashboard/presentation/widgets/recent_activity_widget.dart';
 import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
 
+import '../../../../core/common/theme/app_theme.dart';
+import '../../../../core/common/widgets/custom_button.dart';
 import '../../../../core/common/widgets/elegant_rubi_loader.dart';
 import '../../../accounts/presentation/providers/accounts_provider.dart';
 import '../../../transactions/presentation/providers/transactions_provider.dart';
 import '../widgets/action_buttons_group_widget.dart';
-import '../widgets/promotional_carousel.dart';
-import '../widgets/types.dart';
-
-final List<Promotion> promotions = [
-  Promotion(
-    id: 1,
-    icon: PromotionIcon.card,
-    title: 'Premium Card',
-    description: 'Get our exclusive premium credit card with amazing benefits',
-    bgColor: '#1E40AF',
-    textColor: '#FFFFFF',
-  ),
-  Promotion(
-    id: 2,
-    icon: PromotionIcon.loan,
-    title: 'Low Interest Loan',
-    description: 'Special loan offers with reduced interest rates',
-    bgColor: '#059669',
-    textColor: '#FFFFFF',
-  ),
-];
+import '../widgets/dashboard_header.dart';
+import '../widgets/view_all_button.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   final sdk.Customer customer;
@@ -38,10 +22,7 @@ class DashboardScreen extends ConsumerStatefulWidget {
   ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-enum TransitionType { fade, scale, slide, combined }
-
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  final TransitionType _transitionType = TransitionType.combined;
   bool _transactionsLoaded = false;
 
   @override
@@ -72,53 +53,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       setState(() {
         _transactionsLoaded = true;
       });
-      // Start polling when entering a transactions screen
       ref.read(transactionsProvider.notifier).startPollingTransactions(accountsIdentifier);
     } catch (e) {
       debugPrint('Error fetching transactions: $e');
-    }
-  }
-
-  Widget _buildTransition(Widget child, Animation<double> animation) {
-    switch (_transitionType) {
-      case TransitionType.fade:
-        return FadeTransition(
-          opacity: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
-          child: child,
-        );
-      case TransitionType.scale:
-        return ScaleTransition(
-          scale: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
-          child: child,
-        );
-      case TransitionType.slide:
-        return SlideTransition(
-          position:
-          Tween<Offset>(
-            begin: const Offset(0.0, 0.3),
-            end: Offset.zero,
-          ).animate(
-            CurvedAnimation(parent: animation, curve: Curves.easeInOut),
-          ),
-          child: child,
-        );
-      case TransitionType.combined:
-        return SlideTransition(
-          position:
-          Tween<Offset>(
-            begin: const Offset(0.0, 0.1),
-            end: Offset.zero,
-          ).animate(
-            CurvedAnimation(parent: animation, curve: Curves.easeInOut),
-          ),
-          child: FadeTransition(
-            opacity: CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeInOut,
-            ),
-            child: child,
-          ),
-        );
     }
   }
 
@@ -130,34 +67,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final ThemeData theme = AppTheme.darkTheme;
     final accountsState = ref.watch(accountsProvider);
     final transactionsState = ref.watch(transactionsProvider);
 
-    return PopScope(
-      canPop: false,
-      child: Scaffold(
-        backgroundColor: theme.colorScheme.primary,
-        body: SafeArea(
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 800),
-            switchInCurve: Curves.easeInOut,
-            switchOutCurve: Curves.easeInOut,
-            transitionBuilder: _buildTransition,
-            child: accountsState.when(
-              loading: () => KeyedSubtree(
-                key: const ValueKey('loading'),
-                child: _buildLoadingScreen(theme),
-              ),
-              error: (error, stackTrace) => KeyedSubtree(
-                key: const ValueKey('error'),
-                child: _buildErrorScreen(error, theme),
-              ),
-              data: (accounts) => KeyedSubtree(
-                key: const ValueKey('data'),
-                child: _buildDashboardScreen(accounts, transactionsState, theme),
-              ),
-            ),
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: AppTheme.appGradient,
+        ),
+        child: SafeArea(
+          child: accountsState.when(
+            loading: () => _buildLoadingScreen(theme),
+            error: (error, stackTrace) => _buildErrorScreen(error, theme),
+            data: (accounts) => _buildDashboardScreen(accounts, transactionsState, theme),
           ),
         ),
       ),
@@ -165,29 +88,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildLoadingScreen(ThemeData theme) {
-    return Center(
+    return Padding(
+      padding: const EdgeInsets.all(32.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const ElegantRubiLoader(),
           const SizedBox(height: 24),
-          AnimatedOpacity(
-            opacity: 1.0,
-            duration: const Duration(milliseconds: 1000),
-            child: Text(
-              'RUBIBANK',
-              style: TextStyle(
-                color: theme.colorScheme.secondary,
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 3.0,
-              ),
+          Text(
+            'Loading...',
+            style: GoogleFonts.playfairDisplay(
+              color: theme.colorScheme.primary, // #C5A365
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 3.0, // Matches tracking-widest
             ),
           ),
         ],
       ),
     );
   }
+
 
   Widget _buildErrorScreen(dynamic error, ThemeData theme) {
     return Center(
@@ -200,8 +121,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             const SizedBox(height: 16),
             Text(
               'Error loading accounts',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                color: theme.colorScheme.onPrimary,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onBackground,
               ),
             ),
             const SizedBox(height: 8),
@@ -209,17 +130,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               error.toString(),
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onPrimary.withOpacity(0.8),
+                color: theme.colorScheme.shadow,
               ),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
+            CustomButton.muted(
+              text: 'Retry',
               onPressed: _fetchAccounts,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.secondary,
-                foregroundColor: theme.colorScheme.onSecondary,
-              ),
-              child: const Text('Retry'),
             ),
           ],
         ),
@@ -236,44 +153,66 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       });
     }
 
-    return Column(
+    return ListView(
+      padding: const EdgeInsets.only(bottom: 24.0),
       children: [
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.customer.displayName ?? widget.customer.givenName,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 18),
+        DashboardHeader(
+          userName: widget.customer.displayName ?? widget.customer.givenName,
+        ),
+        const SizedBox(height: 24),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (primaryAccount != null) BalanceCard(account: primaryAccount),
+              const SizedBox(height: 24),
+              const ActionButtonsGroup(),
+              const SizedBox(height: 24),
 
-                if (primaryAccount != null) BalanceCard(account: primaryAccount),
-                const SizedBox(height: 18),
-                ActionButtonsGroup(),
-                const SizedBox(height: 18),
-                PromotionalCarousel(promotions: promotions),
-                const SizedBox(height: 18),
-                Text(
-                  'Recent Activity',
-                  style: theme.textTheme.bodyLarge?.copyWith(),
-                ),
-                const SizedBox(height: 12),
-                Expanded(
-                  child: transactionsState.when(
-                    loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (error, stackTrace) => Center(
-                      child: Text('Error loading transactions: $error'),
+              // Recent Activity section
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Recent Activity',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onBackground,
                     ),
-                    data: (transactions) => RecentActivityEnhanced(transactions: transactions),
+                  ),
+                  ViewAllButton(
+                    onPressed: () {
+                      // Navigator.pushNamed(context, '/transactions');
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              transactionsState.when(
+                loading: () => const Center(
+                  child: CircularProgressIndicator(strokeWidth: 1.5),
+                  // height: 200,
+                ),
+                error: (error, stackTrace) => Container(
+                  height: 200,
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Error loading transactions',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.shadow,
+                    ),
                   ),
                 ),
-              ],
-            ),
+                data: (transactions) {
+                  final recentTransactions = transactions.take(3).toList();
+                  return RecentActivityEnhanced(
+                    transactions: recentTransactions,
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ],

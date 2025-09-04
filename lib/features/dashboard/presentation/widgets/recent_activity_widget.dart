@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
 import 'package:rubi_bank_app/core/utils/decimal_precision.dart';
-import '../../../../core/common/theme/app_theme.dart';
 
 class RecentActivityEnhanced extends StatefulWidget {
   final List<sdk.Transaction> transactions;
@@ -82,7 +81,7 @@ class _RecentActivityEnhancedState extends State<RecentActivityEnhanced> {
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
