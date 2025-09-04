@@ -70,7 +70,7 @@ class _RecentActivityEnhancedState extends State<RecentActivityEnhanced> {
           decoration: BoxDecoration(
             color: isNew
                 ? colorScheme.primary.withOpacity(0.1)
-                : colorScheme.surface.withOpacity(0.5),
+                : colorScheme.surface.withOpacity(0.8),
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(

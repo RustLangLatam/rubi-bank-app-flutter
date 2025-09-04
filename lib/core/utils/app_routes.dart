@@ -41,12 +41,15 @@ class AppRouter {
       case '/register/otp':
         return CustomPageRoute.slide(const RegisterOtpScreenWrapper());
 
-      case '/under-development':
-        return CustomPageRoute.scale(const UnderDevelopmentScreen());
-
       case '/dashboard':
         final customer = settings.arguments as sdk.Customer;
         return CustomPageRoute.fade(DashboardScreen(customer: customer));
+
+      case '/under-development':
+        return CustomPageRoute.scale(const UnderDevelopmentScreen());
+
+      case '/transactions':
+        return CustomPageRoute.scale(const UnderDevelopmentScreen());
 
       default:
         return MaterialPageRoute(

@@ -212,7 +212,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 data: (transactions) {
                   final recentTransactions = transactions.take(3).toList();
                   return RecentActivityEnhanced(
-                    transactions: recentTransactions,
+                      transactions: recentTransactions,
                   );
                 },
               ),
