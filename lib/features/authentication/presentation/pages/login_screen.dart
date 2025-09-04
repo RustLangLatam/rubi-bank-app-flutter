@@ -14,8 +14,8 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _showPassword = false;
-  final _emailController = TextEditingController(text: 'eleazartovar123@gmail.com');
-  final _passwordController = TextEditingController(text: 'InstallPKG12.#');
+  final _emailController = TextEditingController(text: 'user_one@rubi.local');
+  final _passwordController = TextEditingController(text: 'Y!R3t@qW5uPoIe');
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final RegExp _emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
@@ -120,15 +120,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         style: textTheme.bodyLarge,
+                        textInputAction: TextInputAction.next,
                         decoration: InputDecoration(
-                          filled: true,
-                          fillColor: colorScheme.surface,
                           hintText: 'Email',
-                          hintStyle: textTheme.titleMedium,
-                          contentPadding: const EdgeInsets.all(16),
-                          border: theme.inputDecorationTheme.border,
-                          enabledBorder: theme.inputDecorationTheme.enabledBorder,
-                          focusedBorder: theme.inputDecorationTheme.focusedBorder,
                         ),
                         validator: _validateEmail,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -140,15 +134,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         controller: _passwordController,
                         obscureText: !_showPassword,
                         style: textTheme.bodyLarge,
+                        textInputAction: TextInputAction.done,
                         decoration: InputDecoration(
-                          filled: true,
-                          fillColor: colorScheme.surface,
                           hintText: 'Password',
-                          hintStyle: textTheme.titleMedium,
-                          contentPadding: const EdgeInsets.all(16),
-                          border: theme.inputDecorationTheme.border,
-                          enabledBorder: theme.inputDecorationTheme.enabledBorder,
-                          focusedBorder: theme.inputDecorationTheme.focusedBorder,
                           suffixIcon: IconButton(
                             onPressed: _togglePasswordVisibility,
                             icon: _showPassword

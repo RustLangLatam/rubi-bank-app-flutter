@@ -7,6 +7,7 @@ import '../../../../core/common/theme/app_theme.dart';
 import '../../../../core/common/widgets/eye_icon.dart';
 import '../../../../core/common/widgets/eye_off_icon.dart';
 import '../../../../core/common/widgets/rubi_bank_logo.dart';
+import 'animated_balance_widget.dart';
 
 class BalanceCard extends StatefulWidget {
   final sdk.Account account;
@@ -34,7 +35,6 @@ class _BalanceCardState extends State<BalanceCard> {
     final TextTheme textTheme = theme.textTheme;
 
     final money = widget.account.balance!.issuedBalance;
-    final balance = money.value.toDecimal().toCurrencyString();
     final cardNumber = widget.account.address!.rubiHandle;
     final cardHolderName = widget.account.displayName;
 
@@ -79,17 +79,21 @@ class _BalanceCardState extends State<BalanceCard> {
                       if (widget.isLoading)
                         _buildShimmerPlaceholder(width: 150, height: 32)
                       else
-                        Text(
-                          _isBalanceVisible ? balance : '••••••••',
+                        CashRegisterBalanceText(
+                          balance: money.value.toDecimal(),
+                          isVisible: _isBalanceVisible,
                           style: TextStyle(
-                            fontSize: 32, // text-3xl
+                            fontSize: 32,
                             fontWeight: FontWeight.bold,
-                            color: colorScheme.onSurface, // text-on-surface
+                            color: colorScheme.onSurface,
                             fontFamily: 'Inter',
                             letterSpacing: -0.5,
                             height: 1.1,
                           ),
+                          digitAnimationDuration: const Duration(milliseconds: 300),
+                          delayBetweenDigits: const Duration(milliseconds: 80),
                         ),
+
                       const SizedBox(width: 12),
                       if (widget.isLoading)
                         _buildShimmerPlaceholder(
@@ -141,7 +145,7 @@ class _BalanceCardState extends State<BalanceCard> {
                       style: textTheme.bodyMedium?.copyWith(
                         color: colorScheme.shadow,
                         fontSize: 14,
-                        letterSpacing: 2.0,
+                        letterSpacing: 4.0,
                         fontFamily: 'sans-serif',
                       ),
                     ),

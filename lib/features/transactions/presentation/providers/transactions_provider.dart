@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
 
 import '../../../../data/providers/api_provider.dart';
+import '../../../accounts/presentation/providers/accounts_provider.dart';
 
 part 'transactions_provider.g.dart';
 
@@ -13,6 +14,7 @@ part 'transactions_provider.g.dart';
 class Transactions extends _$Transactions {
   Timer? _pollingTimer;
   String? _currentAccountId;
+  String? _currentCustomerId;
 
   @override
   AsyncValue<List<sdk.Transaction>> build() {
@@ -113,10 +115,14 @@ class Transactions extends _$Transactions {
     }
   }
 
-  Future<void> fetchAccountTransactions(String parentIdentifier) async {
+  Future<void> fetchAccountTransactions(
+    String parentIdentifier, {
+    String? customerId,
+  }) async {
     debugPrint('Fetching transactions for account: $parentIdentifier');
 
     _currentAccountId = parentIdentifier;
+    _currentCustomerId = customerId;
 
     state = const AsyncValue.loading();
 
@@ -125,7 +131,7 @@ class Transactions extends _$Transactions {
 
       final response = await transactionsApi.listTransactions(
         parentIdentifier: _currentAccountId,
-          pageParamsPeriodOrder: 'ORDER_ASC',
+        pageParamsPeriodOrder: 'ORDER_ASC',
       );
 
       if (response.statusCode == 200 && response.data?.transactions != null) {
@@ -140,7 +146,7 @@ class Transactions extends _$Transactions {
         );
       }
     } on DioException catch (e) {
-      debugPrint('DioException: ${e}');
+      debugPrint('DioException: $e');
       final errorMessage =
           e.response?.data?['message'] ?? e.message ?? 'Unknown API error';
       final statusCode = e.response?.statusCode ?? 0;
@@ -223,6 +229,12 @@ class Transactions extends _$Transactions {
 
         // Update state only if we have new data
         if (!_areTransactionsEqual(state.valueOrNull, newTransactions)) {
+          if (_currentCustomerId != null) {
+            await ref
+                .read(accountsProvider.notifier)
+                .fetchCustomerAccounts(_currentCustomerId!, loading: false);
+          }
+
           state = AsyncValue.data(newTransactions);
         }
       }

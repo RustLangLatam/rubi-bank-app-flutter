@@ -49,11 +49,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     try {
       await ref
           .read(transactionsProvider.notifier)
-          .fetchAccountTransactions(accountsIdentifier);
+          .fetchAccountTransactions(
+            accountsIdentifier,
+            customerId: widget.customer.identifier!,
+          );
       setState(() {
         _transactionsLoaded = true;
       });
-      ref.read(transactionsProvider.notifier).startPollingTransactions(accountsIdentifier);
+      ref
+          .read(transactionsProvider.notifier)
+          .startPollingTransactions(accountsIdentifier);
     } catch (e) {
       debugPrint('Error fetching transactions: $e');
     }
@@ -73,14 +78,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: AppTheme.appGradient,
-        ),
+        decoration: BoxDecoration(gradient: AppTheme.appGradient),
         child: SafeArea(
           child: accountsState.when(
             loading: () => _buildLoadingScreen(theme),
             error: (error, stackTrace) => _buildErrorScreen(error, theme),
-            data: (accounts) => _buildDashboardScreen(accounts, transactionsState, theme),
+            data: (accounts) =>
+                _buildDashboardScreen(accounts, transactionsState, theme),
           ),
         ),
       ),
@@ -109,7 +113,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-
   Widget _buildErrorScreen(dynamic error, ThemeData theme) {
     return Center(
       child: SingleChildScrollView(
@@ -134,17 +137,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            CustomButton.muted(
-              text: 'Retry',
-              onPressed: _fetchAccounts,
-            ),
+            CustomButton.muted(text: 'Retry', onPressed: _fetchAccounts),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDashboardScreen(List<sdk.Account> accounts, AsyncValue<List<sdk.Transaction>> transactionsState, ThemeData theme) {
+  Widget _buildDashboardScreen(
+    List<sdk.Account> accounts,
+    AsyncValue<List<sdk.Transaction>> transactionsState,
+    ThemeData theme,
+  ) {
     final primaryAccount = accounts.isNotEmpty ? accounts.first : null;
 
     if (primaryAccount != null && !_transactionsLoaded) {

@@ -109,10 +109,12 @@ class Accounts extends _$Accounts {
     }
   }
 
-  Future<void> fetchCustomerAccounts(String customerId) async {
+  Future<void> fetchCustomerAccounts(String customerId, {loading = true}) async {
     debugPrint('Fetching accounts for customer: $customerId');
 
-    state = const AsyncValue.loading();
+    if (loading) {
+      state = const AsyncValue.loading();
+    }
 
     try {
       final accountsApi = ref.read(accountsApiProvider);
