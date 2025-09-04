@@ -2,7 +2,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../../../../../core/common/theme/app_theme.dart';
 import '../../../../../core/common/widgets/custom_back_button.dart';
 import '../../../../../core/common/widgets/custom_button.dart';
 import '../../../../../core/common/widgets/elegant_progress_indicator.dart';
@@ -24,11 +24,12 @@ class _RegisterIdentityScreenState
 
   Country _selectedCountry = Country.parse('AE');
   String _documentType = '';
-  String _documentNumber = '12323456';
+  String _documentNumber = '';
   String _documentNumberError = '';
   String _documentTypeError = '';
 
   final List<Map<String, String>> _documentTypes = [
+    {'value': '', 'label': 'Document Type (ID, Passport)', 'disabled': 'true'},
     {'value': 'IdentityCard', 'label': 'ID Card'},
     {'value': 'Passport', 'label': 'Passport'},
     {'value': 'NationalIdentity', 'label': 'National ID'},
@@ -44,7 +45,7 @@ class _RegisterIdentityScreenState
         final country = Country.parse(registerState.customer.nationality);
         _selectedCountry = country;
       } catch (e) {
-        // If not found, leave as null
+        // If not found, leave as default
       }
     }
 
@@ -82,32 +83,18 @@ class _RegisterIdentityScreenState
   }
 
   void _handleNext() {
-    // Validate all fields
     _validateDocumentType(_documentType);
     _validateDocumentNumber(_documentNumber);
 
     if (_areAllFieldsValid()) {
-      // Update the customer data in the provider
       final registerState = ref.read(registerProvider.notifier);
-
       registerState.updateIdentity(
         _selectedCountry.countryCode,
         _documentType,
         _documentNumber,
       );
-
-      // Navigate to next screen
       Navigator.pushNamed(context, '/register/address');
     }
-    // else {
-    //   // Show error message if any field is invalid
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text('Please fill all required fields correctly'),
-    //       backgroundColor: Colors.red,
-    //     ),
-    //   );
-    // }
   }
 
   void _showCountryPicker() {
@@ -122,19 +109,21 @@ class _RegisterIdentityScreenState
       },
       countryListTheme: CountryListThemeData(
         flagSize: 25,
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         textStyle: Theme.of(context).textTheme.bodyLarge,
-        borderRadius: BorderRadius.circular(10.5),
+        borderRadius: BorderRadius.circular(12),
         inputDecoration: InputDecoration(
           labelText: 'Search',
-          labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: const Color(0xFF94A3B8),
-          ),
           hintText: 'Start typing to search',
+          filled: true,
           fillColor: Theme.of(context).colorScheme.surface,
-          prefixIcon: const Icon(Icons.search, color: Color(0xFF94A3B8)),
-          hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: const Color(0xFF94A3B8),
+          prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.shadow),
+          hintStyle: Theme.of(context).textTheme.titleMedium,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+            ),
           ),
         ),
       ),
@@ -149,198 +138,197 @@ class _RegisterIdentityScreenState
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final ThemeData theme = AppTheme.darkTheme;
     final ColorScheme colorScheme = theme.colorScheme;
+    final TextTheme textTheme = theme.textTheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.primary,
-      body: SafeArea(
-        child: KeyboardVisibilityBuilder(
-          builder: (context, isKeyboardVisible) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 32.0,
-                vertical: 24.0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Back button
-                  CustomBackButtonWithSpacing(
-                    onPressed: widget.onBack,
-                    color: colorScheme.secondary,
-                    spacing: 16,
-                  ),
-
-                  // // Progress indicator
-                  ElegantProgressIndicator(currentStep: 2, totalSteps: 4),
-                  const SizedBox(height: 32),
-
-                  // Title
-                  Text(
-                    'Identity Verification',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: AppTheme.appGradient,
+        ),
+        child: SafeArea(
+          child: KeyboardVisibilityBuilder(
+            builder: (context, isKeyboardVisible) {
+              return Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Back button
+                    CustomBackButtonWithSpacing(
+                      onPressed: widget.onBack,
+                      color: colorScheme.onBackground,
+                      spacing: 16,
                     ),
-                  ),
-                  const SizedBox(height: 40),
 
-                  // Form fields
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          // Nationality selector
-                          GestureDetector(
-                            onTap: _showCountryPicker,
-                            child: Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(15),
-                              decoration: BoxDecoration(
-                                color: colorScheme.surface,
-                                borderRadius: BorderRadius.circular(10.5),
-                                border: Border.all(
-                                  color: colorScheme.onSurface.withOpacity(0.8),
-                                  width: 1,
+                    // Progress indicator
+                        ElegantProgressIndicator(currentStep: 2, totalSteps: 4),
+                    const SizedBox(height: 32),
+
+                    // Title
+                    Text(
+                      'Identity Verification',
+                      style: textTheme.displayLarge?.copyWith(
+                        fontSize: 30, // text-3xl
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Form fields
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            // Nationality selector
+                            GestureDetector(
+                              onTap: _showCountryPicker,
+                              child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.surface,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: colorScheme.primary.withOpacity(0.2),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        _selectedCountry.name,
+                                        style: textTheme.bodyLarge,
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_drop_down,
+                                      color: colorScheme.shadow,
+                                      size: 24,
+                                    ),
+                                  ],
                                 ),
                               ),
-                              child: Row(
-                                children: [
-                                    Text(
-                                      _selectedCountry.name,
-                                      style: theme.textTheme.bodyLarge,
-                                    ),
-                                  const Spacer(),
-                                  const Icon(
-                                    Icons.arrow_drop_down,
-                                    color: Color(0xFF94A3B8),
-                                  ),
-                                ],
-                              ),
                             ),
-                          ),
-                          const SizedBox(height: 20),
+                            const SizedBox(height: 16),
 
-                          Focus(
-                            skipTraversal: true,
-                            child: Container(
+                            // Document Type dropdown
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
                               decoration: BoxDecoration(
-                                color: Colors.transparent,
-                                borderRadius: BorderRadius.circular(10.5),
+                                color: colorScheme.surface,
+                                borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color: _documentTypeError.isNotEmpty
                                       ? Colors.red
-                                      : colorScheme.onSurface.withOpacity(0.5),
-                                  width: 0.2,
+                                      : colorScheme.primary.withOpacity(0.2),
+                                  width: 1,
                                 ),
                               ),
-                              child: DropdownButtonFormField<String>(
-                                value: _documentType.isNotEmpty
-                                    ? _documentType
-                                    : null,
-                                items: _documentTypes.map((
-                                  Map<String, String> doc,
-                                ) {
-                                  return DropdownMenuItem<String>(
-                                    value: doc['value'],
-                                    child: Text(
-                                      doc['label']!,
-                                      style: theme.textTheme.bodyLarge,
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    _documentType = newValue ?? '';
-                                    _validateDocumentType(_documentType);
-                                  });
-                                },
-                                style: theme.textTheme.bodyLarge,
-                                dropdownColor: colorScheme.surface,
-                                borderRadius: BorderRadius.circular(10.5),
-                                icon: Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Color(0xFF94A3B8),
-                                ),
-                                iconSize: 24,
-                                isExpanded: true,
-                                menuMaxHeight: 200,
-                                elevation: 4,
-                                selectedItemBuilder: (BuildContext context) {
-                                  return _documentTypes.map((
-                                    Map<String, String> doc,
-                                  ) {
-                                    return Text(
-                                      doc['label']!,
-                                      style: theme.textTheme.bodyLarge,
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  value: _documentType.isNotEmpty ? _documentType : null,
+                                  items: _documentTypes.map((Map<String, String> doc) {
+                                    return DropdownMenuItem<String>(
+                                      value: doc['value'],
+                                      enabled: doc['disabled'] != 'true',
+                                      child: Text(
+                                        doc['label']!,
+                                        style: textTheme.bodyLarge?.copyWith(
+                                          color: doc['disabled'] == 'true'
+                                              ? colorScheme.shadow
+                                              : colorScheme.onSurface,
+                                        ),
+                                      ),
                                     );
-                                  }).toList();
-                                },
-                              ),
-                            ),
-                          ),
-
-                          if (_documentTypeError.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                _documentTypeError,
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 12,
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    if (newValue != null && newValue.isNotEmpty) {
+                                      setState(() {
+                                        _documentType = newValue;
+                                        _validateDocumentType(_documentType);
+                                      });
+                                    }
+                                  },
+                                  style: textTheme.bodyLarge,
+                                  dropdownColor: colorScheme.surface,
+                                  borderRadius: BorderRadius.circular(12),
+                                  icon: Icon(
+                                    Icons.arrow_drop_down,
+                                    color: colorScheme.shadow,
+                                    size: 24,
+                                  ),
+                                  isExpanded: true,
+                                  hint: Text(
+                                    'Document Type (ID, Passport)',
+                                    style: textTheme.titleMedium,
+                                  ),
+                                  elevation: 4,
                                 ),
                               ),
                             ),
-                          const SizedBox(height: 20),
-
-                          // Document Number
-                          TextFormField(
-                            textInputAction: TextInputAction.done,
-                            controller: _documentNumberController,
-                            style: theme.textTheme.bodyLarge,
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: colorScheme.surface,
-                              hintText: 'Document Number *',
-                              hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                                color: const Color(0xFF94A3B8),
+                            if (_documentTypeError.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  _documentTypeError,
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 12,
+                                  ),
+                                ),
                               ),
-                              contentPadding: const EdgeInsets.all(16),
-                              errorText: _documentNumberError.isNotEmpty
-                                  ? _documentNumberError
-                                  : null,
+                            const SizedBox(height: 16),
+
+                            // Document Number
+                            TextFormField(
+                              textInputAction: TextInputAction.done,
+                              controller: _documentNumberController,
+                              style: textTheme.bodyLarge,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: colorScheme.surface,
+                                hintText: 'Document Number',
+                                hintStyle: textTheme.titleMedium,
+                                contentPadding: const EdgeInsets.all(16),
+                                border: theme.inputDecorationTheme.border,
+                                enabledBorder: theme.inputDecorationTheme.enabledBorder,
+                                focusedBorder: theme.inputDecorationTheme.focusedBorder,
+                                errorText: _documentNumberError.isNotEmpty
+                                    ? _documentNumberError
+                                    : null,
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  _documentNumber = value;
+                                  _validateDocumentNumber(_documentNumber);
+                                });
+                              },
+                              onFieldSubmitted: (_) {
+                                if (_areAllFieldsValid()) {
+                                  _handleNext();
+                                }
+                              },
                             ),
-                            onChanged: (value) {
-                              setState(() {
-                                _documentNumber = value;
-                                _validateDocumentNumber(_documentNumber);
-                              });
-                            },
-                            onFieldSubmitted: (_) {
-                              if (_areAllFieldsValid()) {
-                                _handleNext();
-                              }
-                            },
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
 
-                  // Next button
-                  if (!isKeyboardVisible) ...[
-                    const SizedBox(height: 32),
-                    CustomButton(
-                      text: "Next",
-                      onPressed: _handleNext,
-                      type: ButtonType.primary,
-                    ),
+                    // Next button
+                    if (!isKeyboardVisible) ...[
+                      const SizedBox(height: 32),
+                      CustomButton.primary(
+                        text: "Next",
+                        onPressed: _handleNext,
+                      ),
+                    ],
                   ],
-                ],
-              ),
-            );
-          },
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

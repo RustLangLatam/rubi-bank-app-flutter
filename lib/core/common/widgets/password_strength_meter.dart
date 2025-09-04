@@ -4,13 +4,14 @@ class PasswordStrengthMeter extends StatelessWidget {
   final int score;
   final String label;
 
+
   const PasswordStrengthMeter({super.key, required this.score, required this.label});
 
   @override
   Widget build(BuildContext context) {
     final Map<int, Color> strengthColors = {
       1: Colors.red,
-      2: Colors.yellow,
+      2: Color(0xFFD8B77C),
       3: Colors.green,
       4: Colors.greenAccent,
     };

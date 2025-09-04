@@ -18,7 +18,7 @@ class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case '/':
-        return MaterialPageRoute(builder: (_) => const SplashScreen());
+        return CustomPageRoute.fade(const SplashScreen());
 
       case '/onboarding':
         return CustomPageRoute.fade(const OnboardingScreen());

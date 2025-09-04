@@ -23,7 +23,10 @@ class ElegantProgressIndicator extends StatelessWidget {
       children: [
         Text(
           'Step $currentStep of $totalSteps',
-          style: theme.textTheme.bodyMedium,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.shadow,
+            )
         ),
         const SizedBox(height: 8),
         Row(
