@@ -77,7 +77,7 @@ extension DecimalFormatting on Decimal {
   }
 
   String toCurrencyString({String symbol = '\$'}) {
-    final formatter = NumberFormat('$symbol#,##0.00', 'en_US');
+    final formatter = NumberFormat('$symbol #,##0.00', 'en_US');
     return formatter.format(toDouble());
   }
 }

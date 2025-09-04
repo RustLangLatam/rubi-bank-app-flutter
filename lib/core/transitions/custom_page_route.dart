@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'cupertino_modal_transaction.dart';
 import 'fade_transition.dart';
 import 'scale_transition.dart';
 import 'slide_transition.dart';
@@ -16,6 +17,9 @@ enum TransitionType {
 
   /// A scale transition, where the new page scales up from a small size.
   scale,
+
+  /// A Cupertino-style modal transition that slides up from the bottom.
+  cupertinoModal,
 }
 
 /// A helper class for selecting and building page routes with different transition types.
@@ -29,6 +33,7 @@ class CustomPageRoute {
     TransitionType.fade: (page) => FadePageRoute(page: page),
     TransitionType.slide: (page) => SlidePageRoute(page: page),
     TransitionType.scale: (page) => ScalePageRoute(page: page),
+    TransitionType.cupertinoModal: (page) => CupertinoModalPageRoute(page: page),
   };
 
   /// Builds a page route with the specified transition type.
@@ -76,4 +81,15 @@ class CustomPageRoute {
   /// Returns:
   ///   A page route with a scale transition.
   static PageRoute scale(Widget page) => build(page, TransitionType.scale);
+
+  /// Builds a page route with a Cupertino-style modal transition.
+  ///
+  /// This method is a convenience wrapper around [build] that uses [TransitionType.cupertinoModal] as the transition type.
+  ///
+  /// Args:
+  ///   page: The widget to be used as the content of the page route.
+  ///
+  /// Returns:
+  ///   A page route with a Cupertino-style modal transition.
+  static PageRoute cupertinoModal(Widget page) => build(page, TransitionType.cupertinoModal);
 }

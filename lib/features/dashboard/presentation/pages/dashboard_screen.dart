@@ -8,7 +8,9 @@ import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
 import '../../../../core/common/theme/app_theme.dart';
 import '../../../../core/common/widgets/custom_button.dart';
 import '../../../../core/common/widgets/elegant_rubi_loader.dart';
+import '../../../../core/transitions/custom_page_route.dart';
 import '../../../accounts/presentation/providers/accounts_provider.dart';
+import '../../../transactions/presentation/pages/send_money_screen.dart';
 import '../../../transactions/presentation/providers/transactions_provider.dart';
 import '../widgets/action_buttons_group_widget.dart';
 import '../widgets/dashboard_header.dart';
@@ -171,7 +173,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             children: [
               if (primaryAccount != null) BalanceCard(account: primaryAccount),
               const SizedBox(height: 24),
-              const ActionButtonsGroup(),
+              ActionButtonsGroup(onSend: () {
+                Navigator.push(
+                  context,
+                    CustomPageRoute.cupertinoModal(SendMoneyScreen()),
+                );
+              }),
               const SizedBox(height: 24),
 
               // Recent Activity section
