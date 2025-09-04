@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide Provider;
 import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart';
-
+import '../../../../../core/common/theme/app_theme.dart';
 import '../../../../../core/common/widgets/custom_back_button.dart';
 import '../../../../../core/common/widgets/custom_button.dart';
 import '../../../../../core/common/widgets/elegant_progress_indicator.dart';
@@ -27,9 +27,7 @@ class _RegisterPhoneScreenState extends ConsumerState<RegisterPhoneScreen> {
   @override
   void initState() {
     super.initState();
-    // Prefill with existing customer data from provider
     final registerState = ref.read(registerProvider);
-
     if (registerState.customer.phoneNumber.number.isNotEmpty) {
       _phoneNumberController.text = registerState.customer.phoneNumber.number;
     }
@@ -63,10 +61,7 @@ class _RegisterPhoneScreenState extends ConsumerState<RegisterPhoneScreen> {
   }
 
   bool _areAllFieldsValid() {
-    final cleanedNumber = _phoneNumberController.text.replaceAll(
-      RegExp(r'\D'),
-      '',
-    );
+    final cleanedNumber = _phoneNumberController.text.replaceAll(RegExp(r'\D'), '');
     return _phoneError.isEmpty &&
         _termsError.isEmpty &&
         cleanedNumber.isNotEmpty &&
@@ -76,191 +71,133 @@ class _RegisterPhoneScreenState extends ConsumerState<RegisterPhoneScreen> {
   }
 
   Future<void> _handleNext() async {
-    final cleanedNumber = _phoneNumberController.text.replaceAll(
-      RegExp(r'\D'),
-      '',
-    );
-
+    final cleanedNumber = _phoneNumberController.text.replaceAll(RegExp(r'\D'), '');
     _validatePhoneNumber(_phoneNumberController.text);
     _validateTerms(_agreedToTerms);
 
     if (_areAllFieldsValid()) {
       final registerState = ref.read(registerProvider.notifier);
-
       final newPhone = Phone(
-        (r) => r
+            (r) => r
           ..number = cleanedNumber
           ..countryCode = 971,
       );
-
       registerState.updatePhone(newPhone);
-
       Navigator.pushNamed(context, '/register/otp');
     }
-    // else {
-    //   // Show error message if any field is invalid
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text('Please fill all required fields correctly'),
-    //       backgroundColor: Colors.red,
-    //     ),
-    //   );
-    // }
   }
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final ThemeData theme = AppTheme.darkTheme;
     final ColorScheme colorScheme = theme.colorScheme;
+    final TextTheme textTheme = theme.textTheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.primary,
-      body: SafeArea(
-        child: KeyboardVisibilityBuilder(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: AppTheme.appGradient,
+        ),
+        child: SafeArea(
+          child: KeyboardVisibilityBuilder(
             builder: (context, isKeyboardVisible) {
               return Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 32.0, vertical: 24.0),
+                padding: const EdgeInsets.all(32.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Back button with custom widget
+                    // Back button
                     CustomBackButtonWithSpacing(
                       onPressed: widget.onBack,
-                      color: colorScheme.secondary,
+                      color: colorScheme.onBackground,
                       spacing: 16,
                     ),
 
-                    ElegantProgressIndicator(currentStep: 4, totalSteps: 4),
+                    // Progress indicator
+                        ElegantProgressIndicator(currentStep: 4, totalSteps: 4),
                     const SizedBox(height: 32),
 
-                    // Title
+                    // Title and subtitle
                     Text(
                       'Phone Verification',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
+                      style: textTheme.displayLarge?.copyWith(
+                        fontSize: 30, // text-3xl
                       ),
                     ),
                     const SizedBox(height: 8),
-
-                    // Subtitle
                     Text(
                       'Please enter your phone number. We will send you a verification code.',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: const Color(0xFFA9B4C4),
-                      ),
+                      style: textTheme.bodyMedium,
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 32),
 
                     // Form fields
                     Expanded(
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
+                            // Phone number input with country code
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    // Country code prefix
-                                    Container(
-                                      constraints: const BoxConstraints(
-                                        minHeight: 48,
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: colorScheme.surface,
-                                        borderRadius: const BorderRadius.only(
-                                          topLeft: Radius.circular(10.5),
-                                          bottomLeft: Radius.circular(10.5),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: _phoneError.isNotEmpty
+                                          ? Colors.red
+                                          : colorScheme.primary.withOpacity(0.2),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      // Country code prefix
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 16,
                                         ),
-                                        border: Border.all(
-                                          color: colorScheme.surface
-                                              .withOpacity(0.8),
-                                          width: 1,
+                                        decoration: BoxDecoration(
+                                          color: colorScheme.surface,
+                                          borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(12),
+                                            bottomLeft: Radius.circular(12),
+                                          ),
                                         ),
-                                      ),
-                                      child: Center(
                                         child: Text(
                                           '+971',
-                                          style: theme.textTheme.bodyLarge,
+                                          style: textTheme.bodyLarge,
                                         ),
                                       ),
-                                    ),
 
-                                    // Phone number input
-                                    Expanded(
-                                      child: SizedBox(
-                                        height: 48,
+                                      // Phone number input
+                                      Expanded(
                                         child: TextFormField(
                                           controller: _phoneNumberController,
                                           keyboardType: TextInputType.phone,
-                                          style: theme.textTheme.bodyLarge,
+                                          style: textTheme.bodyLarge,
                                           decoration: InputDecoration(
                                             filled: true,
                                             fillColor: colorScheme.surface,
-                                            hintText: 'Phone Number *',
-                                            hintStyle: theme.textTheme
-                                                .bodyMedium
-                                                ?.copyWith(
-                                              color: const Color(0xFF94A3B8),
-                                            ),
-                                            enabledBorder: const OutlineInputBorder(
-                                              borderRadius: BorderRadius.only(
-                                                topRight: Radius.circular(10.5),
-                                                bottomRight: Radius.circular(
-                                                    10.5),
-                                              ),
-                                              borderSide: BorderSide(
-                                                color: Colors.transparent,
-                                                width: 1,
-                                              ),
-                                            ),
-                                            focusedBorder: const OutlineInputBorder(
-                                              borderRadius: BorderRadius.only(
-                                                topRight: Radius.circular(10.5),
-                                                bottomRight: Radius.circular(
-                                                    10.5),
-                                              ),
-                                              borderSide: BorderSide(
-                                                color: Color(0xFFFCD34D),
-                                                width: 1.5,
-                                              ),
-                                            ),
-                                            contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                              vertical: 12,
-                                            ),
-                                            border: const OutlineInputBorder(
-                                              borderRadius: BorderRadius.only(
-                                                topRight: Radius.circular(10.5),
-                                                bottomRight: Radius.circular(
-                                                    10.5),
-                                              ),
-                                              borderSide: BorderSide.none,
-                                            ),
+                                            hintText: 'Phone Number',
+                                            hintStyle: textTheme.titleMedium,
+                                            contentPadding: const EdgeInsets.all(16),
+                                            border: InputBorder.none,
+                                            enabledBorder: InputBorder.none,
+                                            focusedBorder: InputBorder.none,
+                                            errorBorder: InputBorder.none,
+                                            disabledBorder: InputBorder.none,
+                                            focusedErrorBorder: InputBorder.none,
                                           ),
                                           onChanged: (value) {
-                                            final cleanedValue = value
-                                                .replaceAll(
-                                              RegExp(r'\D'),
-                                              '',
-                                            );
+                                            final cleanedValue = value.replaceAll(RegExp(r'\D'), '');
                                             if (value != cleanedValue) {
-                                              _phoneNumberController
-                                                  .value =
-                                                  _phoneNumberController
-                                                      .value
-                                                      .copyWith(
+                                              _phoneNumberController.value =
+                                                  _phoneNumberController.value.copyWith(
                                                     text: cleanedValue,
-                                                    selection:
-                                                    TextSelection.collapsed(
-                                                      offset: cleanedValue
-                                                          .length,
+                                                    selection: TextSelection.collapsed(
+                                                      offset: cleanedValue.length,
                                                     ),
                                                   );
                                             }
@@ -268,16 +205,12 @@ class _RegisterPhoneScreenState extends ConsumerState<RegisterPhoneScreen> {
                                           },
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-
                                 if (_phoneError.isNotEmpty)
                                   Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 8.0,
-                                      left: 8.0,
-                                    ),
+                                    padding: const EdgeInsets.only(top: 8.0, left: 8.0),
                                     child: Text(
                                       _phoneError,
                                       style: const TextStyle(
@@ -288,78 +221,79 @@ class _RegisterPhoneScreenState extends ConsumerState<RegisterPhoneScreen> {
                                   ),
                               ],
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 24),
 
                             // Terms and conditions
-                            Row(
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Checkbox
-                                SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: Checkbox(
-                                    value: _agreedToTerms,
-                                    onChanged: (bool? value) {
-                                      setState(() {
-                                        _agreedToTerms = value ?? false;
-                                        _validateTerms(_agreedToTerms);
-                                      });
-                                    },
-                                    fillColor:
-                                    MaterialStateProperty.resolveWith<Color>((
-                                        Set<MaterialState> states,) {
-                                      if (states.contains(
-                                        MaterialState.selected,
-                                      )) {
-                                        return colorScheme.secondary;
-                                      }
-                                      return colorScheme.surface.withOpacity(
-                                          0.8);
-                                    }),
-                                    checkColor: Colors.black,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-
-                                // Terms text
-                                Expanded(
-                                  child: RichText(
-                                    text: TextSpan(
-                                      style: theme.textTheme.bodyMedium
-                                          ?.copyWith(
-                                        color: const Color(0xFFA9B4C4),
-                                      ),
-                                      children: [
-                                        const TextSpan(text: 'I agree to the '),
-                                        TextSpan(
-                                          text: 'Terms & Conditions',
-                                          style: theme.textTheme.bodyMedium
-                                              ?.copyWith(
-                                            color: colorScheme.secondary,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                Row(
+                                  children: [
+                                    // Checkbox
+                                    SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: Checkbox(
+                                        value: _agreedToTerms,
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            _agreedToTerms = value ?? false;
+                                            _validateTerms(_agreedToTerms);
+                                          });
+                                        },
+                                        fillColor: MaterialStateProperty.resolveWith<Color>((
+                                            Set<MaterialState> states,
+                                            ) {
+                                          if (states.contains(MaterialState.selected)) {
+                                            return colorScheme.primary;
+                                          }
+                                          return colorScheme.surface;
+                                        }),
+                                        checkColor: colorScheme.onPrimary,
+                                        side: BorderSide(
+                                          color: colorScheme.primary.withOpacity(0.3),
+                                          width: 1,
                                         ),
-                                      ],
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+
+                                    // Terms text
+                                    Expanded(
+                                      child: RichText(
+                                        text: TextSpan(
+                                          style: textTheme.bodyMedium,
+                                          children: [
+                                            const TextSpan(text: 'I agree to the '),
+                                            TextSpan(
+                                              text: 'Terms & Conditions',
+                                              style: textTheme.bodyMedium?.copyWith(
+                                                color: colorScheme.primary,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                if (_termsError.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0, left: 28.0),
+                                    child: Text(
+                                      _termsError,
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
-                                ),
                               ],
                             ),
-                            if (_termsError.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 8.0, left: 36.0),
-                                child: Text(
-                                  _termsError,
-                                  style: const TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
                           ],
                         ),
                       ),
@@ -368,16 +302,17 @@ class _RegisterPhoneScreenState extends ConsumerState<RegisterPhoneScreen> {
                     // Next button
                     if (!isKeyboardVisible) ...[
                       const SizedBox(height: 32),
-                      CustomButton(
+                      CustomButton.primary(
                         text: "Send Code",
                         onPressed: _handleNext,
-                        type: ButtonType.primary,
                       ),
                     ],
                   ],
                 ),
               );
-            })
+            },
+          ),
+        ),
       ),
     );
   }
