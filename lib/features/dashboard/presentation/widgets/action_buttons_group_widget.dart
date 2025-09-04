@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/common/theme/app_theme.dart';
 
 class ActionButton extends StatelessWidget {
   final Widget icon;
@@ -114,7 +113,6 @@ class MoreIcon extends StatelessWidget {
   }
 }
 
-// Painters for each icon - Ajustados para viewBox 0 0 24 24
 class _SendIconPainter extends CustomPainter {
   final Color color;
 
@@ -129,7 +127,6 @@ class _SendIconPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
 
-    // Ajustado para viewBox 24x24
     final scale = size.width / 24;
     canvas.save();
     canvas.scale(scale);
@@ -231,14 +228,18 @@ class _BillsIconPainter extends CustomPainter {
 
 class _MoreIconPainter extends CustomPainter {
   final Color color;
+  final double strokeWidth;
 
-  _MoreIconPainter({required this.color});
+  _MoreIconPainter({
+    required this.color,
+    this.strokeWidth = 1.5,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
-      ..strokeWidth = 1.5
+      ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
@@ -247,25 +248,35 @@ class _MoreIconPainter extends CustomPainter {
     canvas.save();
     canvas.scale(scale);
 
-    final path = Path()
-      ..moveTo(5, 12)
-      ..lineTo(19, 12)
-      ..moveTo(5, 12)
-      ..cubicTo(5, 10.895, 5.895, 10, 7, 10)
-      ..lineTo(17, 10)
-      ..cubicTo(18.105, 10, 19, 10.895, 19, 12)
-      ..cubicTo(19, 13.105, 18.105, 14, 17, 14)
-      ..lineTo(7, 14)
-      ..cubicTo(5.895, 14, 5, 13.105, 5, 12)
-      ..moveTo(5, 12)
-      ..cubicTo(5, 13.105, 5.895, 14, 7, 14)
-      ..lineTo(17, 14)
-      ..cubicTo(18.105, 14, 19, 13.105, 19, 12)
-      ..cubicTo(19, 10.895, 18.105, 10, 17, 10)
-      ..lineTo(7, 10)
-      ..cubicTo(5.895, 10, 5, 10.895, 5, 12);
+    // Draw the horizontal line: M5 12h14
+    canvas.drawLine(
+      const Offset(5, 12),
+      const Offset(19, 12),
+      paint,
+    );
 
-    canvas.drawPath(path, paint);
+    // Draw the top rectangle: M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2
+    final topRect = Path()
+      ..moveTo(5, 12)
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          const Rect.fromLTRB(3, 4, 21, 12),
+          const Radius.circular(2),
+        ),
+      );
+    canvas.drawPath(topRect, paint);
+
+    // Draw the bottom rectangle: M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2
+    final bottomRect = Path()
+      ..moveTo(5, 12)
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          const Rect.fromLTRB(3, 12, 21, 20),
+          const Radius.circular(2),
+        ),
+      );
+    canvas.drawPath(bottomRect, paint);
+
     canvas.restore();
   }
 

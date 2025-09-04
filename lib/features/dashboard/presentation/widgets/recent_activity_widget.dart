@@ -108,14 +108,14 @@ class _RecentActivityEnhancedState extends State<RecentActivityEnhanced> {
                   ),
                 ),
                 Text(
-                  '${isDebit ? '' : '+'}${amount.toCurrencyString()}',
+                  '${isDebit ? '-' : '+'} ${amount.toCurrencyString()}',
                   style: textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                     color: isNew
                         ? colorScheme.primary
                         : isDebit
-                        ? colorScheme.onSurface
+                        ? colorScheme.onSurface.withOpacity(0.8)
                         : Colors.green.shade400,
                   ),
                 ),

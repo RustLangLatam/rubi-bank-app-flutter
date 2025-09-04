@@ -187,7 +187,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                   ViewAllButton(
                     onPressed: () {
-                      // Navigator.pushNamed(context, '/transactions');
+                      Navigator.pushNamed(context, '/transactions');
                     },
                   ),
                 ],
