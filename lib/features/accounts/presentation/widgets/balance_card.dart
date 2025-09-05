@@ -141,7 +141,7 @@ class _BalanceCardState extends State<BalanceCard> {
                     _buildShimmerPlaceholder(width: 120, height: 16)
                   else
                     Text(
-                      '**** ${cardNumber!.substring(cardNumber.length - 4)}',
+                      '**** ${cardNumber!.substring(cardNumber.length - 6)}',
                       style: textTheme.bodyMedium?.copyWith(
                         color: colorScheme.shadow,
                         fontSize: 14,

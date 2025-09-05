@@ -14,6 +14,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _showPassword = false;
+  bool _isLoading = false; // Local loading state
   final _emailController = TextEditingController(text: 'pinto@gmail.com');
   final _passwordController = TextEditingController(text: '12345678');
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -47,15 +48,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true; // Show loading only when button is pressed
+      });
+
       try {
         await ref
             .read(customerProvider.notifier)
             .loginCustomer(_emailController.text, _passwordController.text);
 
         final customer = ref.read(customerProvider).value;
-        Navigator.pushReplacementNamed(context, '/dashboard', arguments: customer);
-      } catch (e) {
-        debugPrint('Error: $e');
+        if (customer != null) {
+          Navigator.pushReplacementNamed(context, '/dashboard', arguments: customer);
+        }
+      } on CustomerException catch (e) {
+        // Error will be shown through the state listener
+        debugPrint('Login error: ${e.message}');
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false; // Hide loading when done
+          });
+        }
       }
     }
   }
@@ -73,6 +87,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final ColorScheme colorScheme = theme.colorScheme;
     final TextTheme textTheme = theme.textTheme;
 
+    // Watch the customer provider state for errors only
+    final customerState = ref.watch(customerProvider);
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(gradient: AppTheme.appGradient(colorScheme)),
@@ -84,7 +101,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               child: SingleChildScrollView(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    minHeight: MediaQuery.of(context).size.height - 64, // SafeArea padding
+                    minHeight: MediaQuery.of(context).size.height - 64,
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -112,6 +129,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ],
                       ),
                       const SizedBox(height: 40),
+
+                      // Error message if exists
+                      if (customerState.hasError)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: colorScheme.error.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: colorScheme.error.withOpacity(0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            customerState.errorMessage, // Clean and safe
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.error,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+
+                      if (customerState.hasError) const SizedBox(height: 16),
 
                       // Email Field
                       TextFormField(
@@ -148,15 +189,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
 
                       const SizedBox(height: 32),
+
+                      // Login Button with loading inside
                       CustomButton.primary(
                         text: 'Sign In',
-                        onPressed: _submitForm,
+                        onPressed: _isLoading ? () {} : _submitForm, // Disable when loading
+                        isLoading: _isLoading, // Show loading indicator inside button
                       ),
 
                       const SizedBox(height: 24),
+
+                      // Forgot Password Button
                       CustomButton.muted(
                         text: 'Forgot Password?',
-                        onPressed: () {
+                        onPressed: _isLoading ? () {} : () { // Disable when loading
                           // Navigate to forgot password screen
                         },
                       ),

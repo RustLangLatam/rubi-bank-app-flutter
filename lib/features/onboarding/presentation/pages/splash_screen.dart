@@ -24,7 +24,9 @@ class _SplashScreenState extends State<SplashScreen> {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
 
-    return Scaffold(
+    return PopScope(
+        canPop: false,
+        child: Scaffold(
       body: Container(
         decoration: BoxDecoration(gradient: AppTheme.appGradient(colorScheme)),
         child: Padding(
@@ -69,6 +71,7 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
         ),
       ),
+        ),
     );
   }
 }

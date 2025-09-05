@@ -30,7 +30,7 @@ class Customer extends _$Customer {
       _validateCustomerData(customer, password);
 
       final request = sdk.CreateCustomerRequestPayload(
-        (b) => b
+            (b) => b
           ..customer = customer.toBuilder()
           ..password = password,
       );
@@ -39,36 +39,31 @@ class Customer extends _$Customer {
         createCustomerRequestPayload: request,
       );
 
-      switch (response.statusCode) {
-        case 200:
-          debugPrint('Customer created successfully: ${response.data!.name}');
-          if (response.data == null) {
-            throw CustomerApiException(
-              'Customer created successfully but no data returned in response',
-              statusCode: 200,
-            );
-          }
-          state = AsyncValue.data(response.data!);
-          break;
-        case 201:
-          if (response.data == null) {
-            state = AsyncValue.error(
-              CustomerApiException('Customer created but no data returned', statusCode: 201),
-              StackTrace.current,
-            );
-            return;
-          }
-          state = AsyncValue.data(response.data!);
-          break;
+      debugPrint('Customer created successfully: ${response.data?.name}');
+
+      if (response.data == null) {
+        throw CustomerApiException(
+          'Customer created successfully but no data returned in response',
+          statusCode: response.statusCode ?? 200,
+        );
+      }
+
+      state = AsyncValue.data(response.data!);
+
+    } on DioException catch (e) {
+      debugPrint('DioException: $e');
+      final statusCode = e.response?.statusCode ?? 0;
+      final errorMessage = e.response?.data?['message'] ??
+          e.response?.data?['error'] ??
+          e.message ??
+          'Unknown API error';
+
+      String parsedMessage = _parseDioError(e, errorMessage.toString());
+
+      switch (statusCode) {
         case 400:
-          state = AsyncValue.error(
-            CustomerApiException(
-              'Bad request: Invalid customer data',
-              statusCode: 400,
-            ),
-            StackTrace.current,
-          );
-          return;
+          parsedMessage = 'Bad request: Invalid customer data';
+          break;
         case 409:
           state = AsyncValue.error(
             CustomerAlreadyExistsException(),
@@ -76,33 +71,18 @@ class Customer extends _$Customer {
           );
           return;
         case 500:
-          state = AsyncValue.error(
-            CustomerApiException(
-              'Server error: Please try again later',
-              statusCode: 500,
-            ),
-            StackTrace.current,
-          );
-          return;
+          parsedMessage = 'Server error: Please try again later';
+          break;
         default:
-          state = AsyncValue.error(
-            CustomerApiException(
-              'Unexpected error: Status code ${response.statusCode}',
-              statusCode: response.statusCode,
-            ),
-            StackTrace.current,
-          );
-          return;
+          break;
       }
-    } on DioException catch (e) {
-      debugPrint('DioException: ${e}');
-      final errorMessage = e.response?.data?['message'] ?? e.message ?? 'Unknown API error';
-      final statusCode = e.response?.statusCode ?? 0;
-
-      String parsedMessage = _parseDioError(e, errorMessage.toString());
 
       state = AsyncValue.error(
-        CustomerApiException(parsedMessage, statusCode: statusCode, errorData: e.response?.data),
+        CustomerApiException(
+          parsedMessage,
+          statusCode: statusCode,
+          errorData: e.response?.data,
+        ),
         StackTrace.current,
       );
     } on CustomerException catch (e) {
@@ -137,118 +117,76 @@ class Customer extends _$Customer {
         loginCustomerRequest: request,
       );
 
-      switch (response.statusCode) {
-        case 200:
-          final data = response.data!;
+      final data = response.data!;
 
-          if (data.customer == null) {
-            state = AsyncValue.error(
-              CustomerApiException(
-                'Login successful but no customer data returned',
-                statusCode: 200,
-              ),
-              StackTrace.current,
-            );
-            return;
-          }
-
-          if (data.tokens == null ||
-              data.tokens!.accessToken == null ||
-              data.tokens!.refreshToken == null) {
-            state = AsyncValue.error(
-              CustomerApiException(
-                'Login successful but no tokens returned',
-                statusCode: 200,
-              ),
-              StackTrace.current,
-            );
-            return;
-          }
-
-          state = AsyncValue.data(data.customer!);
-
-          final tokens = data.tokens!;
-
-          ref
-              .read(rubiBankApiProvider)
-              .setBearerAuth('Authorization', tokens.accessToken!.value!);
-          ref
-              .read(rubiBankApiProvider)
-              .setBearerAuth('Refresh', tokens.refreshToken!.value!);
-
-          await _saveTokens(tokens);
-          break;
-
-        case 400:
-          state = AsyncValue.error(
-            CustomerApiException(
-              'Invalid email or password format',
-              statusCode: 400,
-            ),
-            StackTrace.current,
-          );
-          break;
-
-        case 401:
-          state = AsyncValue.error(
-            CustomerApiException('Invalid email or password', statusCode: 401),
-            StackTrace.current,
-          );
-          break;
-
-        case 403:
-          state = AsyncValue.error(
-            CustomerApiException(
-              'Account disabled or access denied',
-              statusCode: 403,
-            ),
-            StackTrace.current,
-          );
-          break;
-
-        case 404:
-          state = AsyncValue.error(
-            CustomerApiException('Customer not found', statusCode: 404),
-            StackTrace.current,
-          );
-          break;
-
-        case 429:
-          state = AsyncValue.error(
-            CustomerApiException(
-              'Too many login attempts. Please try again later',
-              statusCode: 429,
-            ),
-            StackTrace.current,
-          );
-          break;
-
-        case 500:
-          state = AsyncValue.error(
-            CustomerApiException(
-              'Server error. Please try again later',
-              statusCode: 500,
-            ),
-            StackTrace.current,
-          );
-          break;
-
-        default:
-          state = AsyncValue.error(
-            CustomerApiException(
-              'Unexpected error: Status code ${response.statusCode}',
-              statusCode: response.statusCode,
-            ),
-            StackTrace.current,
-          );
-          break;
+      if (data.customer == null) {
+        state = AsyncValue.error(
+          CustomerApiException(
+            'Login successful but no customer data returned',
+            statusCode: 200,
+          ),
+          StackTrace.current,
+        );
+        return;
       }
+
+      if (data.tokens == null ||
+          data.tokens!.accessToken == null ||
+          data.tokens!.refreshToken == null) {
+        state = AsyncValue.error(
+          CustomerApiException(
+            'Login successful but no tokens returned',
+            statusCode: 200,
+          ),
+          StackTrace.current,
+        );
+        return;
+      }
+
+      state = AsyncValue.data(data.customer!);
+
+      final tokens = data.tokens!;
+
+      ref
+          .read(rubiBankApiProvider)
+          .setBearerAuth('Authorization', tokens.accessToken!.value!);
+      ref
+          .read(rubiBankApiProvider)
+          .setBearerAuth('Refresh', tokens.refreshToken!.value!);
+
+      await _saveTokens(tokens);
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data?['message'] ?? e.message ?? 'Network error occurred';
       final statusCode = e.response?.statusCode ?? 0;
+      final errorMessage =
+          e.response?.data?['message'] ??
+          e.response?.data?['error'] ??
+          e.message ??
+          'Network error occurred';
 
       String parsedMessage = _parseDioError(e, errorMessage.toString());
+
+      switch (statusCode) {
+        case 400:
+          parsedMessage = 'Invalid email or password format';
+          break;
+        case 401:
+          parsedMessage = 'Invalid email or password';
+          break;
+        case 403:
+          parsedMessage = 'Account disabled or access denied';
+          break;
+        case 404:
+          parsedMessage = 'Customer not found';
+          break;
+        case 429:
+          parsedMessage = 'Too many login attempts. Please try again later';
+          break;
+        case 500:
+          parsedMessage = 'Server error. Please try again later';
+          break;
+        default:
+          break;
+      }
 
       state = AsyncValue.error(
         CustomerApiException(
@@ -357,24 +295,22 @@ class Customer extends _$Customer {
   }
 
   String _parseDioError(DioException e, String defaultMessage) {
-    try {
-      if (e.response?.data is Map<String, dynamic>) {
-        final data = e.response!.data as Map<String, dynamic>;
+    if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.sendTimeout ||
+        e.type == DioExceptionType.receiveTimeout) {
+      return 'Connection timeout. Please check your internet connection.';
+    }
 
-        if (data.containsKey('message')) {
-          return data['message'].toString();
-        }
+    if (e.type == DioExceptionType.connectionError) {
+      return 'No internet connection. Please check your network settings.';
+    }
 
-        if (data.containsKey('error')) {
-          return data['error'].toString();
-        }
+    if (e.type == DioExceptionType.badResponse) {
+      return defaultMessage;
+    }
 
-        if (data.containsKey('details') && data['details'] is String) {
-          return data['details'].toString();
-        }
-      }
-    } catch (_) {
-      // If parsing fails, use default message
+    if (e.type == DioExceptionType.cancel) {
+      return 'Request was cancelled.';
     }
 
     return defaultMessage;
@@ -422,4 +358,23 @@ class CustomerAlreadyExistsException extends CustomerApiException {
         'Customer already exists with this email or phone',
         statusCode: 409,
       );
+}
+
+// Add this extension in a separate file (e.g., async_value_extensions.dart)
+extension AsyncValueErrorExtension on AsyncValue<dynamic> {
+  String get errorMessage {
+    if (!hasError) return '';
+
+    final error = this.error;
+    if (error is CustomerException) {
+      return error.message;
+    } else if (error is CustomerApiException) {
+      return error.message;
+    } else if (error is DioException) {
+      return error.message ?? 'Network error occurred';
+    } else if (error is String) {
+      return error;
+    }
+    return error?.toString() ?? 'An unexpected error occurred';
+  }
 }
