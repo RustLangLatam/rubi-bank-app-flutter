@@ -1,6 +1,8 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:rubi_bank_app/core/utils/decimal_precision.dart';
 import 'package:rubi_bank_app/features/accounts/presentation/widgets/balance_card.dart';
 import 'package:rubi_bank_app/features/authentication/presentation/providers/customer_provider.dart';
 import 'package:rubi_bank_app/features/dashboard/presentation/widgets/recent_activity_widget.dart';
@@ -214,7 +216,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 onSend: () {
                   Navigator.push(
                     context,
-                    CustomPageRoute.cupertinoModal(SendMoneyScreen()),
+                    CustomPageRoute.cupertinoModal(
+                      SendMoneyScreen(
+                        issuedBalance:
+                            primaryAccount?.balance?.issuedBalance.value
+                                .toDecimal() ??
+                            Decimal.zero,
+                      ),
+                    ),
                   );
                 },
               ),

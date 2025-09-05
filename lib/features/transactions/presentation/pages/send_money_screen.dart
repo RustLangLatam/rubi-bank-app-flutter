@@ -1,6 +1,8 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:rubi_bank_app/core/utils/decimal_precision.dart';
 
 import '../../../../core/common/theme/app_theme.dart';
 import '../../../../core/common/widgets/custom_back_button.dart';
@@ -11,12 +13,14 @@ class SendMoneyScreen extends StatefulWidget {
   final VoidCallback? onBack;
   final VoidCallback? onContinue;
   final Map<String, String>? prefilledData;
+  final Decimal issuedBalance;
 
   const SendMoneyScreen({
     super.key,
     this.onBack,
     this.onContinue,
     this.prefilledData,
+    required this.issuedBalance,
   });
 
   @override
@@ -26,6 +30,10 @@ class SendMoneyScreen extends StatefulWidget {
 class _SendMoneyScreenState extends State<SendMoneyScreen> {
   TransferType _transferType = TransferType.rubi;
   String _amount = '0.00';
+  String? _amountError; // Add error state
+
+  // Add TextEditingController for amount
+  late TextEditingController _amountController;
 
   String _rubiRecipient = '';
   String _beneficiaryName = '';
@@ -36,10 +44,14 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
   void initState() {
     super.initState();
 
+    // Initialize the controller
+    _amountController = TextEditingController(text: _amount);
+
     // Set prefilled data if available
     if (widget.prefilledData != null) {
       _amount = widget.prefilledData!['amount'] ?? '0.00';
       _rubiRecipient = widget.prefilledData!['recipient'] ?? '';
+      _amountController.text = _amount; // Update controller text
     }
   }
 
@@ -50,6 +62,8 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
     if (digitsOnly.isEmpty) {
       setState(() {
         _amount = '0.00';
+        _amountController.text = _amount;
+        _amountError = null;
       });
       return;
     }
@@ -59,11 +73,34 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
       digitsOnly = digitsOnly.substring(1);
     }
 
-    // Convert to decimal format
-    final numericValue = int.parse(digitsOnly) / 100;
-    setState(() {
-      _amount = numericValue.toStringAsFixed(2);
-    });
+    // Convert to decimal format (divide by 100)
+    final numericValue = Decimal.parse(digitsOnly) / Decimal.fromInt(100);
+
+    // Validate if amount exceeds available balance
+    if (numericValue > widget.issuedBalance.toRational()) {
+      setState(() {
+        _amount = numericValue.toDecimal().toStringAsFixed(2);
+        _amountController.text = _amount;
+        _amountError = 'Amount exceeds available balance';
+      });
+    } else {
+      setState(() {
+        _amount = numericValue.toDecimal().toStringAsFixed(2);
+        _amountController.text = _amount;
+        _amountError = null;
+      });
+    }
+  }
+
+  // Add this method to format the balance display
+  String get _formattedBalance {
+    return widget.issuedBalance.toFormattedString();
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose(); // Don't forget to dispose!
+    super.dispose();
   }
 
   @override
@@ -135,34 +172,45 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                                   color: colorScheme.shadow,
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Container(
-                                color: Colors.transparent,
-                                width: 200,
+                              const SizedBox(width: 12),
+                              IntrinsicWidth(
                                 child: TextField(
-                                  controller: TextEditingController(
-                                    text: _amount,
-                                  ),
+                                  controller: _amountController,
                                   keyboardType: TextInputType.number,
                                   textInputAction: TextInputAction.next,
                                   onChanged: _handleAmountChange,
                                   style: GoogleFonts.inter(
                                     fontSize: 48,
                                     fontWeight: FontWeight.bold,
-                                    color: colorScheme.onSurface,
+                                    color: _amountError != null
+                                        ? colorScheme.error
+                                        : colorScheme.onSurface,
                                   ),
                                   textAlign: TextAlign.center,
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                    disabledBorder: InputBorder.none,
+                                    errorBorder: InputBorder.none,
+                                    focusedErrorBorder: InputBorder.none,
                                     contentPadding: EdgeInsets.zero,
+                                    isDense: true,
+                                    hintText: '0.00',
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
                           Text(
-                            'Available Balance: \$17,930.00',
-                            style: textTheme.titleMedium,
+                            _amountError ??
+                                'Available Balance: $_formattedBalance',
+                            style: textTheme.titleMedium?.copyWith(
+                              color: _amountError != null
+                                  ? colorScheme.error
+                                  : colorScheme.shadow,
+                            ),
                           ),
                         ],
                       ),
@@ -217,13 +265,14 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                     const SizedBox(height: 32),
                     CustomButton.primary(
                       text: 'Continue',
-                      onPressed: () {
-                        // Navigate to transfer confirmation screen
-                      },
+                      onPressed: _amountError == null
+                          ? () {
+                              // Only allow continue if no error
+                              // Navigate to transfer confirmation screen
+                            }
+                          : () {}, // Disable button if there's an error
                     ),
                     const SizedBox(height: 32),
-
-                    // Continue Button
                   ],
                 ),
               );
@@ -329,7 +378,6 @@ class RubiTransferForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
-      // value: recipient,
       onChanged: onRecipientChanged,
       textInputAction: TextInputAction.next,
       decoration: const InputDecoration(
