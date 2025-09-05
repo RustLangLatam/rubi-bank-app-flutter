@@ -233,11 +233,13 @@ class Transactions extends _$Transactions {
 
           state = AsyncValue.data(newTransactions);
 
-          if (_currentCustomerId != null) {
-            await ref
-                .read(accountsProvider.notifier)
-                .fetchCustomerAccounts(_currentCustomerId!, loading: false);
-          }
+          Future.delayed(const Duration(milliseconds: 500), () async {
+            if (_currentCustomerId != null) {
+              await ref
+                  .read(accountsProvider.notifier)
+                  .fetchCustomerAccounts(_currentCustomerId!, loading: false);
+            }
+          });
         }
       }
     } on DioException catch (e) {

@@ -7,6 +7,7 @@ import 'package:rubi_bank_app/features/dashboard/presentation/widgets/recent_act
 import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
 
 import '../../../../core/common/theme/app_theme.dart';
+import '../../../../core/common/widgets/confirmation_modal.dart';
 import '../../../../core/common/widgets/custom_button.dart';
 import '../../../../core/common/widgets/elegant_rubi_loader.dart';
 import '../../../../core/transitions/custom_page_route.dart';
@@ -73,8 +74,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   void _handleLogout() {
-    ref.read(transactionsProvider.notifier).stopPolling();
-    Navigator.pushReplacementNamed(context, '/welcome-back');
+    _showLogoutConfirmation(context);
+  }
+
+  void _showLogoutConfirmation(BuildContext context) {
+    ConfirmationModal.show(
+      context: context,
+      onConfirm: () {
+        ref.read(transactionsProvider.notifier).stopPolling();
+        Navigator.pushReplacementNamed(context, '/welcome-back');
+      },
+      title: 'Confirm Logout',
+      message: 'Are you sure you want to logout?',
+      confirmText: 'Logout',
+      cancelText: 'Cancel',
+      iconType: IconType.logout,
+      confirmButtonVariant: ConfirmButtonVariant.primary,
+    );
   }
 
   @override

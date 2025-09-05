@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 enum AppThemeType {
-  systemDefault,
+  goldLight,
+  blueDark,
+  elegantRuby,
   dark,
   light,
-  blueDark,
-  goldLight,
-  elegantRuby,
+  systemDefault,
 }
 
 class ThemePreference {

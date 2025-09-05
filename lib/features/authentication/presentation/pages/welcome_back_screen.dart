@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/common/theme/app_theme.dart';
 import '../../../../core/common/widgets/custom_button.dart';
+import '../../../../core/common/widgets/elegant_rubi_loader.dart';
 import '../../../../core/common/widgets/rubi_bank_logo.dart';
+import '../../../../core/common/widgets/settings_menu.dart';
 import '../../../../data/providers/user_preferences_provider.dart';
 import '../providers/customer_provider.dart';
 
@@ -57,14 +60,16 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen> {
     if (value == null || value.isEmpty) {
       return 'Please enter your password';
     }
-    if (value.length < 6) {
-      return 'Password must be at least 6 characters';
+    if (value.length < 8) {
+      return 'Password must be at least 8 characters';
     }
     return null;
   }
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      FocusScope.of(context).unfocus();
+
       setState(() {
         _isLoading = true;
       });
@@ -82,12 +87,13 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen> {
             .read(customerProvider.notifier)
             .loginCustomer(userEmail, _passwordController.text);
 
-        final customer = ref
-            .read(customerProvider)
-            .value;
+        final customer = ref.read(customerProvider).value;
         if (customer != null) {
           Navigator.pushReplacementNamed(
-              context, '/dashboard', arguments: customer);
+            context,
+            '/dashboard',
+            arguments: customer,
+          );
         }
       } on CustomerException catch (e) {
         debugPrint('Login error: ${e.message}');
@@ -121,146 +127,151 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen> {
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: AppTheme.appGradient(colorScheme),
-        ),
+        decoration: BoxDecoration(gradient: AppTheme.appGradient(colorScheme)),
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  // Main content - centered using Center widget
-                  Expanded(
-                    child: Center(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          // Important for centering
-                          children: [
-                            // Logo
-                            RubiBankLogo(
-                              size: 52,
-                              color: colorScheme.primary,
-                            ),
-                            const SizedBox(height: 24),
+          child: KeyboardVisibilityBuilder(
+            builder: (context, isKeyboardVisible) {
+              return Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [const SettingsMenu()],
+                      ),
+                      // Main content - centered using Center widget
+                      Expanded(
+                        child: Center(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              // Important for centering
+                              children: [
+                                // Logo
+                                ElegantRubiLoader(),
+                                // RubiBankLogo(
+                                //   size: 52,
+                                //   color: colorScheme.primary,
+                                // ),
+                                const SizedBox(height: 24),
 
-                            // Welcome text
-                            Text(
-                              'Welcome Back,',
-                              style: GoogleFonts.playfairDisplay(
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.onSurface,
-                              ),
-                            ),
-                            Text(
-                              _userName ?? 'User',
-                              style: GoogleFonts.playfairDisplay(
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.onSurface,
-                              ),
-                            ),
-                            // const SizedBox(height: 8),
-                            // Text(
-                            //   _userEmail ?? 'user@example.com',
-                            //   style: textTheme.bodyMedium?.copyWith(
-                            //     color: colorScheme.shadow,
-                            //   ),
-                            // ),
-                            const SizedBox(height: 40),
-
-                            // Error message
-                            if (customerState.hasError)
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(16),
-                                margin: const EdgeInsets.only(bottom: 16),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.error.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: colorScheme.error.withOpacity(0.3),
-                                    width: 1,
+                                // Welcome text
+                                Text(
+                                  'Welcome Back,',
+                                  style: GoogleFonts.playfairDisplay(
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                    color: colorScheme.onSurface,
                                   ),
                                 ),
-                                child: Text(
-                                  customerState.errorMessage,
-                                  style: textTheme.bodyMedium?.copyWith(
-                                    color: colorScheme.error,
+                                Text(
+                                  _userName ?? 'User',
+                                  style: GoogleFonts.playfairDisplay(
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                    color: colorScheme.onSurface,
                                   ),
-                                  textAlign: TextAlign.center,
                                 ),
-                              ),
+                                // const SizedBox(height: 8),
+                                // Text(
+                                //   _userEmail ?? 'user@example.com',
+                                //   style: textTheme.bodyMedium?.copyWith(
+                                //     color: colorScheme.shadow,
+                                //   ),
+                                // ),
+                                const SizedBox(height: 40),
 
-                            // Password field
-                            Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: colorScheme.surface.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: colorScheme.primary.withOpacity(0.2),
-                                  width: 1,
-                                ),
-                              ),
-                              child: TextFormField(
-                                controller: _passwordController,
-                                obscureText: !_showPassword,
-                                decoration: InputDecoration(
-                                  hintText: 'Password',
-                                  hintStyle: textTheme.bodyLarge?.copyWith(
-                                    color: colorScheme.shadow,
+                                // Error message
+                                if (customerState.hasError)
+                                  Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.all(16),
+                                    margin: const EdgeInsets.only(bottom: 16),
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.error.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: colorScheme.error.withOpacity(
+                                          0.3,
+                                        ),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      customerState.errorMessage,
+                                      style: textTheme.bodyMedium?.copyWith(
+                                        color: colorScheme.error,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
                                   ),
-                                  contentPadding: const EdgeInsets.all(20),
-                                  suffixIcon: IconButton(
-                                    onPressed: _togglePasswordVisibility,
-                                    icon: _showPassword
-                                        ? Icon(Icons.visibility_off, color: colorScheme.shadow)
-                                        : Icon(Icons.visibility, color: colorScheme.shadow),
-                                    splashRadius: 20,
-                                  ),
-                                ),
-                                validator: _validatePassword,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
 
-                            // Forgot password
-                            CustomButton.muted(
-                              text: 'Forgot Password?',
-                              onPressed: _isLoading
-                                  ? () {}
-                                  : () {
-                                // Navigate to forgot password screen
-                              },
+                                // Password field
+                                TextFormField(
+                                  controller: _passwordController,
+                                  obscureText: !_showPassword,
+                                  style: textTheme.bodyLarge,
+                                  textInputAction: TextInputAction.done,
+                                  decoration: InputDecoration(
+                                    hintText: 'Password',
+                                    suffixIcon: IconButton(
+                                      onPressed: _togglePasswordVisibility,
+                                      icon: _showPassword
+                                          ? Icon(
+                                              Icons.visibility_off,
+                                              color: colorScheme.shadow,
+                                            )
+                                          : Icon(
+                                              Icons.visibility,
+                                              color: colorScheme.shadow,
+                                            ),
+                                      splashRadius: 20,
+                                    ),
+                                  ),
+                                  validator: _validatePassword,
+                                ),
+                                const SizedBox(height: 12),
+
+                                // Forgot password
+                                CustomButton.muted(
+                                  text: 'Forgot Password?',
+                                  onPressed: _isLoading
+                                      ? () {}
+                                      : () {
+                                          // Navigate to forgot password screen
+                                        },
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  // Bottom buttons
-                  Column(
-                    children: [
-                      CustomButton.primary(
-                        text: 'Sign In',
-                        onPressed: _isLoading ? () {} : _submitForm,
-                        isLoading: _isLoading,
+                    if (!isKeyboardVisible)
+                      // Bottom buttons
+                      Column(
+                        children: [
+                          CustomButton.primary(
+                            text: 'Sign In',
+                            onPressed: _isLoading ? () {} : _submitForm,
+                            isLoading: _isLoading,
+                          ),
+                          const SizedBox(height: 16),
+                          CustomButton.muted(
+                            text: 'Login with another account',
+                            onPressed: _isLoading
+                                ? () {}
+                                : _navigateToFullLogin,
+                          ),
+                          const SizedBox(height: 20),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      CustomButton.muted(
-                        text: 'Login with another account',
-                        onPressed: _isLoading ? () {} : _navigateToFullLogin,
-                      ),
-                      const SizedBox(height: 20),
                     ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),

@@ -39,7 +39,6 @@ class OnboardingScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const SettingsMenu(),
                       Text(
                         'RUBIBANK',
                         style: GoogleFonts.playfairDisplay(
@@ -50,6 +49,7 @@ class OnboardingScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 24), // Maintain alignment
+                      const SettingsMenu(),
                     ],
                   ),                  // Center Content
                   Column(

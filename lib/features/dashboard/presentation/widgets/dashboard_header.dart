@@ -111,7 +111,10 @@ class _DashboardHeaderState extends State<DashboardHeader> {
   void _hideMenu() {
     _overlayEntry?.remove();
     _overlayEntry = null;
-    setState(() => _isMenuOpen = false);
+
+    if (mounted) {
+      setState(() => _isMenuOpen = false);
+    }
   }
 
   @override

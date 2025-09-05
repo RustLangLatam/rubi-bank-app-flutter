@@ -175,15 +175,16 @@ class ThemeSelectionTile extends StatelessWidget {
 
   String _getThemeName(AppThemeType theme) {
     switch (theme) {
+      case AppThemeType.goldLight:
+        return 'Gold Luxury';
+      case AppThemeType.blueDark:
+        return 'Blue Dark';
+      case AppThemeType.elegantRuby:
+        return 'Elegant Ruby';
       case AppThemeType.dark:
         return 'Dark Theme';
       case AppThemeType.light:
         return 'Light Theme';
-      case AppThemeType.goldLight:
-        return 'Gold Luxury';
-      case AppThemeType.blueDark:
-      case AppThemeType.elegantRuby:
-        return 'Elegant Ruby';
       case AppThemeType.systemDefault:
         return 'System Default';
     }
@@ -191,8 +192,6 @@ class ThemeSelectionTile extends StatelessWidget {
 
   Color _getThemeColor(AppThemeType theme) {
     switch (theme) {
-      case AppThemeType.systemDefault:
-        return Colors.blueGrey;
       case AppThemeType.dark:
         return const Color(0xFF121212);
       case AppThemeType.light:
@@ -203,6 +202,8 @@ class ThemeSelectionTile extends StatelessWidget {
         return const Color(0xFF1565C0);
       case AppThemeType.elegantRuby:
         return const Color(0xFF9B1C31);
+      case AppThemeType.systemDefault:
+        return Colors.blueGrey;
     }
   }
 }
