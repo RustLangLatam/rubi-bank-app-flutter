@@ -2,21 +2,7 @@ import 'package:decimal/decimal.dart';
 import 'package:intl/intl.dart';
 import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart';
 
-extension DecimalPrecisionExtensions on DecimalPrecision {
-  Decimal toDecimal() {
-    final coeffInt = BigInt.parse(coefficient);
-
-    if (scale == 0) {
-      return Decimal.fromBigInt(coeffInt);
-    }
-
-    final coeffStr = coeffInt.toString();
-    final padded = coeffStr.padLeft(scale + 1, '0');
-    final integerPart = padded.substring(0, padded.length - scale);
-    final fractionPart = padded.substring(padded.length - scale);
-
-    return Decimal.parse('$integerPart.$fractionPart');
-  }
+extension DecimalPrecisionExtensions on DecimalPrecisionBuilder {
 
   /// From Decimal → may lose trailing zeros (Decimal doesn't preserve them)
   static DecimalPrecision fromDecimal(Decimal value, {int? scaleHint}) {
@@ -79,5 +65,37 @@ extension DecimalFormatting on Decimal {
   String toCurrencyString({String symbol = '\$'}) {
     final formatter = NumberFormat('$symbol #,##0.00', 'en_US');
     return formatter.format(toDouble());
+  }
+}
+
+extension DecimalPrecisionparse on Decimal {
+  DecimalPrecision toDecimalPrecision() {
+      final str = toString();
+
+      if (!str.contains('.')) {
+        return DecimalPrecision((b) => b
+          ..coefficient = BigInt.parse(str).toString()
+          ..scale = scale);
+      }
+
+      final parts = str.split('.');
+      final integerPart = parts[0];
+      var fractionPart = parts[1];
+
+      // Use scaleHint if provided, else actual fraction length
+      final targetScale = scale;
+
+      // Pad fractionPart to target scale
+      if (fractionPart.length < targetScale) {
+        fractionPart = fractionPart.padRight(targetScale, '0');
+      } else if (fractionPart.length > targetScale) {
+        fractionPart = fractionPart.substring(0, targetScale); // trim extra
+      }
+
+      final coefficient = BigInt.parse(integerPart + fractionPart).toString();
+
+      return DecimalPrecision((b) => b
+        ..coefficient = coefficient
+        ..scale = targetScale);
   }
 }

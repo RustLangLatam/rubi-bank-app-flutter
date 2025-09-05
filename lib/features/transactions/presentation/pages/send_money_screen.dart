@@ -2,6 +2,7 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
 import 'package:rubi_bank_app/core/utils/decimal_precision.dart';
 
 import '../../../../core/common/theme/app_theme.dart';
@@ -31,6 +32,8 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
   TransferType _transferType = TransferType.rubi;
   String _amount = '0.00';
   String? _amountError; // Add error state
+
+  Decimal _amountDecimal = Decimal.parse('0.00');
 
   // Add TextEditingController for amount
   late TextEditingController _amountController;
@@ -197,6 +200,8 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                                     contentPadding: EdgeInsets.zero,
                                     isDense: true,
                                     hintText: '0.00',
+                                    filled: true,
+                                    fillColor: Colors.transparent,
                                   ),
                                 ),
                               ),
@@ -261,18 +266,30 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                       ),
                     ),
 
-                    // Continue Button
-                    const SizedBox(height: 32),
-                    CustomButton.primary(
-                      text: 'Continue',
-                      onPressed: _amountError == null
-                          ? () {
-                              // Only allow continue if no error
-                              // Navigate to transfer confirmation screen
-                            }
-                          : () {}, // Disable button if there's an error
-                    ),
-                    const SizedBox(height: 32),
+                    if (!isKeyboardVisible) ...[
+                      // Continue Button
+                      const SizedBox(height: 32),
+                      CustomButton.primary(
+                        text: 'Continue',
+                        onPressed: _amountError == null
+                            ? () {
+                                final transaction = sdk.Transaction(
+                                  (t) => t
+                                    ..amount = sdk.Money(
+                                      (m) => m
+                                        ..value = _amountDecimal
+                                            .toDecimalPrecision()
+                                            .toBuilder(),
+                                    ).toBuilder(),
+                                );
+
+                                // Only allow continue if no error
+                                // Navigate to transfer confirmation screen
+                              }
+                            : () {}, // Disable button if there's an error
+                      ),
+                      const SizedBox(height: 32),
+                    ],
                   ],
                 ),
               );
