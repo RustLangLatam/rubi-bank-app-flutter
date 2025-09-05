@@ -14,8 +14,8 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _showPassword = false;
-  final _emailController = TextEditingController(text: 'user_one@rubi.local');
-  final _passwordController = TextEditingController(text: 'Y!R3t@qW5uPoIe');
+  final _emailController = TextEditingController(text: 'pinto@gmail.com');
+  final _passwordController = TextEditingController(text: '12345678');
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final RegExp _emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
@@ -75,9 +75,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: AppTheme.appGradient,
-        ),
+        decoration: BoxDecoration(gradient: AppTheme.appGradient(colorScheme)),
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(32.0),

@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'Rubi Bank',
-        theme: AppTheme.darkTheme, // 🌞 Light
+        theme: AppTheme.dubaiGoldTheme, // 🌞 Light
         darkTheme: AppTheme.darkTheme, // 🌚 Dark
         themeMode: ThemeMode.system, // System theme
         onGenerateRoute: AppRouter.generateRoute,

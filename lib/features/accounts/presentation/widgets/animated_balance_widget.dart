@@ -118,10 +118,12 @@ class _CashRegisterBalanceTextState extends State<CashRegisterBalanceText> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+
     if (_error != null) {
       return Text(
         _error!,
-        style: widget.style.copyWith(color: AppTheme.darkTheme.colorScheme.error),
+        style: widget.style.copyWith(color: theme.colorScheme.error),
       );
     }
 

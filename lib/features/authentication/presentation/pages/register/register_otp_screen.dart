@@ -178,9 +178,7 @@ class _RegisterOtpScreenState extends ConsumerState<RegisterOtpScreen> {
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: AppTheme.appGradient,
-        ),
+        decoration: BoxDecoration(gradient: AppTheme.appGradient(colorScheme)),
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(32.0),

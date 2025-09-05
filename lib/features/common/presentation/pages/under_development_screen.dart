@@ -42,12 +42,11 @@ class _UnderDevelopmentScreenState extends State<UnderDevelopmentScreen>
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
 
     return Scaffold(
         body: Container(
-          decoration: BoxDecoration(
-            gradient: AppTheme.appGradient,
-          ),
+          decoration: BoxDecoration(gradient: AppTheme.appGradient(colorScheme)),
           child:SafeArea(
         child: Container(
           width: double.infinity,

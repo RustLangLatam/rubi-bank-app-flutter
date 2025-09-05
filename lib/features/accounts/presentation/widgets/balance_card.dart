@@ -40,7 +40,7 @@ class _BalanceCardState extends State<BalanceCard> {
 
     return Container(
       decoration: BoxDecoration(
-        gradient: AppTheme.cardGradient,
+        gradient: AppTheme.cardGradient(colorScheme),
         borderRadius: BorderRadius.circular(16.0),
         border: Border.all(
           color: colorScheme.primary.withOpacity(0.2),

@@ -195,14 +195,13 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
 
     return PopScope(
       canPop: false,
       child: Scaffold(
         body: Container(
-          decoration: BoxDecoration(
-            gradient: AppTheme.appGradient,
-          ),
+          decoration: BoxDecoration(gradient: AppTheme.appGradient(colorScheme)),
           child: Center(
             child: SafeArea(
               minimum: const EdgeInsets.all(32.0), // p-8

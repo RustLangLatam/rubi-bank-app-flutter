@@ -74,7 +74,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(gradient: AppTheme.appGradient),
+        decoration: BoxDecoration(gradient: AppTheme.appGradient(colorScheme)),
         child: SafeArea(
           child: KeyboardVisibilityBuilder(
               builder: (context, isKeyboardVisible) {

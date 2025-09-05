@@ -74,13 +74,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = AppTheme.darkTheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
     final accountsState = ref.watch(accountsProvider);
     final transactionsState = ref.watch(transactionsProvider);
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(gradient: AppTheme.appGradient),
+        decoration: BoxDecoration(gradient: AppTheme.appGradient(colorScheme)),
         child: SafeArea(
           child: accountsState.when(
             loading: () => _buildLoadingScreen(theme),
