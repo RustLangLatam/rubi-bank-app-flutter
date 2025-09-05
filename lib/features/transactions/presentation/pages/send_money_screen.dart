@@ -1,6 +1,7 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
 import 'package:rubi_bank_app/core/utils/decimal_precision.dart';
@@ -9,8 +10,9 @@ import '../../../../core/common/theme/app_theme.dart';
 import '../../../../core/common/widgets/custom_back_button.dart';
 import '../../../../core/common/widgets/custom_button.dart';
 import '../../../../core/common/widgets/qr_code_icon.dart';
+import '../../../../data/providers/api_provider.dart';
 
-class SendMoneyScreen extends StatefulWidget {
+class SendMoneyScreen extends ConsumerStatefulWidget {
   final VoidCallback? onBack;
   final VoidCallback? onContinue;
   final Map<String, String>? prefilledData;
@@ -25,10 +27,10 @@ class SendMoneyScreen extends StatefulWidget {
   });
 
   @override
-  State<SendMoneyScreen> createState() => _SendMoneyScreenState();
+  ConsumerState<SendMoneyScreen> createState() => _SendMoneyScreenState();
 }
 
-class _SendMoneyScreenState extends State<SendMoneyScreen> {
+class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
   TransferType _transferType = TransferType.rubi;
   String _amount = '0.00';
   String? _amountError; // Add error state
@@ -275,13 +277,65 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                             ? () {
                                 final transaction = sdk.Transaction(
                                   (t) => t
+                                    ..type = sdk
+                                        .TransactionTypeEnum
+                                        .TRANSACTION_TYPE_TRANSFER
                                     ..amount = sdk.Money(
                                       (m) => m
                                         ..value = _amountDecimal
                                             .toDecimalPrecision()
-                                            .toBuilder(),
-                                    ).toBuilder(),
+                                            .toBuilder()
+                                        ..currencyCode = 'USD',
+                                    ).toBuilder()
+                                    ..oneOf = sdk.OneOf1(
+                                      value: sdk.TransferDetails(
+                                        (d) => d
+                                          ..description = 'Transfer'
+                                          ..destination = sdk.FinancialAddress(
+                                            (f) => f.oneOf = sdk.OneOf1(
+                                              value: sdk.RubiAccount(
+                                                (r) => r
+                                                  ..oneOf = sdk.OneOf1(
+                                                    value: sdk.Phone(
+                                                      (p) => p
+                                                        ..number =
+                                                            _rubiRecipient
+                                                        ..countryCode = 57,
+                                                    ),
+                                                  ),
+                                              ).toBuilder(),
+                                            ),
+                                          ).toBuilder()
+                                          ..source_ = sdk.FinancialAddress(
+                                            (f) => f.oneOf = sdk.OneOf1(
+                                              value: sdk.RubiAccount(
+                                                (r) => r
+                                                  ..oneOf = sdk.OneOf1(
+                                                    value: sdk.Phone(
+                                                      (p) => p
+                                                        ..number =
+                                                            _rubiRecipient
+                                                        ..countryCode = 57,
+                                                    ),
+                                                  ),
+                                              ).toBuilder(),
+                                            ),
+                                          ).toBuilder(),
+                                      ).toBuilder(),
+                                    ),
                                 );
+
+                                try {
+                                final transactionsApi = ref
+                                    .read(transactionsApiProvider)
+                                    .createTransaction(
+                                      account: "123546546",
+                                      transaction: transaction,
+                                    );
+                                } catch (e) {
+                                  debugPrint(e.toString());
+                                }
+
 
                                 // Only allow continue if no error
                                 // Navigate to transfer confirmation screen
