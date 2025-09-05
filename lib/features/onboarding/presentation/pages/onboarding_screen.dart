@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/common/theme/app_theme.dart';
 import '../../../../core/common/widgets/custom_button.dart';
+import '../../../../core/common/widgets/decorative_circle_painter.dart';
 import '../../../../core/common/widgets/rubi_bank_logo.dart';
+import '../../../../core/common/widgets/settings_menu.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -34,28 +36,22 @@ class OnboardingScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Header
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Icon(
-                        Icons.menu,
-                        size: 24, // Matches h-6 w-6
-                        color: theme.colorScheme.onBackground, // #EAEBF0
-                      ),
+                      const SettingsMenu(),
                       Text(
                         'RUBIBANK',
                         style: GoogleFonts.playfairDisplay(
-                          fontSize: 20, // Matches text-xl
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.primary, // #C5A365
-                          letterSpacing: 2.0, // Matches tracking-widest
+                          color: theme.colorScheme.primary,
+                          letterSpacing: 2.0,
                         ),
                       ),
-                      const SizedBox(width: 24), // Placeholder for alignment
+                      const SizedBox(width: 24), // Maintain alignment
                     ],
-                  ),
-                  // Center Content
+                  ),                  // Center Content
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -136,41 +132,4 @@ class OnboardingScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-class DecorativeCirclePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 1;
-
-    // Gradient circle stroke
-    final circlePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1
-      ..shader = const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Color(0xFFC5A365), // primary
-          Color(0xFFA47D42), // darker primary
-        ],
-      ).createShader(Rect.fromCircle(center: center, radius: radius))
-      ..color = Colors.white.withOpacity(0.3); // Matches opacity="0.3"
-
-    canvas.drawCircle(center, radius, circlePaint);
-
-    for (int i = 0; i < 72; i++) {
-      final angle =
-          (i * 5) * (3.141592653589793 / 180); // Convert degrees to radians
-      canvas.save();
-      canvas.translate(center.dx, center.dy);
-      canvas.rotate(angle);
-      canvas.translate(-center.dx, -center.dy);
-      canvas.restore();
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

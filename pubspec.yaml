@@ -42,6 +42,7 @@ dependencies:
   intl: ^0.20.2
   shimmer: ^3.0.0
   material_symbols_icons: ^4.2867.0
+  shared_preferences: ^2.5.3
 
   rubi_bank_api_sdk:
     path: ../../dart/rubi-bank-api-sdk-dart

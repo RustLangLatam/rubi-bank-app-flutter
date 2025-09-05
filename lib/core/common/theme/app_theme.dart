@@ -1,6 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+enum AppThemeType {
+  systemDefault,
+  dark,
+  light,
+  blueDark,
+  goldLight,
+  elegantRuby,
+}
+
+class ThemePreference {
+  final AppThemeType themeType;
+
+  const ThemePreference({required this.themeType});
+
+  // Default to system theme
+  factory ThemePreference.defaultValue() {
+    return const ThemePreference(themeType: AppThemeType.systemDefault);
+  }
+}
+
 class AppTheme {
   // Dark Theme (Original RubiBank Theme)
   static ThemeData get darkTheme {
@@ -113,44 +133,7 @@ class AppTheme {
     );
   }
 
-  // Gold Light Theme - Luxury banking experience
   static ThemeData get goldLightTheme {
-    return ThemeData(
-      brightness: Brightness.light,
-      scaffoldBackgroundColor: const Color(0xFFFCF7F0),
-      primaryColor: const Color(0xFFB8860B),
-      colorScheme: const ColorScheme.light(
-        primary: Color(0xFFB8860B),
-        secondary: Color(0xFFD4AF37),
-        background: Color(0xFFFCF7F0),
-        surface: Color(0xFFFFFFFF),
-        onPrimary: Color(0xFFFFFFFF),
-        onSecondary: Color(0xFFFFFFFF),
-        onBackground: Color(0xFF2D2A24),
-        onSurface: Color(0xFF2D2A24),
-        error: Color(0xFFC53030),
-        shadow: Color(0xFFA8A29E),
-      ),
-      textTheme: _buildTextTheme(
-        bodyColor: const Color(0xFF2D2A24),
-        displayColor: const Color(0xFF2D2A24),
-        mutedColor: const Color(0xFF78716C),
-        onPrimaryColor: const Color(0xFFFFFFFF),
-      ),
-      inputDecorationTheme: _buildInputDecorationTheme(
-        fillColor: const Color(0xFFFFFFFF),
-        borderColor: const Color(0xFFE7E5E4),
-        focusColor: const Color(0xFFB8860B),
-        hintColor: const Color(0xFFA8A29E),
-      ),
-      elevatedButtonTheme: _buildElevatedButtonTheme(
-        backgroundColor: const Color(0xFFB8860B),
-        foregroundColor: const Color(0xFFFFFFFF),
-      ),
-    );
-  }
-
-  static ThemeData get dubaiGoldTheme {
     return ThemeData(
       brightness: Brightness.light,
       scaffoldBackgroundColor: const Color(0xFFFDF6E3), // Sand beige
