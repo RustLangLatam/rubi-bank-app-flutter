@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rubi_bank_app/features/accounts/presentation/widgets/balance_card.dart';
+import 'package:rubi_bank_app/features/authentication/presentation/providers/customer_provider.dart';
 import 'package:rubi_bank_app/features/dashboard/presentation/widgets/recent_activity_widget.dart';
 import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
 
@@ -68,8 +69,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   void dispose() {
-    ref.read(transactionsProvider.notifier).stopPolling();
     super.dispose();
+  }
+
+  void _handleLogout() {
+    ref.read(transactionsProvider.notifier).stopPolling();
+    Navigator.pushReplacementNamed(context, '/welcome-back');
   }
 
   @override
@@ -165,6 +170,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       children: [
         DashboardHeader(
           userName: widget.customer.displayName ?? widget.customer.givenName,
+          onLogout: _handleLogout,
+          onSettings: () {
+            // Handle settings logic
+            print('Settings clicked');
+          },
         ),
         const SizedBox(height: 24),
         Padding(

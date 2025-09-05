@@ -226,7 +226,7 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen> {
                                 validator: _validatePassword,
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 12),
 
                             // Forgot password
                             CustomButton.muted(
@@ -242,7 +242,6 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen> {
                       ),
                     ),
                   ),
-
                   // Bottom buttons
                   Column(
                     children: [
