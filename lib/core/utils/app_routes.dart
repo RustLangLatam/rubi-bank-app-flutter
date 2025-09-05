@@ -7,6 +7,7 @@ import '../../features/authentication/presentation/pages/register/register_ident
 import '../../features/authentication/presentation/pages/register/register_otp_screen.dart';
 import '../../features/authentication/presentation/pages/register/register_personal_info_screen.dart';
 import '../../features/authentication/presentation/pages/register/register_phone_screen.dart';
+import '../../features/authentication/presentation/pages/welcome_back_screen.dart';
 import '../../features/common/presentation/pages/under_development_screen.dart';
 import '../../features/dashboard/presentation/pages/dashboard_screen.dart';
 import '../../features/onboarding/presentation/pages/onboarding_screen.dart';
@@ -25,6 +26,9 @@ class AppRouter {
 
       case '/login':
         return CustomPageRoute.fade(const LoginScreen());
+
+      case '/welcome-back':
+        return CustomPageRoute.fade(const WelcomeBackScreen());
 
       case '/register':
         return CustomPageRoute.slide(const RegisterPersonalInfoScreenWrapper());

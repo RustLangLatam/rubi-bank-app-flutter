@@ -67,7 +67,9 @@ class CustomButton extends StatefulWidget {
     required String text,
     required VoidCallback onPressed,
     bool isLoading = false,
-    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.center
+    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.center,
+    textTransform = TextTransform.none,
+    fontWeight = FontWeight.w600,
   }) {
     return CustomButton(
       key: key,
@@ -77,8 +79,8 @@ class CustomButton extends StatefulWidget {
       isFullWidth: true,
       verticalPadding: 12,
       fontSize: 14,
-      fontWeight: FontWeight.w600,
-      textTransform: TextTransform.uppercase,
+      fontWeight: fontWeight,
+      textTransform: textTransform,
       letterSpacing: 1.0,
       isLoading: isLoading,
       mainAxisAlignment: mainAxisAlignment,

@@ -81,7 +81,7 @@ class _CreateCustomerScreenState extends ConsumerState<CreateCustomerScreen> {
 
           await ref
               .read(customerProvider.notifier)
-              .loginCustomer(email, password);
+              .loginCustomer(email, password, firstLogin: true);
         } else if (i == 1) {
           // Step 2: Create savings account
           final createCustomerState = ref.read(customerProvider);

@@ -229,13 +229,15 @@ class Transactions extends _$Transactions {
 
         // Update state only if we have new data
         if (!_areTransactionsEqual(state.valueOrNull, newTransactions)) {
+          debugPrint('New transactions: ${newTransactions.length}');
+
+          state = AsyncValue.data(newTransactions);
+
           if (_currentCustomerId != null) {
             await ref
                 .read(accountsProvider.notifier)
                 .fetchCustomerAccounts(_currentCustomerId!, loading: false);
           }
-
-          state = AsyncValue.data(newTransactions);
         }
       }
     } on DioException catch (e) {

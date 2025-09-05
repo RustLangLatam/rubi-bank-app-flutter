@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rubi_bank_api_sdk/rubi_bank_api_sdk.dart' as sdk;
 
 import '../../../../data/providers/api_provider.dart';
+import '../../../../data/providers/user_preferences_provider.dart';
 
 part 'customer_provider.g.dart';
 
@@ -30,7 +31,7 @@ class Customer extends _$Customer {
       _validateCustomerData(customer, password);
 
       final request = sdk.CreateCustomerRequestPayload(
-            (b) => b
+        (b) => b
           ..customer = customer.toBuilder()
           ..password = password,
       );
@@ -49,11 +50,11 @@ class Customer extends _$Customer {
       }
 
       state = AsyncValue.data(response.data!);
-
     } on DioException catch (e) {
       debugPrint('DioException: $e');
       final statusCode = e.response?.statusCode ?? 0;
-      final errorMessage = e.response?.data?['message'] ??
+      final errorMessage =
+          e.response?.data?['message'] ??
           e.response?.data?['error'] ??
           e.message ??
           'Unknown API error';
@@ -96,7 +97,11 @@ class Customer extends _$Customer {
     }
   }
 
-  Future<void> loginCustomer(String email, String password) async {
+  Future<void> loginCustomer(
+    String email,
+    String password, {
+    bool firstLogin = false,
+  }) async {
     debugPrint('Logging in customer: $email');
 
     state = const AsyncValue.loading();
@@ -155,6 +160,15 @@ class Customer extends _$Customer {
           .setBearerAuth('Refresh', tokens.refreshToken!.value!);
 
       await _saveTokens(tokens);
+
+      if (firstLogin) {
+        Future.microtask(() async {
+          final userService = ref.read(userPreferencesServiceProvider);
+          await userService.setUserRegistered(true);
+          await userService.saveUserName(data.customer!.displayName!);
+          await userService.saveUserEmail(data.customer!.email);
+        });
+      }
     } on DioException catch (e) {
       final statusCode = e.response?.statusCode ?? 0;
       final errorMessage =

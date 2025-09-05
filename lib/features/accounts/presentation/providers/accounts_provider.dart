@@ -110,7 +110,7 @@ class Accounts extends _$Accounts {
   }
 
   Future<void> fetchCustomerAccounts(String customerId, {loading = true}) async {
-    debugPrint('Fetching accounts for customer: $customerId');
+    debugPrint('Fetching accounts for customer: $customerId, loading: $loading');
 
     if (loading) {
       state = const AsyncValue.loading();

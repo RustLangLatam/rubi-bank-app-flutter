@@ -55,7 +55,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       try {
         await ref
             .read(customerProvider.notifier)
-            .loginCustomer(_emailController.text, _passwordController.text);
+            .loginCustomer(_emailController.text, _passwordController.text, firstLogin: true);
 
         final customer = ref.read(customerProvider).value;
         if (customer != null) {
