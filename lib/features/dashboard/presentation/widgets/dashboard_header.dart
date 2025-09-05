@@ -58,48 +58,71 @@ class _DashboardHeaderState extends State<DashboardHeader> {
     final Offset offset = renderBox.localToGlobal(Offset.zero);
 
     _overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: offset.dy + renderBox.size.height + 8,
-        right: MediaQuery.of(context).size.width - offset.dx - renderBox.size.width,
-        child: Material(
+      builder: (context) => GestureDetector(
+        // Este GestureDetector captura los clics fuera del menú
+        onTap: _hideMenu,
+        behavior: HitTestBehavior.translucent,
+        child: Container(
           color: Colors.transparent,
-          child: Container(
-            width: 150,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                width: 1,
+          child: Stack(
+            children: [
+              // Fondo semitransparente que cubre toda la pantalla
+              Positioned.fill(
+                child: Container(
+                  color: Colors.transparent,
+                ),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+              // El menú en sí
+              Positioned(
+                top: offset.dy + renderBox.size.height + 8,
+                right: MediaQuery.of(context).size.width - offset.dx - renderBox.size.width,
+                child: GestureDetector(
+                  // Este GestureDetector evita que los clics dentro del menú lo cierren
+                  onTap: () {},
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Container(
+                      width: 150,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          _MenuItem(
+                            icon: Icons.settings,
+                            text: 'Settings',
+                            onTap: () {
+                              _hideMenu();
+                              widget.onSettings?.call();
+                            },
+                          ),
+                          _MenuItem(
+                            icon: Icons.logout,
+                            text: 'Log Out',
+                            onTap: () {
+                              _hideMenu();
+                              widget.onLogout?.call();
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              ],
-            ),
-            child: Column(
-              children: [
-                _MenuItem(
-                  icon: Icons.settings,
-                  text: 'Settings',
-                  onTap: () {
-                    _hideMenu();
-                    widget.onSettings?.call();
-                  },
-                ),
-                _MenuItem(
-                  icon: Icons.logout,
-                  text: 'Log Out',
-                  onTap: () {
-                    _hideMenu();
-                    widget.onLogout?.call();
-                  },
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -115,12 +138,6 @@ class _DashboardHeaderState extends State<DashboardHeader> {
     if (mounted) {
       setState(() => _isMenuOpen = false);
     }
-  }
-
-  @override
-  void dispose() {
-    _hideMenu();
-    super.dispose();
   }
 
   @override

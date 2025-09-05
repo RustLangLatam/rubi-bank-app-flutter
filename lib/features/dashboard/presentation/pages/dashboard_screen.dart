@@ -80,8 +80,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   void _showLogoutConfirmation(BuildContext context) {
     ConfirmationModal.show(
       context: context,
-      onConfirm: () {
+      onConfirm: () async {
         ref.read(transactionsProvider.notifier).stopPolling();
+        await ref.read(customerProvider.notifier).logoutCustomer();
         Navigator.pushReplacementNamed(context, '/welcome-back');
       },
       title: 'Confirm Logout',
@@ -100,15 +101,24 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final accountsState = ref.watch(accountsProvider);
     final transactionsState = ref.watch(transactionsProvider);
 
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(gradient: AppTheme.appGradient(colorScheme)),
-        child: SafeArea(
-          child: accountsState.when(
-            loading: () => _buildLoadingScreen(theme),
-            error: (error, stackTrace) => _buildErrorScreen(error, theme),
-            data: (accounts) =>
-                _buildDashboardScreen(accounts, transactionsState, theme),
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) async {
+        if (didPop) return;
+        _showLogoutConfirmation(context);
+      },
+      child: Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: AppTheme.appGradient(colorScheme),
+          ),
+          child: SafeArea(
+            child: accountsState.when(
+              loading: () => _buildLoadingScreen(theme),
+              error: (error, stackTrace) => _buildErrorScreen(error, theme),
+              data: (accounts) =>
+                  _buildDashboardScreen(accounts, transactionsState, theme),
+            ),
           ),
         ),
       ),
@@ -200,12 +210,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             children: [
               if (primaryAccount != null) BalanceCard(account: primaryAccount),
               const SizedBox(height: 24),
-              ActionButtonsGroup(onSend: () {
-                Navigator.push(
-                  context,
+              ActionButtonsGroup(
+                onSend: () {
+                  Navigator.push(
+                    context,
                     CustomPageRoute.cupertinoModal(SendMoneyScreen()),
-                );
-              }),
+                  );
+                },
+              ),
               const SizedBox(height: 24),
 
               // Recent Activity section
@@ -246,7 +258,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 data: (transactions) {
                   final recentTransactions = transactions.take(3).toList();
                   return RecentActivityEnhanced(
-                      transactions: recentTransactions,
+                    transactions: recentTransactions,
                   );
                 },
               ),

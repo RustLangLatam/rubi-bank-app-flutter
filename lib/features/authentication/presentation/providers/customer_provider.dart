@@ -235,6 +235,9 @@ class Customer extends _$Customer {
 
   Future<void> logoutCustomer() async {
     try {
+      final customersApi = ref.read(customersApiProvider);
+      await customersApi.logoutCustomer();
+
       ref.read(rubiBankApiProvider).setBearerAuth('Authorization', '');
       ref.read(rubiBankApiProvider).setBearerAuth('Refresh', '');
 
