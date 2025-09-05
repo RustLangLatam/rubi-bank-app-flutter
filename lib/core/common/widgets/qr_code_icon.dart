@@ -41,13 +41,11 @@ class _QrCodeIconPainter extends CustomPainter {
     canvas.drawRect(const Rect.fromLTRB(9.75, 3.75, 12.75, 6.75), paint);
 
     // Top-right corner
-    canvas.drawRect(const Rect.fromLTRB(17.25, 3.75, 20.25, 6.75), paint);
+    canvas.drawRect(const Rect.fromLTRB(15.75, 3.75, 18.75, 6.75), paint);
 
     // Bottom-left corner
-    canvas.drawRect(const Rect.fromLTRB(3.75, 17.25, 6.75, 20.25), paint);
+    canvas.drawRect(const Rect.fromLTRB(3.75, 15.75, 6.75, 18.75), paint);
 
-    // Bottom-right corner
-    canvas.drawRect(const Rect.fromLTRB(17.25, 17.25, 20.25, 20.25), paint);
 
     // Middle patterns
     canvas.drawRect(const Rect.fromLTRB(9.75, 9.75, 12.75, 12.75), paint);

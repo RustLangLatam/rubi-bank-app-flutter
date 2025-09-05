@@ -77,157 +77,158 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
         decoration: BoxDecoration(gradient: AppTheme.appGradient(colorScheme)),
         child: SafeArea(
           child: KeyboardVisibilityBuilder(
-              builder: (context, isKeyboardVisible) {
-                return Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child:  Column(
-            children: [
-              // Header
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CustomBackButton(
-                      onPressed: widget.onBack ?? () => Navigator.pop(context),
-                      color: colorScheme.onBackground,
-                    ),
-                    Text('Send Money', style: textTheme.displayMedium),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const QrCodeIcon(),
-                      color: colorScheme.onBackground,
-                    ),
-                  ],
-
-              ),
-
-              const SizedBox(height: 24),
-
-              // Transfer Type Toggle
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: TransferTypeToggle(
-                  transferType: _transferType,
-                  onTypeChanged: (type) {
-                    setState(() {
-                      _transferType = type;
-                    });
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Amount Input
-              Expanded(
+            builder: (context, isKeyboardVisible) {
+              return Padding(
+                padding: const EdgeInsets.all(18.0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // Header
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '\$',
-                          style: GoogleFonts.inter(
-                            fontSize: 36,
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.shadow,
-                          ),
+                        CustomBackButton(
+                          onPressed:
+                              widget.onBack ?? () => Navigator.pop(context),
+                          color: colorScheme.onBackground,
                         ),
-                        const SizedBox(width: 8),
-                        Container(
-                          color: Colors.transparent,
-                          width: 200,
-                          child: TextField(
-                            controller: TextEditingController(text: _amount),
-                            keyboardType: TextInputType.number,
-                            textInputAction: TextInputAction.next,
-                            onChanged: _handleAmountChange,
-                            style: GoogleFonts.inter(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: colorScheme.onSurface,
-                            ),
-                            textAlign: TextAlign.center,
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                          ),
+                        Text('Send Money', style: textTheme.displayMedium),
+                        IconButton(
+                          onPressed: () {},
+                          icon: const QrCodeIcon(),
+                          color: colorScheme.onBackground,
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Available Balance: \$17,930.00',
-                      style: textTheme.titleMedium,
-                    ),
-                  ],
-                ),
-              ),
 
-              // Form based on transfer type
-              SizedBox(
-                child: _transferType == TransferType.rubi
-                    ? RubiTransferForm(
-                        recipient: _rubiRecipient,
-                        onRecipientChanged: (value) {
+                    const SizedBox(height: 24),
+
+                    // Transfer Type Toggle
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: TransferTypeToggle(
+                        transferType: _transferType,
+                        onTypeChanged: (type) {
                           setState(() {
-                            _rubiRecipient = value;
-                          });
-                        },
-                      )
-                    : ExternalTransferForm(
-                        beneficiaryName: _beneficiaryName,
-                        iban: _iban,
-                        swiftBic: _swiftBic,
-                        onBeneficiaryNameChanged: (value) {
-                          setState(() {
-                            _beneficiaryName = value;
-                          });
-                        },
-                        onIbanChanged: (value) {
-                          setState(() {
-                            _iban = value;
-                          });
-                        },
-                        onSwiftBicChanged: (value) {
-                          setState(() {
-                            _swiftBic = value;
+                            _transferType = type;
                           });
                         },
                       ),
-              ),
-              const SizedBox(height: 16),
+                    ),
 
-              // Note Input
-              SizedBox(
-                child: TextField(
-                  textInputAction: TextInputAction.done,
-                  decoration: InputDecoration(
-                    hintText: 'Add a note (optional)',
-                    hintStyle: textTheme.titleMedium,
-                  ),
+                    const SizedBox(height: 24),
+
+                    // Amount Input
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              Text(
+                                '\$',
+                                style: GoogleFonts.inter(
+                                  fontSize: 36,
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.shadow,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                color: Colors.transparent,
+                                width: 200,
+                                child: TextField(
+                                  controller: TextEditingController(
+                                    text: _amount,
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  textInputAction: TextInputAction.next,
+                                  onChanged: _handleAmountChange,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 48,
+                                    fontWeight: FontWeight.bold,
+                                    color: colorScheme.onSurface,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  decoration: const InputDecoration(
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Available Balance: \$17,930.00',
+                            style: textTheme.titleMedium,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Form based on transfer type
+                    SizedBox(
+                      child: _transferType == TransferType.rubi
+                          ? RubiTransferForm(
+                              recipient: _rubiRecipient,
+                              onRecipientChanged: (value) {
+                                setState(() {
+                                  _rubiRecipient = value;
+                                });
+                              },
+                            )
+                          : ExternalTransferForm(
+                              beneficiaryName: _beneficiaryName,
+                              iban: _iban,
+                              swiftBic: _swiftBic,
+                              onBeneficiaryNameChanged: (value) {
+                                setState(() {
+                                  _beneficiaryName = value;
+                                });
+                              },
+                              onIbanChanged: (value) {
+                                setState(() {
+                                  _iban = value;
+                                });
+                              },
+                              onSwiftBicChanged: (value) {
+                                setState(() {
+                                  _swiftBic = value;
+                                });
+                              },
+                            ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Note Input
+                    SizedBox(
+                      child: TextField(
+                        textInputAction: TextInputAction.done,
+                        decoration: InputDecoration(
+                          hintText: 'Add a note (optional)',
+                          hintStyle: textTheme.titleMedium,
+                        ),
+                      ),
+                    ),
+
+                    // Continue Button
+                    const SizedBox(height: 32),
+                    CustomButton.primary(
+                      text: 'Continue',
+                      onPressed: () {
+                        // Navigate to transfer confirmation screen
+                      },
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Continue Button
+                  ],
                 ),
-              ),
-
-              // Continue Button
-              const SizedBox(height: 32),
-              CustomButton.primary(
-                text: 'Continue',
-                onPressed: () {
-                  // Navigate to transfer confirmation screen
-                },
-              ),
-              const SizedBox(height: 32),
-
-              // Continue Button
-            ],
+              );
+            },
           ),
-                  );
-                }
-              ),
         ),
       ),
     );
